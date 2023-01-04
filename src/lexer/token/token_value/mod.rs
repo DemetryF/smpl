@@ -1,6 +1,10 @@
-use super::keyword::Keyword;
-use super::operator::Operator;
-use super::special::Special;
+use self::keyword::Keyword;
+use self::operator::Operator;
+use self::special::Special;
+
+pub mod keyword;
+pub mod operator;
+pub mod special;
 
 #[derive(Clone, Debug)]
 pub enum TokenValue {
