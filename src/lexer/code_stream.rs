@@ -1,15 +1,15 @@
-use super::token::pos::Pos;
+use super::token::token_pos::TokenPos;
 
 pub struct CodeStream {
-    pub code: String,
-    pub pos: Pos,
+    pub pos: TokenPos,
+    code: String,
 }
 
 impl CodeStream {
     pub fn new(code: String) -> Self {
         Self {
             code: code,
-            pos: Pos::empty(),
+            pos: TokenPos::empty(),
         }
     }
 
@@ -40,13 +40,7 @@ impl CodeStream {
     }
 
     pub fn accept(&mut self) -> char {
-        self.pos.column += 1;
-
-        if self.check("\n") {
-            self.pos.line += 1;
-            self.pos.column = 1;
-            self.pos.line_begin = self.pos.index + 1;
-        }
+        self.pos.change(self.current());
 
         let ch: char = self.current();
         self.pos.index += 1;
@@ -58,7 +52,7 @@ impl CodeStream {
         self.pos.index >= self.code.len()
     }
 
-    pub fn get_pos(&self) -> Pos {
+    pub fn get_pos(&self) -> TokenPos {
         self.pos
     }
 }
