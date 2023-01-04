@@ -1,0 +1,30 @@
+stmt = if | while | function | declare | expr ';';
+
+(* main statements *)
+
+if       = 'if' '(' expr ')' block [ 'else' block ];
+while    = 'while' '(' expr ')' block;
+declare  = 'define' id [ '=' expr ] ';';
+function = 'function' id '(' fargs ')' block;
+
+return   = 'return' expr ';';
+
+(* blocks *)
+
+block  = '{' { bstmt } '}';
+bstmt  = if | while | declare | expr ';';
+fblock = '{' { fstmt } '}';
+fstmt  = bstmt | return;
+
+(* expressions *)
+
+fact = num | id | brackets | unary | call;
+
+brackets = '(' expr ')';
+unary    = ( '!' | '+' | '-' ) fact;
+call     = id '(' cargs ')';
+
+(* arguments *)
+
+fargs = [ id { ',' id } ];
+cargs = [ expr { ',' expr }];
