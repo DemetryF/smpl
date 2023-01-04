@@ -1,9 +1,6 @@
 use self::{pos::Pos, token_value::TokenValue};
 
-pub mod keyword;
-pub mod operator;
 pub mod pos;
-pub mod special;
 pub mod token_value;
 
 #[derive(Debug)]
