@@ -1,7 +1,7 @@
 use self::{
     code_stream::CodeStream,
     comments::Comments,
-    token::{pos::Pos, Token},
+    token::{token_pos::TokenPos, Token},
     token_collector::{
         number_collector::NumberCollector, operator_collector::OperatorCollector,
         special_collector::SpecialCollector, word_collector::WordCollector, TokenCollector,
@@ -36,7 +36,7 @@ impl Lexer {
     pub fn next_token(&mut self) -> Option<Result<Token, UnexpectedToken>> {
         Comments::skip(&mut self.code);
 
-        let pos: Pos = self.code.get_pos();
+        let pos = self.code.get_pos();
 
         if self.code.is_eof() {
             return None;

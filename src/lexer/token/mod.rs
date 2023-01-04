@@ -1,16 +1,16 @@
-use self::{pos::Pos, token_value::TokenValue};
+use self::{token_pos::TokenPos, token_value::TokenValue};
 
-pub mod pos;
+pub mod token_pos;
 pub mod token_value;
 
 #[derive(Debug)]
 pub struct Token {
     pub value: TokenValue,
-    pub pos: Pos,
+    pub pos: TokenPos,
 }
 
 impl Token {
-    pub fn new(value: TokenValue, pos: Pos) -> Self {
+    pub fn new(value: TokenValue, pos: TokenPos) -> Self {
         Self { value, pos }
     }
 }
