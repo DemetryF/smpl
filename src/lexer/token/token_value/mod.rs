@@ -15,4 +15,6 @@ pub enum TokenValue {
     Id(String),
     Bool(bool),
     Number(String),
+
+    EOF,
 }

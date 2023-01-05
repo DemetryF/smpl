@@ -1,7 +1,7 @@
 use self::{
     code_stream::CodeStream,
     comments::CommentsHandler,
-    token::{token_pos::TokenPos, Token},
+    token::{token_pos::TokenPos, token_value::TokenValue, Token},
     token_collector::{
         number_collector::NumberCollector, operator_collector::OperatorCollector,
         special_collector::SpecialCollector, word_collector::WordCollector, TokenCollector,
@@ -33,28 +33,28 @@ impl Lexer {
         }
     }
 
-    pub fn next_token(&mut self) -> Option<Result<Token, UnexpectedToken>> {
+    pub fn next_token(&mut self) -> Result<Token, UnexpectedToken> {
         CommentsHandler::skip(&mut self.code);
 
         let pos = self.code.get_pos();
 
         if self.code.is_eof() {
-            return None;
+            return Ok(Token::new(TokenValue::EOF, pos));
         }
 
         for collector in self.collectors.iter_mut() {
             if let Some(token_value) = collector.try_next(&mut self.code) {
-                return Some(Ok(Token::new(token_value, pos)));
+                return Ok(Token::new(token_value, pos));
             }
         }
 
         self.fail(pos)
     }
 
-    fn fail(&mut self, pos: TokenPos) -> Option<Result<Token, UnexpectedToken>> {
-        Some(Err(UnexpectedToken {
+    fn fail(&mut self, pos: TokenPos) -> Result<Token, UnexpectedToken> {
+        Err(UnexpectedToken {
             value: self.code.accept().to_string(),
             pos,
-        }))
+        })
     }
 }

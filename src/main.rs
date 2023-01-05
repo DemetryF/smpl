@@ -2,6 +2,8 @@ use std::fs;
 
 use lexer::Lexer;
 
+use crate::lexer::token::token_value::TokenValue;
+
 mod lexer;
 
 fn main() {
@@ -9,9 +11,17 @@ fn main() {
         println!("{}", code);
         let mut l: Lexer = Lexer::new(code);
 
-        while let Some(token) = l.next_token() {
+        loop {
+            let token = l.next_token();
+
             match token {
-                Ok(t) => println!("{:?}", t),
+                Ok(t) => {
+                    println!("{:?}", t);
+                    match t.value {
+                        TokenValue::EOF => break,
+                        _ => (),
+                    }
+                }
                 Err(err) => println!("{:?}", err),
             }
         }
