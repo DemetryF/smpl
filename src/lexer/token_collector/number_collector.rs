@@ -33,6 +33,6 @@ impl TokenCollector for NumberCollector {
             value += Self::lex_number_literal(code).as_mut();
         }
 
-        return Some(TokenValue::Number(value));
+        Some(TokenValue::Number(value))
     }
 }
