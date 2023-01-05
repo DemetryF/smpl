@@ -15,6 +15,6 @@ impl TokenCollector for SpecialCollector {
             return Some(TokenValue::Special(special));
         }
 
-        return None;
+        None
     }
 }

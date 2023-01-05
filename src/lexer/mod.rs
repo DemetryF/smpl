@@ -1,7 +1,7 @@
 use self::{
     code_stream::CodeStream,
     comments::CommentsHandler,
-    token::Token,
+    token::{token_pos::TokenPos, Token},
     token_collector::{
         number_collector::NumberCollector, operator_collector::OperatorCollector,
         special_collector::SpecialCollector, word_collector::WordCollector, TokenCollector,
@@ -48,6 +48,10 @@ impl Lexer {
             }
         }
 
+        self.fail(pos)
+    }
+
+    fn fail(&mut self, pos: TokenPos) -> Option<Result<Token, UnexpectedToken>> {
         Some(Err(UnexpectedToken {
             value: self.code.accept().to_string(),
             pos,

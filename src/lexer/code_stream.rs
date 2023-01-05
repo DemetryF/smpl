@@ -30,7 +30,7 @@ impl CodeStream {
             return false;
         }
 
-        return &self.code[start..end] == str;
+        &self.code[start..end] == str
     }
 
     pub fn skip(&mut self, count: usize) {
