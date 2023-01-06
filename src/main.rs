@@ -12,14 +12,11 @@ fn main() {
         let mut l: Lexer = Lexer::new(code);
 
         loop {
-            let token = l.next_token();
-
-            match token {
+            match l.next_token() {
                 Ok(t) => {
                     println!("{:?}", t);
-                    match t.value {
-                        TokenValue::EOF => break,
-                        _ => (),
+                    if let TokenValue::Eof = t.value {
+                        break;
                     }
                 }
                 Err(err) => println!("{:?}", err),

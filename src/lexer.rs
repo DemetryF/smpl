@@ -1,6 +1,6 @@
 use self::{
     code_stream::CodeStream,
-    comments::CommentsHandler,
+    comments_handler::CommentsHandler,
     token::{token_pos::TokenPos, token_value::TokenValue, Token},
     token_collector::{
         number_collector::NumberCollector, operator_collector::OperatorCollector,
@@ -10,7 +10,8 @@ use self::{
 };
 
 mod code_stream;
-mod comments;
+mod comment_type;
+mod comments_handler;
 pub mod token;
 mod token_collector;
 pub mod unexpected_token;
@@ -39,7 +40,7 @@ impl Lexer {
         let pos = self.code.get_pos();
 
         if self.code.is_eof() {
-            return Ok(Token::new(TokenValue::EOF, pos));
+            return Ok(Token::new(TokenValue::Eof, pos));
         }
 
         for collector in self.collectors.iter_mut() {

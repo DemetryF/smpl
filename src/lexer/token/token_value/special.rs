@@ -2,7 +2,7 @@ use paste::paste;
 
 macro_rules! specials {
     [ $($Case:ident = $Value:literal,)* ] => {
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
         pub enum Special {
             $($Case,)*
         }
