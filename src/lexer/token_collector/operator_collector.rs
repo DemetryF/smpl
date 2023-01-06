@@ -1,6 +1,6 @@
 use crate::lexer::{
     code_stream::CodeStream,
-    token::token_value::{operator::Operator, TokenValue},
+    token::{operator::Operator, token_value::TokenValue},
     token_collector::TokenCollector,
 };
 

@@ -1,20 +1,26 @@
-use self::keyword::Keyword;
-use self::operator::Operator;
-use self::special::Special;
+use super::{literal::Literal, operator::Operator};
 
-pub mod keyword;
-pub mod operator;
-pub mod special;
-
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TokenValue {
-    Keyword(Keyword),
-    Special(Special),
     Operator(Operator),
-
+    Literal(Literal),
     Id(String),
-    Bool(bool),
-    Number(String),
 
     Eof,
+
+    // Keywords
+    Define,
+    Else,
+    Function,
+    If,
+    Return,
+    While,
+
+    // special chars
+    Comma,
+    Semicolon,
+    OpeningParen,
+    ClosingParen,
+    OpeningBrace,
+    ClosingBrace,
 }

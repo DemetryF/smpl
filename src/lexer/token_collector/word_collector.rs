@@ -1,6 +1,6 @@
 use crate::lexer::{
     code_stream::CodeStream,
-    token::token_value::{keyword::Keyword, TokenValue},
+    token::{literal::Literal, token_value::TokenValue},
     token_collector::TokenCollector,
 };
 
@@ -30,13 +30,17 @@ impl TokenCollector for WordCollector {
 
         let value: String = Self::lex_word_literal(code);
 
-        if let Ok(keyword) = Keyword::try_from(value.as_str()) {
-            return Some(TokenValue::Keyword(keyword));
-        }
-
         Some(match value.as_str() {
-            "true" => TokenValue::Bool(true),
-            "false" => TokenValue::Bool(false),
+            "define" => TokenValue::Define,
+            "else" => TokenValue::Else,
+            "function" => TokenValue::Function,
+            "if" => TokenValue::If,
+            "return" => TokenValue::Return,
+            "while" => TokenValue::While,
+
+            "true" => TokenValue::Literal(Literal::Bool(true)),
+            "false" => TokenValue::Literal(Literal::Bool(false)),
+
             _ => TokenValue::Id(value),
         })
     }
