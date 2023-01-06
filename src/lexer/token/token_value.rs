@@ -6,7 +6,7 @@ pub mod keyword;
 pub mod operator;
 pub mod special;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum TokenValue {
     Keyword(Keyword),
     Special(Special),
@@ -16,5 +16,5 @@ pub enum TokenValue {
     Bool(bool),
     Number(String),
 
-    EOF,
+    Eof,
 }

@@ -3,7 +3,7 @@ use paste::paste;
 macro_rules! operators {
     [ $($Case:ident = $CaseValue:literal,)* ] => {
         #[allow(dead_code)]
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
         pub enum Operator {
             $($Case,)*
         }

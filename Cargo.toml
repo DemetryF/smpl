@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 paste = "*"
+derive_more = "0.99.17"

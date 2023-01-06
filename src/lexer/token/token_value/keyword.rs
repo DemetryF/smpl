@@ -2,7 +2,7 @@ use paste::paste;
 
 macro_rules! keywords {
     [ $($Case:ident,)* ] => {
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
         pub enum Keyword {
             $($Case,)*
         }

@@ -8,7 +8,7 @@ pub struct CodeStream {
 impl CodeStream {
     pub fn new(code: String) -> Self {
         Self {
-            code: code,
+            code,
             pos: TokenPos::empty(),
         }
     }
