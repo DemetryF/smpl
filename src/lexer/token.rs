@@ -2,6 +2,8 @@ use derive_more::Constructor;
 
 use self::{token_pos::TokenPos, token_value::TokenValue};
 
+pub mod literal;
+pub mod operator;
 pub mod token_pos;
 pub mod token_value;
 

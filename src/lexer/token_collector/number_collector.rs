@@ -1,5 +1,7 @@
 use crate::lexer::{
-    code_stream::CodeStream, token::token_value::TokenValue, token_collector::TokenCollector,
+    code_stream::CodeStream,
+    token::{literal::Literal, token_value::TokenValue},
+    token_collector::TokenCollector,
 };
 
 pub struct NumberCollector;
@@ -26,13 +28,18 @@ impl TokenCollector for NumberCollector {
             return None;
         }
 
-        let mut value: String = Self::lex_number_literal(code);
+        let mut source = Self::lex_number_literal(code);
 
         if code.check(".") {
-            value += code.accept().to_string().as_mut();
-            value += Self::lex_number_literal(code).as_mut();
+            source += code.accept().to_string().as_mut();
+            source += Self::lex_number_literal(code).as_mut();
         }
 
-        Some(TokenValue::Number(value))
+        let number = match source.parse::<f64>() {
+            Ok(value) => value,
+            Err(_) => panic!("pezda"),
+        };
+
+        Some(TokenValue::Literal(Literal::Number(number)))
     }
 }
