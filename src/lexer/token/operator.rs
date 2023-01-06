@@ -8,12 +8,12 @@ macro_rules! operators {
             $($Case,)*
         }
 
-        impl Into<&str> for Operator {
-            fn into(self) -> &'static str {
+        impl From <Operator> for &str {
+            fn from(op: Operator) -> Self {
                 paste! {
-                    match self {
+                    match op {
                         $(
-                            Self::$Case => $CaseValue,
+                            Operator::$Case => $CaseValue,
                         )*
                     }
                 }
