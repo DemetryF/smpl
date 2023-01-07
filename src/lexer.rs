@@ -1,7 +1,8 @@
 use self::{
     code_stream::CodeStream,
     comments_handler::CommentsHandler,
-    token::{token_pos::TokenPos, token_value::TokenValue, Token},
+    pos::Pos,
+    token::{token_value::TokenValue, Token},
     token_collector::{
         number_collector::NumberCollector, operator_collector::OperatorCollector,
         special_collector::SpecialCollector, word_collector::WordCollector, TokenCollector,
@@ -12,6 +13,7 @@ use self::{
 mod code_stream;
 mod comment_type;
 mod comments_handler;
+pub mod pos;
 pub mod token;
 mod token_collector;
 pub mod unexpected_token;
@@ -52,7 +54,7 @@ impl Lexer {
         self.fail(pos)
     }
 
-    fn fail(&mut self, pos: TokenPos) -> Result<Token, UnexpectedToken> {
+    fn fail(&mut self, pos: Pos) -> Result<Token, UnexpectedToken> {
         Err(UnexpectedToken {
             value: self.code.accept().to_string(),
             pos,

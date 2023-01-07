@@ -1,7 +1,7 @@
-use super::token::token_pos::TokenPos;
+use super::pos::Pos;
 
 pub struct CodeStream {
-    pub pos: TokenPos,
+    pub pos: Pos,
     code: String,
 }
 
@@ -9,7 +9,7 @@ impl CodeStream {
     pub fn new(code: String) -> Self {
         Self {
             code,
-            pos: TokenPos::empty(),
+            pos: Pos::empty(),
         }
     }
 
@@ -52,7 +52,7 @@ impl CodeStream {
         self.pos.index >= self.code.len()
     }
 
-    pub fn get_pos(&self) -> TokenPos {
+    pub fn get_pos(&self) -> Pos {
         self.pos
     }
 }

@@ -1,7 +1,7 @@
-use super::token::token_pos::TokenPos;
+use super::pos::Pos;
 
 #[derive(Debug)]
 pub struct UnexpectedToken {
     pub value: String,
-    pub pos: TokenPos,
+    pub pos: Pos,
 }
