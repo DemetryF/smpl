@@ -37,9 +37,9 @@ impl TokenCollector for NumberCollector {
 
         let number = match source.parse::<f64>() {
             Ok(value) => value,
-            Err(_) => panic!("pezda"),
+            Err(_) => panic!("panic at NumberCollector"),
         };
 
-        Some(TokenValue::Literal(Literal::Number(number)))
+        Some(TokenValue::Literal(Literal::Number(source, number)))
     }
 }
