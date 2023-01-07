@@ -1,12 +1,12 @@
 #[derive(Clone, Copy, Debug)]
-pub struct TokenPos {
+pub struct Pos {
     pub line: usize,
     pub column: usize,
     pub line_begin: usize,
     pub index: usize,
 }
 
-impl TokenPos {
+impl Pos {
     pub fn empty() -> Self {
         Self {
             line: 1,
