@@ -1,10 +1,10 @@
 use super::{literal::Literal, operator::Operator};
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum TokenValue {
+pub enum TokenValue<'code> {
     Operator(Operator),
-    Literal(Literal),
-    Id(String),
+    Literal(Literal<'code>),
+    Id(&'code str),
 
     Eof,
 

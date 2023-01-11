@@ -8,7 +8,7 @@ pub mod operator;
 pub mod token_value;
 
 #[derive(Debug, Constructor)]
-pub struct Token {
-    pub value: TokenValue,
+pub struct Token<'code> {
+    pub value: TokenValue<'code>,
     pub pos: Pos,
 }

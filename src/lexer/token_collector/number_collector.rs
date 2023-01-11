@@ -11,30 +11,33 @@ impl NumberCollector {
         code.current().is_ascii_digit()
     }
 
-    fn lex_number_literal(code: &mut CodeStream) -> String {
-        let mut str = String::new();
+    fn lex_number_literal(code: &mut CodeStream) -> usize {
+        let mut len = 0;
 
         while !code.is_eof() && Self::is_digit(code) {
-            str.push(code.accept());
+            code.accept();
+            len += 1;
         }
 
-        str
+        len
     }
 }
 
 impl TokenCollector for NumberCollector {
-    fn try_next(&mut self, code: &mut CodeStream) -> Option<TokenValue> {
+    fn try_next<'code>(&mut self, code: &mut CodeStream<'code>) -> Option<TokenValue<'code>> {
         if !(Self::is_digit(code) || code.check(".")) {
             return None;
         }
 
-        let mut source = Self::lex_number_literal(code);
+        let start = code.pos.index;
+        let mut len = Self::lex_number_literal(code);
 
         if code.check(".") {
-            source.push(code.accept());
-            source.push_str(Self::lex_number_literal(code).as_mut());
+            code.accept();
+            len += 1 + Self::lex_number_literal(code);
         }
 
+        let source = code.get_code_slice(start, len);
         let number = source.parse().expect("NumberCollector");
 
         Some(TokenValue::Literal(Literal::Number(source, number)))

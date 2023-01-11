@@ -18,13 +18,13 @@ pub mod token;
 mod token_collector;
 pub mod unexpected_token;
 
-pub struct Lexer {
+pub struct Lexer<'code> {
     pub collectors: Vec<Box<dyn TokenCollector>>,
-    pub code: CodeStream,
+    pub code: CodeStream<'code>,
 }
 
-impl Lexer {
-    pub fn new(code: String) -> Self {
+impl<'code> Lexer<'code> {
+    pub fn new(code: &'code str) -> Self {
         Self {
             code: CodeStream::new(code),
             collectors: vec![
