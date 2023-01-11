@@ -14,17 +14,15 @@ impl CodeStream {
     }
 
     pub fn current(&self) -> char {
-        let ch: Option<char> = self.code.chars().nth(self.pos.index);
-
-        match ch {
-            None => panic!("panic at CodeStream::current"),
-            Some(ch) => ch,
-        }
+        self.code
+            .chars()
+            .nth(self.pos.index)
+            .expect("CodeStream::current")
     }
 
     pub fn check(&self, str: &str) -> bool {
-        let start: usize = self.pos.index;
-        let end: usize = self.pos.index + str.len();
+        let start = self.pos.index;
+        let end = start + str.len();
 
         if end > self.code.len() {
             return false;
@@ -40,10 +38,9 @@ impl CodeStream {
     }
 
     pub fn accept(&mut self) -> char {
-        self.pos.change(self.current());
+        let ch = self.current();
 
-        let ch: char = self.current();
-        self.pos.index += 1;
+        self.pos.change(ch);
 
         ch
     }

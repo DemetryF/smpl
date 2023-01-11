@@ -21,6 +21,8 @@ impl Pos {
             '\n' => self.new_line(),
             _ => self.column += 1,
         }
+
+        self.index += 1;
     }
 
     pub fn new_line(&mut self) {

@@ -2,10 +2,10 @@ stmt = if | while | function | declare | expr ';';
 
 (* main statements *)
 
-if       = 'if' '(' expr ')' block [ 'else' block ];
-while    = 'while' '(' expr ')' block;
 declare  = 'define' id [ '=' expr ] ';';
 function = 'function' id '(' fargs ')' block;
+if       = 'if' '(' expr ')' block [ 'else' block ];
+while    = 'while' '(' expr ')' block;
 
 return   = 'return' expr ';';
 
