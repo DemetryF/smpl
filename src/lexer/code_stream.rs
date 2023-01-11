@@ -1,12 +1,12 @@
 use super::pos::Pos;
 
-pub struct CodeStream {
+pub struct CodeStream<'code> {
     pub pos: Pos,
-    code: String,
+    code: &'code str,
 }
 
-impl CodeStream {
-    pub fn new(code: String) -> Self {
+impl<'code> CodeStream<'code> {
+    pub fn new(code: &'code str) -> Self {
         Self {
             code,
             pos: Pos::empty(),
@@ -14,9 +14,9 @@ impl CodeStream {
     }
 
     pub fn current(&self) -> char {
-        self.code
+        self.code[self.pos.index..]
             .chars()
-            .nth(self.pos.index)
+            .next()
             .expect("CodeStream::current")
     }
 
@@ -28,7 +28,11 @@ impl CodeStream {
             return false;
         }
 
-        &self.code[start..end] == str
+        self.get_code_slice(start, str.len()) == str
+    }
+
+    pub fn get_code_slice(&self, start: usize, len: usize) -> &'code str {
+        &self.code[start..start + len]
     }
 
     pub fn skip(&mut self, count: usize) {
@@ -39,7 +43,6 @@ impl CodeStream {
 
     pub fn accept(&mut self) -> char {
         let ch = self.current();
-
         self.pos.change(ch);
 
         ch

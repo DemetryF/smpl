@@ -9,7 +9,7 @@ mod lexer;
 fn main() {
     if let Ok(code) = fs::read_to_string("test.smpl") {
         println!("{}", code);
-        let mut l: Lexer = Lexer::new(code);
+        let mut l: Lexer = Lexer::new(&code);
 
         loop {
             match l.next_token() {
