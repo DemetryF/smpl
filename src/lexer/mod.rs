@@ -11,7 +11,6 @@ use self::{
 };
 
 mod code_stream;
-mod comment_type;
 mod comments_handler;
 pub mod pos;
 pub mod token;
