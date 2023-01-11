@@ -12,10 +12,10 @@ impl NumberCollector {
     }
 
     fn lex_number_literal(code: &mut CodeStream) -> String {
-        let mut str: String = "".into();
+        let mut str = String::new();
 
         while !code.is_eof() && Self::is_digit(code) {
-            str += code.accept().to_string().as_mut()
+            str.push(code.accept());
         }
 
         str
@@ -24,21 +24,18 @@ impl NumberCollector {
 
 impl TokenCollector for NumberCollector {
     fn try_next(&mut self, code: &mut CodeStream) -> Option<TokenValue> {
-        if !Self::is_digit(code) && !code.check(".") {
+        if !(Self::is_digit(code) || code.check(".")) {
             return None;
         }
 
         let mut source = Self::lex_number_literal(code);
 
         if code.check(".") {
-            source += code.accept().to_string().as_mut();
-            source += Self::lex_number_literal(code).as_mut();
+            source.push(code.accept());
+            source.push_str(Self::lex_number_literal(code).as_mut());
         }
 
-        let number = match source.parse::<f64>() {
-            Ok(value) => value,
-            Err(_) => panic!("panic at NumberCollector"),
-        };
+        let number = source.parse().expect("NumberCollector");
 
         Some(TokenValue::Literal(Literal::Number(source, number)))
     }

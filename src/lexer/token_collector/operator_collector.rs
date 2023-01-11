@@ -9,7 +9,7 @@ pub struct OperatorCollector;
 impl TokenCollector for OperatorCollector {
     fn try_next(&mut self, code: &mut CodeStream) -> Option<TokenValue> {
         for op in Operator::all() {
-            let value: &str = op.into();
+            let value = op.into();
 
             if code.check(value) {
                 code.skip(value.len());

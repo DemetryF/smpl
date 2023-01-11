@@ -8,14 +8,14 @@ pub struct WordCollector;
 
 impl WordCollector {
     fn is_word_char(code: &CodeStream) -> bool {
-        code.current().is_alphabetic() || code.current().is_ascii_digit()
+        code.current().is_ascii_alphanumeric()
     }
 
     fn lex_word_literal(code: &mut CodeStream) -> String {
-        let mut str: String = code.accept().to_string();
+        let mut str = code.accept().to_string();
 
         while !code.is_eof() && Self::is_word_char(code) {
-            str += code.accept().to_string().as_mut();
+            str.push(code.accept());
         }
 
         str
@@ -28,7 +28,7 @@ impl TokenCollector for WordCollector {
             return None;
         }
 
-        let value: String = Self::lex_word_literal(code);
+        let value = Self::lex_word_literal(code);
 
         Some(match value.as_str() {
             "define" => TokenValue::Define,
