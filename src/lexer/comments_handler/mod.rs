@@ -1,4 +1,8 @@
-use super::{code_stream::CodeStream, comment_type::CommentType};
+use self::comment_type::CommentType;
+
+use super::code_stream::CodeStream;
+
+mod comment_type;
 
 const COMMENTS: [CommentType; 2] = [
     CommentType {
