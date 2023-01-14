@@ -8,6 +8,7 @@ if       = 'if' '(' expr ')' block [ 'else' block ];
 while    = 'while' '(' expr ')' block;
 
 return   = 'return' expr ';';
+expr     = assignment;
 
 (* blocks *)
 
@@ -18,10 +19,52 @@ fstmt  = bstmt | return;
 
 (* expressions *)
 
-fact = num | id | brackets | unary | call;
+assignment = 
+      id '+=' or
+    | id '-=' or
+    | id '*=' or
+    | id '/=' or
+    | or;
+
+or  = or '|' and
+    | and;
+
+and = and '&' eq
+    | eq;
+
+eq  = eq '!=' comp
+    | eq '==' comp
+    | comp;
+
+comp =
+      comp '>=' add
+    | comp '>'  add
+    | comp '<=' add
+    | comp '<'  add
+    | add;
+
+add = add '+' mul
+    | add '-' mul
+    | mul;
+
+mul = mul '*'  exp
+    | mul '/'  exp
+    | mul '%'  exp
+    | mul '\\' exp
+    | exp;
+
+exp = unary '^' exp
+    | unary;
+
+unary = 
+      '!' fact
+    | '+' fact
+    | '-' fact
+    | fact;
+
+fact = num | id | brackets | call;
 
 brackets = '(' expr ')';
-unary    = ( '!' | '+' | '-' ) fact;
 call     = id '(' cargs ')';
 
 (* arguments *)
