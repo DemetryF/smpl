@@ -35,7 +35,7 @@ impl<'code> Lexer<'code> {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token, UnexpectedToken> {
+    pub fn next_token(&mut self) -> Result<Token<'code>, UnexpectedToken> {
         CommentsHandler::skip(&mut self.code);
 
         let pos = self.code.get_pos();
@@ -53,7 +53,7 @@ impl<'code> Lexer<'code> {
         self.fail(pos)
     }
 
-    fn fail(&mut self, pos: Pos) -> Result<Token, UnexpectedToken> {
+    fn fail(&mut self, pos: Pos) -> Result<Token<'code>, UnexpectedToken> {
         Err(UnexpectedToken {
             value: self.code.accept().to_string(),
             pos,
