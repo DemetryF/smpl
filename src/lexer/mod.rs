@@ -50,13 +50,13 @@ impl<'code> Lexer<'code> {
             }
         }
 
-        self.fail(pos)
+        Err(self.unexpected_token(pos))
     }
 
-    fn fail(&mut self, pos: Pos) -> Result<Token<'code>, UnexpectedToken> {
-        Err(UnexpectedToken {
+    fn unexpected_token(&mut self, pos: Pos) -> UnexpectedToken {
+        UnexpectedToken {
             value: self.code.accept().to_string(),
             pos,
-        })
+        }
     }
 }
