@@ -11,6 +11,6 @@ fn main() {
 
         let mut p = Parser::new(&code);
 
-        p.statement();
+        println!("{:?}", p.parse());
     }
 }
