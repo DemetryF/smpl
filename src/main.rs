@@ -1,11 +1,6 @@
 use std::fs;
 
-use lexer::Lexer;
-
-use crate::{
-    lexer::token::token_value::TokenValue,
-    parser::{token_stream::TokenStream, Parser},
-};
+use crate::parser::Parser;
 
 mod lexer;
 mod parser;

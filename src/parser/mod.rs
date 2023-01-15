@@ -1,4 +1,4 @@
-use crate::lexer::token::{self, operator::Operator, token_value::TokenValue};
+use crate::lexer::token::{operator::Operator, token_value::TokenValue};
 
 use self::{
     ast::{Atom, Block, Expr, Statement},
@@ -197,6 +197,7 @@ impl<'code> Parser<'code> {
     fn expr_bp(&mut self, bp: u8) -> Expr<'code> {
         let mut lhs = match self.token_stream.skip().value {
             TokenValue::Literal(literal) => Expr::Atom(Atom::Literal(literal)),
+
             TokenValue::Id(id) => {
                 if self.token_stream.check(&TokenValue::OpeningParen) {
                     self.token_stream.skip();
@@ -218,7 +219,11 @@ impl<'code> Parser<'code> {
                 }
             }
 
-            TokenValue::OpeningParen => self.parenthesis(),
+            TokenValue::OpeningParen => {
+                let expr = self.expr();
+                self.token_stream.accept(&TokenValue::ClosingParen);
+                expr
+            }
 
             TokenValue::Operator(op) => {
                 let ((), r_bp) = PowerBinding::prefix(op);
@@ -265,7 +270,7 @@ impl<'code> Parser<'code> {
     }
 
     fn parenthesis(&mut self) -> Expr<'code> {
-        // self.token_stream.accept(&TokenValue::OpeningParen);
+        self.token_stream.accept(&TokenValue::OpeningParen);
         let expr = self.expr_bp(0);
         self.token_stream.accept(&TokenValue::ClosingParen);
 

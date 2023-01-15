@@ -1,4 +1,4 @@
-use crate::lexer::token::{operator::Operator, token_value::Literal, Token};
+use crate::lexer::token::{operator::Operator, token_value::Literal};
 
 #[derive(Debug)]
 pub enum Statement<'code> {
