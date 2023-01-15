@@ -1,6 +1,6 @@
 use crate::lexer::{
     code_stream::CodeStream,
-    token::{literal::Literal, token_value::TokenValue},
+    token::token_value::{Literal, TokenValue},
     token_collector::TokenCollector,
 };
 
@@ -40,6 +40,6 @@ impl TokenCollector for NumberCollector {
         let source = code.get_code_slice(start, len);
         let number = source.parse().expect("NumberCollector");
 
-        Some(TokenValue::Literal(Literal::Number(source, number)))
+        Some(TokenValue::Literal(Literal::Number(number)))
     }
 }

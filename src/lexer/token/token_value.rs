@@ -1,9 +1,9 @@
-use super::{literal::Literal, operator::Operator};
+use super::operator::Operator;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum TokenValue<'code> {
     Operator(Operator),
-    Literal(Literal<'code>),
+    Literal(Literal),
     Id(&'code str),
 
     Eof,
@@ -23,4 +23,10 @@ pub enum TokenValue<'code> {
     ClosingParen,
     OpeningBrace,
     ClosingBrace,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Literal {
+    Number(f64),
+    Bool(bool),
 }
