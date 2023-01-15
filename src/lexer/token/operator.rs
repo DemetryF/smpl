@@ -8,7 +8,7 @@ macro_rules! operators {
             $($Case,)*
         }
 
-        impl From <Operator> for &str {
+        impl From<Operator> for &str {
             fn from(op: Operator) -> Self {
                 paste! {
                     match op {
