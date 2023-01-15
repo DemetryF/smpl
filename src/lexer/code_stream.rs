@@ -22,9 +22,8 @@ impl<'code> CodeStream<'code> {
 
     pub fn check(&self, str: &str) -> bool {
         let start = self.pos.index;
-        let end = start + str.len();
 
-        if end > self.code.len() {
+        if start + str.len() > self.code.len() {
             return false;
         }
 
