@@ -1,6 +1,5 @@
 use crate::{
     lexer::token::{
-        self,
         operator::Operator,
         token_value::{Literal, TokenValue},
     },
@@ -52,6 +51,7 @@ impl ExprCollector {
             TokenValue::Literal(literal) => Self::literal(token_stream, literal),
             TokenValue::OpeningParen => ParserUtils::parenthesis(token_stream),
             TokenValue::Operator(op) => Self::unary(token_stream, op),
+
             TokenValue::Id(id) => {
                 if token_stream.following().value == TokenValue::OpeningParen {
                     Self::call(token_stream, id)

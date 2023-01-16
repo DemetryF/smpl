@@ -1,6 +1,10 @@
 use crate::{
     lexer::token::token_value::TokenValue,
-    parser::{ast::Statement, parser_utils::ParserUtils, token_stream::TokenStream},
+    parser::{
+        ast::{Block, Statement},
+        parser_utils::ParserUtils,
+        token_stream::TokenStream,
+    },
 };
 
 use super::block_collector::BlockCollector;
@@ -12,18 +16,21 @@ impl IfStatementCollector {
 
         let cond = ParserUtils::parenthesis(token_stream);
         let then_body = BlockCollector::collect(token_stream);
-
-        let else_body = if token_stream.check(&TokenValue::Else) {
-            token_stream.skip();
-            Some(BlockCollector::collect(token_stream))
-        } else {
-            None
-        };
+        let else_body = Self::else_body(token_stream);
 
         Statement::If {
             cond,
             then_body,
             else_body,
+        }
+    }
+
+    fn else_body<'code>(token_stream: &mut TokenStream<'code>) -> Option<Block<'code>> {
+        if token_stream.check(&TokenValue::Else) {
+            token_stream.skip();
+            Some(BlockCollector::collect(token_stream))
+        } else {
+            None
         }
     }
 }
