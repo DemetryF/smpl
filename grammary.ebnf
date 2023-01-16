@@ -62,10 +62,10 @@ unary =
     | '-' fact
     | fact;
 
-fact = num | id | brackets | call;
+fact = num | id | parenthesis | call;
 
-brackets = '(' expr ')';
-call     = id '(' cargs ')';
+parenthesis = '(' expr ')';
+call = id '(' cargs ')';
 
 (* arguments *)
 
