@@ -1,28 +1,45 @@
+use derive_more::Constructor;
+
 use crate::lexer::token::{operator::Operator, token_value::Literal};
 
 #[derive(Debug)]
 pub enum Statement<'code> {
     Expr(Expr<'code>),
-    Declare {
-        id: &'code str,
-        expr: Option<Expr<'code>>,
-    },
-    Function {
-        id: &'code str,
-        args: Vec<&'code str>,
-        body: Block<'code>,
-    },
-    If {
-        cond: Expr<'code>,
-        then_body: Block<'code>,
-        else_body: Option<Block<'code>>,
-    },
-    Return(Option<Expr<'code>>),
-    While {
-        cond: Expr<'code>,
-        body: Block<'code>,
-    },
+    Declare(DeclareStatement<'code>),
+    Function(FunctionStatement<'code>),
+    If(IfStatement<'code>),
+    Return(ReturnStatement<'code>),
+    While(WhileStatement<'code>),
 }
+
+#[derive(Debug, Constructor)]
+pub struct DeclareStatement<'code> {
+    pub id: &'code str,
+    pub expr: Option<Expr<'code>>,
+}
+
+#[derive(Debug, Constructor)]
+pub struct FunctionStatement<'code> {
+    pub id: &'code str,
+    pub args: Vec<&'code str>,
+    pub body: Block<'code>,
+}
+
+#[derive(Debug, Constructor)]
+pub struct IfStatement<'code> {
+    pub cond: Expr<'code>,
+    pub then_body: Block<'code>,
+    pub else_body: Option<Block<'code>>,
+}
+
+#[derive(Debug, Constructor)]
+pub struct WhileStatement<'code> {
+    pub cond: Expr<'code>,
+    pub body: Block<'code>,
+}
+
+#[derive(Debug, Constructor)]
+pub struct ReturnStatement<'code>(Option<Expr<'code>>);
 
 #[derive(Debug)]
 pub enum Expr<'code> {
@@ -48,5 +65,5 @@ pub enum Atom<'code> {
     Id(&'code str),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Constructor)]
 pub struct Block<'code>(pub Vec<Statement<'code>>);
