@@ -1,7 +1,10 @@
 use derive_more::Constructor;
 
 use crate::{
-    lexer::token::{operator::Operator, token_value::TokenValue},
+    lexer::token::{
+        operator::Operator,
+        token_value::{Id, TokenValue},
+    },
     parser::{parser_utils::ParserUtils, token_stream::TokenStream},
 };
 
@@ -9,7 +12,7 @@ use super::{expr::Expr, Collect};
 
 #[derive(Debug, Constructor)]
 pub struct DeclareStatement<'code> {
-    pub id: &'code str,
+    pub id: Id<'code>,
     pub expr: Option<Expr<'code>>,
 }
 

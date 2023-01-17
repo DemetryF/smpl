@@ -1,7 +1,7 @@
 use crate::{
     lexer::token::{
         operator::Operator,
-        token_value::{Literal, TokenValue},
+        token_value::{Id, Literal, TokenValue},
     },
     parser::{parser_utils::ParserUtils, power_bindings::PowerBinding, token_stream::TokenStream},
 };
@@ -11,7 +11,7 @@ use super::Collect;
 #[derive(Debug)]
 pub enum Expr<'code> {
     Binary {
-        left: Box<Self>,
+        left: Box<Expr<'code>>,
         op: Operator,
         right: Box<Expr<'code>>,
     },
@@ -20,7 +20,7 @@ pub enum Expr<'code> {
         expr: Box<Expr<'code>>,
     },
     Call {
-        id: &'code str,
+        id: Id<'code>,
         args: Vec<Expr<'code>>,
     },
     Atom(Atom<'code>),
@@ -29,7 +29,7 @@ pub enum Expr<'code> {
 #[derive(Debug)]
 pub enum Atom<'code> {
     Literal(Literal),
-    Id(&'code str),
+    Id(Id<'code>),
 }
 
 impl<'code> Collect<'code> for Expr<'code> {
@@ -105,7 +105,7 @@ impl<'code> Expr<'code> {
         Self::Atom(Atom::Literal(literal))
     }
 
-    fn call(token_stream: &mut TokenStream<'code>, id: &'code str) -> Self {
+    fn call(token_stream: &mut TokenStream<'code>, id: Id<'code>) -> Self {
         token_stream.skip();
         let args = Self::call_args(token_stream);
 

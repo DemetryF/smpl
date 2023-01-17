@@ -4,7 +4,7 @@ use super::operator::Operator;
 pub enum TokenValue<'code> {
     Operator(Operator),
     Literal(Literal),
-    Id(&'code str),
+    Id(Id<'code>),
 
     Eof,
 
@@ -30,3 +30,6 @@ pub enum Literal {
     Number(f64),
     Bool(bool),
 }
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Id<'code>(pub &'code str);
