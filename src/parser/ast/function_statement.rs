@@ -1,7 +1,7 @@
 use derive_more::Constructor;
 
 use crate::{
-    lexer::token::token_value::TokenValue,
+    lexer::token::token_value::{Id, TokenValue},
     parser::{parser_utils::ParserUtils, token_stream::TokenStream},
 };
 
@@ -9,8 +9,8 @@ use super::{block::Block, Collect};
 
 #[derive(Debug, Constructor)]
 pub struct FunctionStatement<'code> {
-    pub id: &'code str,
-    pub args: Vec<&'code str>,
+    pub id: Id<'code>,
+    pub args: Vec<Id<'code>>,
     pub body: Block<'code>,
 }
 
@@ -27,7 +27,7 @@ impl<'code> Collect<'code> for FunctionStatement<'code> {
 }
 
 impl<'code> FunctionStatement<'code> {
-    fn args(token_stream: &mut TokenStream<'code>) -> Vec<&'code str> {
+    fn args(token_stream: &mut TokenStream<'code>) -> Vec<Id<'code>> {
         let mut args = Vec::new();
 
         token_stream.accept(&TokenValue::OpeningParen);

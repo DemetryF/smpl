@@ -1,6 +1,6 @@
 use crate::lexer::{
     code_stream::CodeStream,
-    token::token_value::{Literal, TokenValue},
+    token::token_value::{Id, Literal, TokenValue},
     token_collector::TokenCollector,
 };
 
@@ -43,7 +43,7 @@ impl TokenCollector for WordCollector {
             "true" => TokenValue::Literal(Literal::Bool(true)),
             "false" => TokenValue::Literal(Literal::Bool(false)),
 
-            id => TokenValue::Id(id),
+            id => TokenValue::Id(Id(id)),
         })
     }
 }

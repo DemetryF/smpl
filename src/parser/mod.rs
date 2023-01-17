@@ -1,7 +1,6 @@
 use self::{ast::statement::Statement, ast::Collect, token_stream::TokenStream};
 
 pub mod ast;
-// pub mod collectors;
 pub mod parser_utils;
 pub mod power_bindings;
 pub mod token_stream;
