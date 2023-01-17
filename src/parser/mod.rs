@@ -1,9 +1,7 @@
-use self::{
-    ast::Statement, collectors::statement_collector::StatementCollector, token_stream::TokenStream,
-};
+use self::{ast::statement::Statement, ast::Collect, token_stream::TokenStream};
 
 pub mod ast;
-pub mod collectors;
+// pub mod collectors;
 pub mod parser_utils;
 pub mod power_bindings;
 pub mod token_stream;
@@ -20,6 +18,6 @@ impl<'code> Parser<'code> {
     }
 
     pub fn parse(&mut self) -> Statement<'code> {
-        StatementCollector::collect(&mut self.token_stream)
+        Statement::collect(&mut self.token_stream)
     }
 }

@@ -1,6 +1,6 @@
 use crate::lexer::token::token_value::TokenValue;
 
-use super::{ast::Expr, collectors::expr_collector::ExprCollector, token_stream::TokenStream};
+use super::{ast::expr::Expr, ast::Collect, token_stream::TokenStream};
 
 pub struct ParserUtils;
 impl ParserUtils {
@@ -16,7 +16,7 @@ impl ParserUtils {
 
     pub fn parenthesis<'code>(token_stream: &mut TokenStream<'code>) -> Expr<'code> {
         token_stream.accept(&TokenValue::OpeningParen);
-        let expr = ExprCollector::collect(token_stream);
+        let expr = Expr::collect(token_stream);
         token_stream.accept(&TokenValue::ClosingParen);
 
         expr
