@@ -1,7 +1,7 @@
 use crate::{
     lexer::token::token_value::TokenValue,
     parser::{
-        ast::{Block, Statement},
+        ast::{Block, IfStatement, Statement},
         parser_utils::ParserUtils,
         token_stream::TokenStream,
     },
@@ -18,11 +18,7 @@ impl IfStatementCollector {
         let then_body = BlockCollector::collect(token_stream);
         let else_body = Self::else_body(token_stream);
 
-        Statement::If {
-            cond,
-            then_body,
-            else_body,
-        }
+        Statement::If(IfStatement::new(cond, then_body, else_body))
     }
 
     fn else_body<'code>(token_stream: &mut TokenStream<'code>) -> Option<Block<'code>> {

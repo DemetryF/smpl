@@ -1,6 +1,10 @@
 use crate::{
     lexer::token::token_value::TokenValue,
-    parser::{ast::Statement, parser_utils::ParserUtils, token_stream::TokenStream},
+    parser::{
+        ast::{Statement, WhileStatement},
+        parser_utils::ParserUtils,
+        token_stream::TokenStream,
+    },
 };
 
 use super::block_collector::BlockCollector;
@@ -13,6 +17,6 @@ impl WhileStatementCollector {
         let cond = ParserUtils::parenthesis(token_stream);
         let body = BlockCollector::collect(token_stream);
 
-        Statement::While { cond, body }
+        Statement::While(WhileStatement::new(cond, body))
     }
 }

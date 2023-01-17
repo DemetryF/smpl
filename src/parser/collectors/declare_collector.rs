@@ -1,7 +1,7 @@
 use crate::{
     lexer::token::{operator::Operator, token_value::TokenValue},
     parser::{
-        ast::{Expr, Statement},
+        ast::{DeclareStatement, Expr, Statement},
         parser_utils::ParserUtils,
         token_stream::TokenStream,
     },
@@ -19,7 +19,7 @@ impl DeclareStatementCollector {
 
         token_stream.accept(&TokenValue::Semicolon);
 
-        Statement::Declare { id, expr }
+        Statement::Declare(DeclareStatement::new(id, expr))
     }
 
     pub fn init_expr<'code>(token_stream: &mut TokenStream<'code>) -> Option<Expr<'code>> {

@@ -1,7 +1,7 @@
 use crate::{
     lexer::token::token_value::TokenValue,
     parser::{
-        ast::{Expr, Statement},
+        ast::{Expr, ReturnStatement, Statement},
         token_stream::TokenStream,
     },
 };
@@ -17,7 +17,7 @@ impl ReturnStatementCollector {
 
         token_stream.accept(&TokenValue::Semicolon);
 
-        Statement::Return(expr)
+        Statement::Return(ReturnStatement::new(expr))
     }
 
     pub fn return_expr<'code>(token_stream: &mut TokenStream<'code>) -> Option<Expr<'code>> {

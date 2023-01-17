@@ -1,6 +1,10 @@
 use crate::{
     lexer::token::token_value::TokenValue,
-    parser::{ast::Statement, parser_utils::ParserUtils, token_stream::TokenStream},
+    parser::{
+        ast::{FunctionStatement, Statement},
+        parser_utils::ParserUtils,
+        token_stream::TokenStream,
+    },
 };
 
 use super::block_collector::BlockCollector;
@@ -14,7 +18,7 @@ impl FunctionStatementCollector {
         let args = Self::args(token_stream);
         let body = BlockCollector::collect(token_stream);
 
-        Statement::Function { id, args, body }
+        Statement::Function(FunctionStatement::new(id, args, body))
     }
 
     fn args<'code>(token_stream: &mut TokenStream<'code>) -> Vec<&'code str> {
