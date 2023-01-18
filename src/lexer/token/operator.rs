@@ -1,5 +1,3 @@
-use paste::paste;
-
 macro_rules! operators {
     [ $($Case:ident = $CaseValue:literal,)* ] => {
         #[allow(dead_code)]
@@ -10,12 +8,10 @@ macro_rules! operators {
 
         impl From<Operator> for &str {
             fn from(op: Operator) -> Self {
-                paste! {
-                    match op {
-                        $(
-                            Operator::$Case => $CaseValue,
-                        )*
-                    }
+                match op {
+                    $(
+                        Operator::$Case => $CaseValue,
+                    )*
                 }
             }
         }
