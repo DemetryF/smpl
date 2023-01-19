@@ -1,6 +1,6 @@
 use crate::lexer::{
     code_stream::CodeStream,
-    token::token_value::{Id, Literal, TokenValue},
+    token::token_value::{Literal, TokenValue},
     token_collector::TokenCollector,
 };
 
@@ -24,7 +24,7 @@ impl WordCollector {
 }
 
 impl TokenCollector for WordCollector {
-    fn try_next<'code>(&mut self, code: &mut CodeStream<'code>) -> Option<TokenValue<'code>> {
+    fn try_next(&mut self, code: &mut CodeStream) -> Option<TokenValue> {
         if !code.current().is_alphabetic() {
             return None;
         }
@@ -43,7 +43,7 @@ impl TokenCollector for WordCollector {
             "true" => TokenValue::Literal(Literal::Bool(true)),
             "false" => TokenValue::Literal(Literal::Bool(false)),
 
-            id => TokenValue::Id(Id(id)),
+            id => TokenValue::Id(String::from(id)),
         })
     }
 }

@@ -1,16 +1,15 @@
 macro_rules! operators {
     [ $($Case:ident = $CaseValue:literal,)* ] => {
-        #[allow(dead_code)]
         #[derive(Clone, Copy, Debug, PartialEq, Eq)]
         pub enum Operator {
             $($Case,)*
         }
 
-        impl From<Operator> for &str {
+        impl From<Operator> for String {
             fn from(op: Operator) -> Self {
                 match op {
                     $(
-                        Operator::$Case => $CaseValue,
+                        Operator::$Case => String::from($CaseValue),
                     )*
                 }
             }

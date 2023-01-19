@@ -8,13 +8,13 @@ use crate::{
 use super::{block::Block, expr::Expr, Collect};
 
 #[derive(Debug, Constructor)]
-pub struct WhileStatement<'code> {
-    pub cond: Expr<'code>,
-    pub body: Block<'code>,
+pub struct WhileStatement {
+    pub cond: Expr,
+    pub body: Block,
 }
 
-impl<'code> Collect<'code> for WhileStatement<'code> {
-    fn collect(token_stream: &mut TokenStream<'code>) -> Self {
+impl Collect for WhileStatement {
+    fn collect(token_stream: &mut TokenStream) -> Self {
         token_stream.accept(&TokenValue::While);
 
         let cond = ParserUtils::parenthesis(token_stream);

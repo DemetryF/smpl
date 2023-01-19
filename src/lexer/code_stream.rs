@@ -1,12 +1,12 @@
 use super::pos::Pos;
 
-pub struct CodeStream<'code> {
+pub struct CodeStream {
     pub pos: Pos,
-    code: &'code str,
+    code: String,
 }
 
-impl<'code> CodeStream<'code> {
-    pub fn new(code: &'code str) -> Self {
+impl CodeStream {
+    pub fn new(code: String) -> Self {
         Self {
             code,
             pos: Pos::empty(),
@@ -30,7 +30,7 @@ impl<'code> CodeStream<'code> {
         self.get_code_slice(start, str.len()) == str
     }
 
-    pub fn get_code_slice(&self, start: usize, len: usize) -> &'code str {
+    pub fn get_code_slice(&self, start: usize, len: usize) -> &str {
         &self.code[start..start + len]
     }
 

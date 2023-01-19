@@ -3,10 +3,10 @@ use crate::{lexer::token::token_value::TokenValue, parser::token_stream::TokenSt
 use super::{statement::Statement, Collect};
 
 #[derive(Debug)]
-pub struct Block<'code>(pub Vec<Statement<'code>>);
+pub struct Block(pub Vec<Statement>);
 
-impl<'code> Collect<'code> for Block<'code> {
-    fn collect(token_stream: &mut TokenStream<'code>) -> Self {
+impl Collect for Block {
+    fn collect(token_stream: &mut TokenStream) -> Self {
         let mut stmts = Vec::new();
 
         token_stream.accept(&TokenValue::OpeningBrace);

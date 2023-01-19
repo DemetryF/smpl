@@ -24,7 +24,7 @@ impl NumberCollector {
 }
 
 impl TokenCollector for NumberCollector {
-    fn try_next<'code>(&mut self, code: &mut CodeStream<'code>) -> Option<TokenValue<'code>> {
+    fn try_next(&mut self, code: &mut CodeStream) -> Option<TokenValue> {
         if !Self::is_digit(code) {
             return None;
         }
@@ -32,7 +32,7 @@ impl TokenCollector for NumberCollector {
         let start = code.pos.index;
         let mut len = Self::lex_number_literal(code);
 
-        if code.check(".") {
+        if code.check(".".into()) {
             code.accept();
             len += 1 + Self::lex_number_literal(code);
         }

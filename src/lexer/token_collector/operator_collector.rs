@@ -7,11 +7,11 @@ use crate::lexer::{
 pub struct OperatorCollector;
 
 impl TokenCollector for OperatorCollector {
-    fn try_next<'code>(&mut self, code: &mut CodeStream<'code>) -> Option<TokenValue<'code>> {
+    fn try_next(&mut self, code: &mut CodeStream) -> Option<TokenValue> {
         for op in Operator::all() {
-            let value = op.into();
+            let value = String::from(op);
 
-            if code.check(value) {
+            if code.check(value.as_str()) {
                 code.skip(value.len());
                 return Some(TokenValue::Operator(op));
             }

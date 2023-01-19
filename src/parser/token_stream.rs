@@ -4,17 +4,17 @@ use crate::lexer::{
     Lexer,
 };
 
-pub struct TokenStream<'code> {
-    lexer: Lexer<'code>,
+pub struct TokenStream {
+    lexer: Lexer,
 
-    current: Token<'code>,
-    following: Option<Token<'code>>,
+    current: Token,
+    following: Option<Token>,
 
     pub errors: Vec<UnexpectedToken>,
 }
 
-impl<'code> TokenStream<'code> {
-    pub fn new(code: &'code str) -> Self {
+impl TokenStream {
+    pub fn new(code: String) -> Self {
         let mut lexer = Lexer::new(code);
         let mut errors: Vec<UnexpectedToken> = Vec::new();
 
@@ -33,7 +33,7 @@ impl<'code> TokenStream<'code> {
         }
     }
 
-    fn get_next_from_lexer(&mut self) -> Token<'code> {
+    fn get_next_from_lexer(&mut self) -> Token {
         match self.lexer.next_token() {
             Ok(token) => token,
             Err(error) => {
@@ -43,11 +43,11 @@ impl<'code> TokenStream<'code> {
         }
     }
 
-    pub fn current(&self) -> &Token<'code> {
+    pub fn current(&self) -> &Token {
         &self.current
     }
 
-    pub fn following(&mut self) -> &Token<'code> {
+    pub fn following(&mut self) -> &Token {
         if self.following.is_some() {
             return self.following.as_ref().unwrap();
         }
@@ -57,12 +57,14 @@ impl<'code> TokenStream<'code> {
         self.following()
     }
 
-    pub fn skip(&mut self) -> Token<'code> {
-        let token = self.current;
+    pub fn skip(&mut self) -> Token {
+        let token = self.current.clone();
+
         match self.following.take() {
             Some(token) => self.current = token,
             None => self.current = self.get_next_from_lexer(),
         }
+
         token
     }
 
