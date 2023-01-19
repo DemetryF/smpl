@@ -7,11 +7,11 @@ pub struct CommentType {
 
 impl CommentType {
     pub fn is_begin(&self, code: &CodeStream) -> bool {
-        code.check(self.begin)
+        code.check(self.begin.into())
     }
 
     fn is_end(&self, code: &CodeStream) -> bool {
-        code.check(self.end)
+        code.check(self.end.into())
     }
 
     pub fn try_skip(&self, code: &mut CodeStream) {

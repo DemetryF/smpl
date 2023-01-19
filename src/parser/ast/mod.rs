@@ -9,6 +9,6 @@ pub mod return_statement;
 pub mod statement;
 pub mod while_statement;
 
-pub trait Collect<'code> {
-    fn collect(token_stream: &mut TokenStream<'code>) -> Self;
+pub trait Collect {
+    fn collect(token_stream: &mut TokenStream) -> Self;
 }

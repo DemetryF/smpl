@@ -8,14 +8,14 @@ use crate::{
 use super::{block::Block, expr::Expr, Collect};
 
 #[derive(Debug, Constructor)]
-pub struct IfStatement<'code> {
-    pub cond: Expr<'code>,
-    pub then_body: Block<'code>,
-    pub else_body: Option<Block<'code>>,
+pub struct IfStatement {
+    pub cond: Expr,
+    pub then_body: Block,
+    pub else_body: Option<Block>,
 }
 
-impl<'code> Collect<'code> for IfStatement<'code> {
-    fn collect(token_stream: &mut TokenStream<'code>) -> Self {
+impl Collect for IfStatement {
+    fn collect(token_stream: &mut TokenStream) -> Self {
         token_stream.accept(&TokenValue::If);
 
         let cond = ParserUtils::parenthesis(token_stream);
@@ -26,8 +26,8 @@ impl<'code> Collect<'code> for IfStatement<'code> {
     }
 }
 
-impl<'code> IfStatement<'code> {
-    fn else_body(token_stream: &mut TokenStream<'code>) -> Option<Block<'code>> {
+impl IfStatement {
+    fn else_body(token_stream: &mut TokenStream) -> Option<Block> {
         if token_stream.check(&TokenValue::Else) {
             token_stream.skip();
             Some(Block::collect(token_stream))

@@ -17,13 +17,13 @@ pub mod token;
 mod token_collector;
 pub mod unexpected_token;
 
-pub struct Lexer<'code> {
+pub struct Lexer {
     pub collectors: Vec<Box<dyn TokenCollector>>,
-    pub code: CodeStream<'code>,
+    pub code: CodeStream,
 }
 
-impl<'code> Lexer<'code> {
-    pub fn new(code: &'code str) -> Self {
+impl Lexer {
+    pub fn new(code: String) -> Self {
         Self {
             code: CodeStream::new(code),
             collectors: vec![
@@ -35,7 +35,7 @@ impl<'code> Lexer<'code> {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token<'code>, UnexpectedToken> {
+    pub fn next_token(&mut self) -> Result<Token, UnexpectedToken> {
         CommentsHandler::skip(&mut self.code);
 
         let pos = self.code.get_pos();

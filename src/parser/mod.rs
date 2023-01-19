@@ -5,18 +5,18 @@ pub mod parser_utils;
 pub mod power_bindings;
 pub mod token_stream;
 
-pub struct Parser<'code> {
-    token_stream: TokenStream<'code>,
+pub struct Parser {
+    token_stream: TokenStream,
 }
 
-impl<'code> Parser<'code> {
-    pub fn new(code: &'code str) -> Self {
+impl Parser {
+    pub fn new(code: String) -> Self {
         Self {
             token_stream: TokenStream::new(code),
         }
     }
 
-    pub fn parse(&mut self) -> Statement<'code> {
+    pub fn parse(&mut self) -> Statement {
         Statement::collect(&mut self.token_stream)
     }
 }

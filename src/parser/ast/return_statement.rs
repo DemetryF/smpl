@@ -5,10 +5,10 @@ use crate::{lexer::token::token_value::TokenValue, parser::token_stream::TokenSt
 use super::{expr::Expr, Collect};
 
 #[derive(Debug, Constructor)]
-pub struct ReturnStatement<'code>(Option<Expr<'code>>);
+pub struct ReturnStatement(Option<Expr>);
 
-impl<'code> Collect<'code> for ReturnStatement<'code> {
-    fn collect(token_stream: &mut TokenStream<'code>) -> Self {
+impl Collect for ReturnStatement {
+    fn collect(token_stream: &mut TokenStream) -> Self {
         token_stream.accept(&TokenValue::Return);
 
         let expr = Self::return_expr(token_stream);
@@ -19,8 +19,8 @@ impl<'code> Collect<'code> for ReturnStatement<'code> {
     }
 }
 
-impl<'code> ReturnStatement<'code> {
-    pub fn return_expr(token_stream: &mut TokenStream<'code>) -> Option<Expr<'code>> {
+impl ReturnStatement {
+    pub fn return_expr(token_stream: &mut TokenStream) -> Option<Expr> {
         if token_stream.check(&TokenValue::Semicolon) {
             None
         } else {

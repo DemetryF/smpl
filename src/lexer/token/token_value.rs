@@ -1,10 +1,10 @@
 use super::operator::Operator;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum TokenValue<'code> {
+#[derive(Clone, Debug, PartialEq)]
+pub enum TokenValue {
     Operator(Operator),
     Literal(Literal),
-    Id(Id<'code>),
+    Id(String),
 
     Eof,
 
@@ -25,11 +25,8 @@ pub enum TokenValue<'code> {
     ClosingBrace,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Literal {
     Number(f64),
     Bool(bool),
 }
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Id<'code>(pub &'code str);

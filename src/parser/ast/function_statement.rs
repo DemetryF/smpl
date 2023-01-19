@@ -1,21 +1,21 @@
 use derive_more::Constructor;
 
 use crate::{
-    lexer::token::token_value::{Id, TokenValue},
+    lexer::token::token_value::TokenValue,
     parser::{parser_utils::ParserUtils, token_stream::TokenStream},
 };
 
 use super::{block::Block, Collect};
 
 #[derive(Debug, Constructor)]
-pub struct FunctionStatement<'code> {
-    pub id: Id<'code>,
-    pub args: Vec<Id<'code>>,
-    pub body: Block<'code>,
+pub struct FunctionStatement {
+    pub id: String,
+    pub args: Vec<String>,
+    pub body: Block,
 }
 
-impl<'code> Collect<'code> for FunctionStatement<'code> {
-    fn collect(token_stream: &mut TokenStream<'code>) -> Self {
+impl Collect for FunctionStatement {
+    fn collect(token_stream: &mut TokenStream) -> Self {
         token_stream.accept(&TokenValue::Function);
 
         let id = ParserUtils::id(token_stream);
@@ -26,8 +26,8 @@ impl<'code> Collect<'code> for FunctionStatement<'code> {
     }
 }
 
-impl<'code> FunctionStatement<'code> {
-    fn args(token_stream: &mut TokenStream<'code>) -> Vec<Id<'code>> {
+impl FunctionStatement {
+    fn args(token_stream: &mut TokenStream) -> Vec<String> {
         let mut args = Vec::new();
 
         token_stream.accept(&TokenValue::OpeningParen);

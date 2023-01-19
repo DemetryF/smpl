@@ -6,8 +6,8 @@ use super::pos::Pos;
 pub mod operator;
 pub mod token_value;
 
-#[derive(Copy, Clone, Debug, Constructor)]
-pub struct Token<'code> {
-    pub value: TokenValue<'code>,
+#[derive(Clone, Debug, Constructor)]
+pub struct Token {
+    pub value: TokenValue,
     pub pos: Pos,
 }

@@ -7,17 +7,17 @@ use super::{
 };
 
 #[derive(Debug)]
-pub enum Statement<'code> {
-    Expr(Expr<'code>),
-    Declare(DeclareStatement<'code>),
-    Function(FunctionStatement<'code>),
-    If(IfStatement<'code>),
-    Return(ReturnStatement<'code>),
-    While(WhileStatement<'code>),
+pub enum Statement {
+    Expr(Expr),
+    Declare(DeclareStatement),
+    Function(FunctionStatement),
+    If(IfStatement),
+    Return(ReturnStatement),
+    While(WhileStatement),
 }
 
-impl<'code> Collect<'code> for Statement<'code> {
-    fn collect(token_stream: &mut TokenStream<'code>) -> Self {
+impl Collect for Statement {
+    fn collect(token_stream: &mut TokenStream) -> Self {
         match token_stream.current().value {
             TokenValue::Define => Self::Declare(DeclareStatement::collect(token_stream)),
             TokenValue::If => Self::If(IfStatement::collect(token_stream)),

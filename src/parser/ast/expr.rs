@@ -1,7 +1,7 @@
 use crate::{
     lexer::token::{
         operator::Operator,
-        token_value::{Id, Literal, TokenValue},
+        token_value::{Literal, TokenValue},
     },
     parser::{parser_utils::ParserUtils, power_bindings::PowerBinding, token_stream::TokenStream},
 };
@@ -9,37 +9,37 @@ use crate::{
 use super::Collect;
 
 #[derive(Debug)]
-pub enum Expr<'code> {
+pub enum Expr {
     Binary {
-        left: Box<Expr<'code>>,
+        left: Box<Expr>,
         op: Operator,
-        right: Box<Expr<'code>>,
+        right: Box<Expr>,
     },
     Unary {
         op: Operator,
-        expr: Box<Expr<'code>>,
+        expr: Box<Expr>,
     },
     Call {
-        id: Id<'code>,
-        args: Vec<Expr<'code>>,
+        id: String,
+        args: Vec<Expr>,
     },
-    Atom(Atom<'code>),
+    Atom(Atom),
 }
 
 #[derive(Debug)]
-pub enum Atom<'code> {
+pub enum Atom {
     Literal(Literal),
-    Id(Id<'code>),
+    Id(String),
 }
 
-impl<'code> Collect<'code> for Expr<'code> {
-    fn collect(token_stream: &mut TokenStream<'code>) -> Self {
+impl Collect for Expr {
+    fn collect(token_stream: &mut TokenStream) -> Self {
         Self::expr_bp(token_stream, 0)
     }
 }
 
-impl<'code> Expr<'code> {
-    fn expr_bp(token_stream: &mut TokenStream<'code>, bp: u8) -> Self {
+impl Expr {
+    fn expr_bp(token_stream: &mut TokenStream, bp: u8) -> Self {
         let mut lhs = Self::fact(token_stream);
 
         while let TokenValue::Operator(op) = token_stream.current().value {
@@ -69,8 +69,8 @@ impl<'code> Expr<'code> {
         lhs
     }
 
-    fn fact(token_stream: &mut TokenStream<'code>) -> Self {
-        match token_stream.current().value {
+    fn fact(token_stream: &mut TokenStream) -> Self {
+        match token_stream.current().value.clone() {
             TokenValue::Literal(literal) => Self::literal(token_stream, literal),
             TokenValue::OpeningParen => ParserUtils::parenthesis(token_stream),
             TokenValue::Operator(op) => Self::unary(token_stream, op),
@@ -88,7 +88,7 @@ impl<'code> Expr<'code> {
         }
     }
 
-    fn unary(token_stream: &mut TokenStream<'code>, op: Operator) -> Self {
+    fn unary(token_stream: &mut TokenStream, op: Operator) -> Self {
         token_stream.skip();
 
         let ((), r_bp) = PowerBinding::prefix(op);
@@ -105,14 +105,14 @@ impl<'code> Expr<'code> {
         Self::Atom(Atom::Literal(literal))
     }
 
-    fn call(token_stream: &mut TokenStream<'code>, id: Id<'code>) -> Self {
+    fn call(token_stream: &mut TokenStream, id: String) -> Self {
         token_stream.skip();
         let args = Self::call_args(token_stream);
 
         Self::Call { id, args }
     }
 
-    fn call_args(token_stream: &mut TokenStream<'code>) -> Vec<Self> {
+    fn call_args(token_stream: &mut TokenStream) -> Vec<Self> {
         let mut args = Vec::new();
 
         token_stream.accept(&TokenValue::OpeningParen);
