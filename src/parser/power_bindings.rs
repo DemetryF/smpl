@@ -2,9 +2,9 @@ use crate::lexer::token::operator::Operator;
 
 pub struct PowerBinding;
 impl PowerBinding {
-    pub fn prefix(op: Operator) -> ((), u8) {
+    pub fn prefix(op: Operator) -> u8 {
         match op {
-            Operator::Subtraction | Operator::Addition | Operator::Not => ((), 17),
+            Operator::Subtraction | Operator::Addition | Operator::Not => 17,
 
             _ => panic!("operator is not prefix"),
         }
