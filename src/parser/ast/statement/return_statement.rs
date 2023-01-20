@@ -1,8 +1,12 @@
 use derive_more::Constructor;
 
-use crate::{lexer::token::token_value::TokenValue, parser::token_stream::TokenStream};
-
-use super::{expr::Expr, Collect};
+use crate::{
+    lexer::token::token_value::TokenValue,
+    parser::{
+        ast::{expr::Expr, Collect},
+        token_stream::TokenStream,
+    },
+};
 
 #[derive(Debug, Constructor)]
 pub struct ReturnStatement(Option<Expr>);

@@ -5,7 +5,7 @@ use crate::{
     parser::{parser_utils::ParserUtils, token_stream::TokenStream},
 };
 
-use super::{expr::Expr, Collect};
+use super::super::{expr::Expr, Collect};
 
 #[derive(Debug, Constructor)]
 pub struct DeclareStatement {

@@ -2,42 +2,38 @@ use derive_more::Constructor;
 
 use crate::{
     lexer::token::token_value::TokenValue,
-    parser::{parser_utils::ParserUtils, token_stream::TokenStream},
+    parser::{ast::Collect, parser_utils::ParserUtils, token_stream::TokenStream},
 };
 
-use super::{block::Block, Collect};
+use super::Expr;
 
 #[derive(Debug, Constructor)]
-pub struct FunctionStatement {
+pub struct Call {
     pub id: String,
-    pub args: Vec<String>,
-    pub body: Block,
+    pub args: Vec<Expr>,
 }
 
-impl Collect for FunctionStatement {
+impl Collect for Call {
     fn collect(token_stream: &mut TokenStream) -> Self {
-        token_stream.accept(&TokenValue::Function);
-
         let id = ParserUtils::id(token_stream);
-        let args = Self::args(token_stream);
-        let body = Block::collect(token_stream);
+        let args = Self::call_args(token_stream);
 
-        FunctionStatement::new(id, args, body)
+        Self::new(id, args)
     }
 }
 
-impl FunctionStatement {
-    fn args(token_stream: &mut TokenStream) -> Vec<String> {
+impl Call {
+    fn call_args(token_stream: &mut TokenStream) -> Vec<Expr> {
         let mut args = Vec::new();
 
         token_stream.accept(&TokenValue::OpeningParen);
 
         if !token_stream.check(&TokenValue::ClosingParen) {
-            args.push(ParserUtils::id(token_stream));
+            args.push(Expr::collect(token_stream));
 
             while token_stream.check(&TokenValue::Comma) {
                 token_stream.skip();
-                args.push(ParserUtils::id(token_stream));
+                args.push(Expr::collect(token_stream));
             }
         }
 
