@@ -1,10 +1,17 @@
 use crate::{lexer::token::token_value::TokenValue, parser::token_stream::TokenStream};
 
-use super::{
-    declare_statement::DeclareStatement, expr::Expr, function_statement::FunctionStatement,
+use super::{expr::Expr, Collect};
+
+use self::{
+    declare_statement::DeclareStatement, function_statement::FunctionStatement,
     if_statement::IfStatement, return_statement::ReturnStatement, while_statement::WhileStatement,
-    Collect,
 };
+
+pub mod declare_statement;
+pub mod function_statement;
+pub mod if_statement;
+pub mod return_statement;
+pub mod while_statement;
 
 #[derive(Debug)]
 pub enum Statement {

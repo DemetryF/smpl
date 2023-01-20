@@ -2,10 +2,12 @@ use derive_more::Constructor;
 
 use crate::{
     lexer::token::token_value::TokenValue,
-    parser::{parser_utils::ParserUtils, token_stream::TokenStream},
+    parser::{
+        ast::{block::Block, expr::Expr, Collect},
+        parser_utils::ParserUtils,
+        token_stream::TokenStream,
+    },
 };
-
-use super::{block::Block, expr::Expr, Collect};
 
 #[derive(Debug, Constructor)]
 pub struct WhileStatement {

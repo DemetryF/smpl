@@ -1,4 +1,4 @@
-use crate::lexer::token::token_value::TokenValue;
+use crate::lexer::token::{operator::Operator, token_value::TokenValue};
 
 use super::{ast::expr::Expr, ast::Collect, token_stream::TokenStream};
 
@@ -11,6 +11,13 @@ impl ParserUtils {
                 value
             }
             _ => panic!("expected id"),
+        }
+    }
+
+    pub fn op(token_stream: &mut TokenStream) -> Operator {
+        match token_stream.current().value.clone() {
+            TokenValue::Operator(op) => op,
+            _ => panic!("expected operator"),
         }
     }
 
