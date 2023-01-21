@@ -1,16 +1,21 @@
 use std::fs;
 
-use crate::parser::Parser;
+use crate::translator::Translator;
 
 mod lexer;
 mod parser;
+mod translator;
 
 fn main() {
     if let Ok(code) = fs::read_to_string("test.smpl") {
         println!("{}", code);
 
-        let mut p = Parser::new(code);
+        let mut t = Translator::new(code);
 
-        println!("{:?}", p.parse());
+        t.translate();
+
+        for i in t.instructions {
+            println!("{:?}", i);
+        }
     }
 }
