@@ -20,7 +20,7 @@ impl Translate for WhileStatement {
         translator.push(Instruction::Label(while_start_label.clone()));
         let cond = self.cond.translate(translator).expect("");
 
-        translator.push(Instruction::IfFalse {
+        translator.push(Instruction::Unless {
             cond,
             to: while_end_label.clone(),
         });
