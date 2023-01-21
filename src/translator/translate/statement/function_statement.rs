@@ -8,8 +8,10 @@ use crate::{
 };
 
 impl Translate for FunctionStatement {
-    fn translate(self, translator: &mut Translator) -> Option<Atom> {
+    fn translate(mut self, translator: &mut Translator) -> Option<Atom> {
         translator.push(Instruction::Label(Label(self.id)));
+
+        self.args.reverse();
 
         for arg in self.args {
             translator.push(Instruction::Pop(arg))
