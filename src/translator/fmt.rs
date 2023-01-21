@@ -7,7 +7,9 @@ use super::instruction::Instruction;
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Assign { what, to } => write!(f, "\t{} = {}", to, what),
+            Self::Assign { what, op, to } => {
+                write!(f, "\t{} {} {}", to, String::from(op.to_owned()), what)
+            }
             Self::Binary {
                 result,
                 left,
