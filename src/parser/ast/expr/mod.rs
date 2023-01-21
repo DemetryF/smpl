@@ -47,12 +47,11 @@ impl Expr {
         let mut lhs = Self::fact(token_stream);
 
         while let TokenValue::Operator(op) = token_stream.current().value {
-            token_stream.skip();
-
             if let Some((l_bp, r_bp)) = PowerBinding::infix(op) {
                 if l_bp < bp {
                     break;
                 }
+                token_stream.skip();
 
                 lhs = {
                     let rhs = Self::expr_bp(token_stream, r_bp);
