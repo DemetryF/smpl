@@ -2,6 +2,7 @@ use crate::parser::Parser;
 
 use self::{instruction::Instruction, translate::Translate};
 
+pub mod fmt;
 pub mod instruction;
 pub mod translate;
 
