@@ -7,7 +7,7 @@ use super::instruction::Instruction;
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Assign { what, to } => write!(f, "{} = {}", to, what),
+            Self::Assign { what, to } => write!(f, "\t{} = {}", to, what),
             Self::Binary {
                 result,
                 left,
@@ -15,7 +15,7 @@ impl Display for Instruction {
                 right,
             } => write!(
                 f,
-                "{} = {} {} {}",
+                "\t{} = {} {} {}",
                 result,
                 left,
                 String::from(op.to_owned()),
@@ -28,7 +28,7 @@ impl Display for Instruction {
                 operand,
             } => write!(
                 f,
-                "{} = {} {}",
+                "\t{} = {} {}",
                 result,
                 String::from(op.to_owned()),
                 operand
@@ -38,16 +38,16 @@ impl Display for Instruction {
                 result,
                 name,
                 args_count,
-            } => write!(f, "{} = call {}, {}", result, name, args_count),
+            } => write!(f, "\t{} = call {}, {}", result, name, args_count),
 
-            Self::Goto { to } => write!(f, "goto {}", to.0),
-            Self::Unless { cond, to } => write!(f, "unless {} goto {}", cond, to.0),
-            Self::Label(label) => write!(f, "{}:", label.0),
-            Self::Pop(pop) => write!(f, "pop {}", pop),
-            Self::Push(push) => write!(f, "push {}", push),
+            Self::Goto { to } => write!(f, "\tgoto {}", to.0),
+            Self::Unless { cond, to } => write!(f, "\tunless {} goto {}", cond, to.0),
+            Self::Label(label) => write!(f, "\n{}:", label.0),
+            Self::Pop(pop) => write!(f, "\tpop {}", pop),
+            Self::Push(push) => write!(f, "\tpush {}", push),
             Self::Return(ret) => match ret {
-                Some(ret) => write!(f, "return {}", ret),
-                None => write!(f, "return"),
+                Some(ret) => write!(f, "\treturn {}", ret),
+                None => write!(f, "\treturn"),
             },
         }
     }
