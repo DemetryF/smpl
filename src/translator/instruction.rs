@@ -18,6 +18,7 @@ pub enum Instruction {
     },
     Assign {
         what: Atom,
+        op: Operator,
         to: String,
     },
     Goto {
