@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[derive(Debug, Constructor)]
-pub struct ReturnStatement(Option<Expr>);
+pub struct ReturnStatement(pub Option<Expr>);
 
 impl Collect for ReturnStatement {
     fn collect(token_stream: &mut TokenStream) -> Self {
