@@ -23,7 +23,7 @@ pub enum Instruction {
     Goto {
         to: Label,
     },
-    IfFalse {
+    Unless {
         cond: Atom,
         to: Label,
     },

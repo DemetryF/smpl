@@ -41,7 +41,7 @@ impl Display for Instruction {
             } => write!(f, "{} = call {}, {}", result, name, args_count),
 
             Self::Goto { to } => write!(f, "goto {}", to.0),
-            Self::IfFalse { cond, to } => write!(f, "IfFalse {} goto {}", cond, to.0),
+            Self::Unless { cond, to } => write!(f, "unless {} goto {}", cond, to.0),
             Self::Label(label) => write!(f, "{}:", label.0),
             Self::Pop(pop) => write!(f, "pop {}", pop),
             Self::Push(push) => write!(f, "push {}", push),

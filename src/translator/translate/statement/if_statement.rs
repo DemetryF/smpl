@@ -20,7 +20,7 @@ impl Translate for IfStatement {
         if let Some(else_body) = self.else_body {
             let else_label = Label(String::from("else") + ifs_count);
 
-            translator.push(Instruction::IfFalse {
+            translator.push(Instruction::Unless {
                 cond,
                 to: else_label.clone(),
             });
@@ -33,7 +33,7 @@ impl Translate for IfStatement {
             translator.push(Instruction::Label(else_label));
             else_body.translate(translator);
         } else {
-            translator.push(Instruction::IfFalse {
+            translator.push(Instruction::Unless {
                 cond,
                 to: endif_label.clone(),
             });
