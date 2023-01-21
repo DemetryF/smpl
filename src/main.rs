@@ -15,7 +15,7 @@ fn main() {
         t.translate();
 
         for i in t.instructions {
-            println!("{:?}", i);
+            println!("{}", i);
         }
     }
 }
