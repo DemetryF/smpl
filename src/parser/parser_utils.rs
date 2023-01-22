@@ -1,7 +1,4 @@
-use crate::{
-    error::Error,
-    lexer::token::{operator::Operator, token_value::TokenValue},
-};
+use crate::lexer::token::{operator::Operator, token_value::TokenValue};
 
 use super::{ast::expr::Expr, ast::Collect, token_stream::TokenStream};
 

@@ -19,6 +19,10 @@ impl Translate for FunctionStatement {
 
         self.body.translate(translator);
 
+        if !self.has_return {
+            translator.push(Instruction::Return(None))
+        }
+
         None
     }
 }

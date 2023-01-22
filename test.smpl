@@ -1,2 +1,2 @@
-print(c * (a + b);
-print(10);
+function huita() { }
+huita();

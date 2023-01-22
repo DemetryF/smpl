@@ -1,5 +1,3 @@
-use derive_more::Constructor;
-
 use crate::{
     lexer::token::token_value::TokenValue,
     parser::{
@@ -9,11 +7,15 @@ use crate::{
     },
 };
 
-#[derive(Debug, Constructor)]
+use super::Statement;
+
+#[derive(Debug)]
 pub struct FunctionStatement {
     pub id: String,
     pub args: Vec<String>,
     pub body: Block,
+
+    pub has_return: bool,
 }
 
 impl Collect for FunctionStatement {
@@ -29,6 +31,20 @@ impl Collect for FunctionStatement {
 }
 
 impl FunctionStatement {
+    fn new(id: String, args: Vec<String>, body: Block) -> Self {
+        let has_return = body
+            .0
+            .iter()
+            .any(|stmt| matches!(stmt, Statement::Return(_)));
+
+        Self {
+            id,
+            args,
+            body,
+            has_return,
+        }
+    }
+
     fn args(token_stream: &mut TokenStream) -> Vec<String> {
         let mut args = Vec::new();
 
