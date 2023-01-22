@@ -1,11 +1,9 @@
-function factorial(n) {
-    define result = 1;
-    define i = 1;
+print(add(sub(5, 2), 3));
 
-    while (i < n) {
-        result *= i;
-        i += 1;
-    }
+function add(a, b) {
+    return a + b;
+}
 
-    return result;
+function sub(a, b) {
+    return a - b;
 }

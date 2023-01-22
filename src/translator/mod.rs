@@ -1,6 +1,9 @@
-use crate::parser::Parser;
+use crate::parser::{ast::statement::Statement, Parser};
 
-use self::{instruction::Instruction, translate::Translate};
+use self::{
+    instruction::{Instruction, Label},
+    translate::Translate,
+};
 
 pub mod fmt;
 pub mod instruction;
@@ -37,6 +40,21 @@ impl Translator {
     }
 
     pub fn translate(&mut self) {
-        self.parser.parse().translate(self);
+        let mut stmts = self.parser.parse();
+        let mut no_funcs = Vec::new();
+
+        for stmt in stmts {
+            if let Statement::Function(func) = stmt {
+                func.translate(self);
+            } else {
+                no_funcs.push(stmt);
+            }
+        }
+
+        self.push(Instruction::Label(Label(String::from("main"))));
+
+        for stmt in no_funcs {
+            stmt.translate(self);
+        }
     }
 }

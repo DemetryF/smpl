@@ -1,3 +1,5 @@
+use crate::lexer::token::token_value::TokenValue;
+
 use self::{ast::statement::Statement, ast::Collect, token_stream::TokenStream};
 
 pub mod ast;
@@ -16,7 +18,13 @@ impl Parser {
         }
     }
 
-    pub fn parse(&mut self) -> Statement {
-        Statement::collect(&mut self.token_stream)
+    pub fn parse(&mut self) -> Vec<Statement> {
+        let mut stmts = Vec::new();
+
+        while !self.token_stream.is_end() {
+            stmts.push(Statement::collect(&mut self.token_stream));
+        }
+
+        stmts
     }
 }
