@@ -40,21 +40,35 @@ impl Translator {
     }
 
     pub fn translate(&mut self) {
-        let mut stmts = self.parser.parse();
-        let mut no_funcs = Vec::new();
+        let stmts = self.parser.parse();
+        let (global, local) = Self::global_and_local_stmts(stmts);
+
+        self.translate_stmts(global);
+        self.add_main_label();
+        self.translate_stmts(local);
+    }
+
+    pub fn add_main_label(&mut self) {
+        self.push(Instruction::Label(Label("main".into())));
+    }
+
+    pub fn translate_stmts(&mut self, stmts: Vec<Statement>) {
+        for stmt in stmts {
+            stmt.translate(self);
+        }
+    }
+
+    pub fn global_and_local_stmts(stmts: Vec<Statement>) -> (Vec<Statement>, Vec<Statement>) {
+        let mut global_stmts = Vec::new();
+        let mut local_stmts = Vec::new();
 
         for stmt in stmts {
-            if let Statement::Function(func) = stmt {
-                func.translate(self);
-            } else {
-                no_funcs.push(stmt);
+            match stmt {
+                Statement::Function(_) => global_stmts.push(stmt),
+                stmt => local_stmts.push(stmt),
             }
         }
 
-        self.push(Instruction::Label(Label(String::from("main"))));
-
-        for stmt in no_funcs {
-            stmt.translate(self);
-        }
+        (global_stmts, local_stmts)
     }
 }
