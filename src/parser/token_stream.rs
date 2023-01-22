@@ -85,4 +85,8 @@ impl TokenStream {
 
         panic!("pizdaus")
     }
+
+    pub fn is_end(&self) -> bool {
+        self.check(&TokenValue::Eof)
+    }
 }
