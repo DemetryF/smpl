@@ -3,6 +3,7 @@ use derive_more::Constructor;
 use self::token_value::TokenValue;
 use super::pos::Pos;
 
+pub mod fmt;
 pub mod operator;
 pub mod token_value;
 
