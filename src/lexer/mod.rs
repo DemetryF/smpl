@@ -55,6 +55,7 @@ impl Lexer {
 
     fn unexpected_token(&mut self, pos: Pos) -> Error {
         Error::UnexpectedToken {
+            expected: None,
             value: self.code.accept().to_string(),
             pos,
         }

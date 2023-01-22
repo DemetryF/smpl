@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 #[derive(Clone, Copy, Debug)]
 pub struct Pos {
     pub line: usize,
@@ -29,5 +31,11 @@ impl Pos {
         self.line += 1;
         self.column = 1;
         self.line_begin = self.index;
+    }
+}
+
+impl Display for Pos {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{}", self.line, self.column)
     }
 }

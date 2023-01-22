@@ -1,9 +1,13 @@
 use derive_more::Constructor;
 
 use crate::{
-    lexer::token::token_value::TokenValue,
+    lexer::token::token_value::{Literal, TokenValue},
     parser::{
-        ast::{block::Block, expr::Expr, Collect},
+        ast::{
+            block::Block,
+            expr::{Atom, Expr},
+            Collect,
+        },
         parser_utils::ParserUtils,
         token_stream::TokenStream,
     },
@@ -21,15 +25,16 @@ impl Collect for IfStatement {
         token_stream.accept(&TokenValue::If);
 
         let cond = ParserUtils::parenthesis(token_stream);
+
         let then_body = Block::collect(token_stream);
-        let else_body = Self::else_body(token_stream);
+        let else_body = Self::parse_else_body(token_stream);
 
         IfStatement::new(cond, then_body, else_body)
     }
 }
 
 impl IfStatement {
-    fn else_body(token_stream: &mut TokenStream) -> Option<Block> {
+    fn parse_else_body(token_stream: &mut TokenStream) -> Option<Block> {
         if token_stream.check(&TokenValue::Else) {
             token_stream.skip();
             Some(Block::collect(token_stream))

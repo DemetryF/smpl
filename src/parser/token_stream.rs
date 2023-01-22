@@ -80,10 +80,19 @@ impl TokenStream {
             return;
         }
 
-        println!("{:?}", self.current().value);
-        println!("{:?}", value);
+        panic!("{}", self.unexpected_token(value))
+    }
 
-        panic!("pizdaus")
+    pub fn unexpected_token(&self, expected: &TokenValue) -> Error {
+        let expected = Some(expected.to_string());
+        let value = self.current().value.to_string();
+        let pos = self.lexer.code.get_pos();
+
+        Error::UnexpectedToken {
+            expected,
+            value,
+            pos,
+        }
     }
 
     pub fn is_end(&self) -> bool {
