@@ -1,2 +1,5 @@
-function huita() { }
-huita();
+function a() {
+    function b() {
+        
+    }
+}

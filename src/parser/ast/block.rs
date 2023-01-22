@@ -11,7 +11,13 @@ impl Collect for Block {
 
         token_stream.accept(&TokenValue::OpeningBrace);
         while !token_stream.check(&TokenValue::ClosingBrace) {
-            stmts.push(Statement::collect(token_stream));
+            let new_stmt = Statement::collect(token_stream);
+
+            if matches!(new_stmt, Statement::Function(_)) {
+                panic!("not allowed function declare a function at a block")
+            }
+
+            stmts.push(new_stmt);
         }
         token_stream.accept(&TokenValue::ClosingBrace);
 
