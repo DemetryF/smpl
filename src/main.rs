@@ -2,6 +2,7 @@ use std::fs;
 
 use crate::translator::Translator;
 
+mod error;
 mod lexer;
 mod parser;
 mod translator;

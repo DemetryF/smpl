@@ -1,3 +1,5 @@
+use crate::error::Error;
+
 use self::{
     code_stream::CodeStream,
     comments_handler::CommentsHandler,
@@ -7,7 +9,6 @@ use self::{
         number_collector::NumberCollector, operator_collector::OperatorCollector,
         special_collector::SpecialCollector, word_collector::WordCollector, TokenCollector,
     },
-    unexpected_token::UnexpectedToken,
 };
 
 mod code_stream;
@@ -15,7 +16,6 @@ mod comments_handler;
 pub mod pos;
 pub mod token;
 mod token_collector;
-pub mod unexpected_token;
 
 pub struct Lexer {
     pub collectors: Vec<Box<dyn TokenCollector>>,
@@ -35,7 +35,7 @@ impl Lexer {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token, UnexpectedToken> {
+    pub fn next_token(&mut self) -> Result<Token, Error> {
         CommentsHandler::skip(&mut self.code);
 
         let pos = self.code.get_pos();
@@ -53,8 +53,8 @@ impl Lexer {
         Err(self.unexpected_token(pos))
     }
 
-    fn unexpected_token(&mut self, pos: Pos) -> UnexpectedToken {
-        UnexpectedToken {
+    fn unexpected_token(&mut self, pos: Pos) -> Error {
+        Error::UnexpectedToken {
             value: self.code.accept().to_string(),
             pos,
         }
