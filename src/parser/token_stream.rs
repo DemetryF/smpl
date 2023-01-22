@@ -1,7 +1,9 @@
-use crate::lexer::{
-    token::{token_value::TokenValue, Token},
-    unexpected_token::UnexpectedToken,
-    Lexer,
+use crate::{
+    error::Error,
+    lexer::{
+        token::{token_value::TokenValue, Token},
+        Lexer,
+    },
 };
 
 pub struct TokenStream {
@@ -10,13 +12,13 @@ pub struct TokenStream {
     current: Token,
     following: Option<Token>,
 
-    pub errors: Vec<UnexpectedToken>,
+    pub errors: Vec<Error>,
 }
 
 impl TokenStream {
     pub fn new(code: String) -> Self {
         let mut lexer = Lexer::new(code);
-        let mut errors: Vec<UnexpectedToken> = Vec::new();
+        let mut errors: Vec<Error> = Vec::new();
 
         let current = loop {
             match lexer.next_token() {
