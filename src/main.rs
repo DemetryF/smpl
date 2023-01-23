@@ -5,6 +5,7 @@ use crate::translator::Translator;
 mod error;
 mod lexer;
 mod parser;
+mod static_analyzer;
 mod translator;
 
 fn main() {

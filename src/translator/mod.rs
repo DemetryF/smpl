@@ -1,4 +1,7 @@
-use crate::parser::{ast::statement::Statement, Parser};
+use crate::{
+    parser::{ast::statement::Statement, Parser},
+    static_analyzer::StaticAnalyzer,
+};
 
 use self::{
     instruction::{Instruction, Label},
@@ -41,6 +44,15 @@ impl Translator {
 
     pub fn translate(&mut self) {
         let stmts = self.parser.parse();
+        let analyzer = StaticAnalyzer::new(&stmts);
+
+        if analyzer.errors.len() > 0 {
+            for error in analyzer.errors {
+                println!("error: {:#?}", error)
+            }
+            panic!("я обкакался");
+        }
+
         let (global, local) = Self::global_and_local_stmts(stmts);
 
         self.translate_stmts(global);
