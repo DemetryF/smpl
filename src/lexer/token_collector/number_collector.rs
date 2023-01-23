@@ -32,7 +32,7 @@ impl TokenCollector for NumberCollector {
         let start = code.pos.index;
         let mut len = Self::lex_number_literal(code);
 
-        if code.check(".".into()) {
+        if code.check(".") {
             code.accept();
             len += 1 + Self::lex_number_literal(code);
         }

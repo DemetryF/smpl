@@ -39,7 +39,7 @@ impl Check for FunctionStatement {
 
 impl FunctionStatement {
     fn check_args(&self, analyzer: &mut StaticAnalyzer) {
-        let mut duplicates = (&self.args).iter().duplicates_by(|x| &x.value);
+        let mut duplicates = self.args.iter().duplicates_by(|x| &x.value);
 
         if duplicates.next().is_some() {
             analyzer.errors.push(StaticError::DuplicatesFunctionArgs)

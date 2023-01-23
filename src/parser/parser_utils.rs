@@ -17,7 +17,7 @@ impl ParserUtils {
     }
 
     pub fn op(token_stream: &mut TokenStream) -> Operator {
-        match token_stream.skip().value.clone() {
+        match token_stream.skip().value {
             TokenValue::Operator(op) => op,
             _ => panic!("expected operator"),
         }

@@ -67,8 +67,8 @@ impl Display for Atom {
 impl Display for Literal {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Number(num) => write!(f, "{}", num.to_string()),
-            Self::Bool(bool) => write!(f, "{}", bool.to_string()),
+            Self::Number(num) => write!(f, "{}", num),
+            Self::Bool(bool) => write!(f, "{}", bool),
         }
     }
 }
