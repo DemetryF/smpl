@@ -1,12 +1,17 @@
 use crate::lexer::token::{operator::Operator, token_value::TokenValue};
 
-use super::{ast::expr::Expr, ast::Collect, token_stream::TokenStream};
+use super::{
+    ast::Collect,
+    ast::{expr::Expr, Id},
+    token_stream::TokenStream,
+};
 
 pub struct ParserUtils;
 impl ParserUtils {
-    pub fn id(token_stream: &mut TokenStream) -> String {
-        match token_stream.skip().value.clone() {
-            TokenValue::Id(value) => value,
+    pub fn id(token_stream: &mut TokenStream) -> Id {
+        let token = token_stream.skip();
+        match token.value {
+            TokenValue::Id(value) => Id::new(value, token.pos),
             _ => panic!("expected id"),
         }
     }

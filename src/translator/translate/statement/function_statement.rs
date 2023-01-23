@@ -9,12 +9,12 @@ use crate::{
 
 impl Translate for FunctionStatement {
     fn translate(mut self, translator: &mut Translator) -> Option<Atom> {
-        translator.push(Instruction::Label(Label(self.id)));
+        translator.push(Instruction::Label(Label(self.id.value)));
 
         self.args.reverse();
 
         for arg in self.args {
-            translator.push(Instruction::Pop(arg))
+            translator.push(Instruction::Pop(arg.value))
         }
 
         self.body.translate(translator);

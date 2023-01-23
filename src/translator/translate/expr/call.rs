@@ -15,7 +15,7 @@ impl Translate for Call {
 
         translator.push(Instruction::Call {
             result: result.clone(),
-            name: self.id,
+            name: self.id.value,
             args_count,
         });
 

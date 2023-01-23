@@ -2,14 +2,14 @@ use derive_more::Constructor;
 
 use crate::{
     lexer::token::{operator::Operator, token_value::TokenValue},
-    parser::{parser_utils::ParserUtils, token_stream::TokenStream},
+    parser::{ast::Id, parser_utils::ParserUtils, token_stream::TokenStream},
 };
 
 use super::super::{expr::Expr, Collect};
 
 #[derive(Debug, Constructor)]
 pub struct DeclareStatement {
-    pub id: String,
+    pub id: Id,
     pub expr: Option<Expr>,
 }
 

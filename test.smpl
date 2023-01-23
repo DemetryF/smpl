@@ -1,5 +1,1 @@
-function a() {
-    function b() {
-        
-    }
-}
+define a = 1 + 2 * (3 + call(4, 5, 6));
