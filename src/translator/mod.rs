@@ -46,7 +46,7 @@ impl Translator {
         let stmts = self.parser.parse();
         let analyzer = StaticAnalyzer::new(&stmts);
 
-        if analyzer.errors.len() > 0 {
+        if !analyzer.errors.is_empty() {
             for error in analyzer.errors {
                 println!("error: {:#?}", error)
             }

@@ -12,7 +12,7 @@ impl Translate for WhileStatement {
         translator.whiles_count += 1;
 
         let binding = translator.whiles_count.to_string();
-        let whiles_count = &binding.to_string();
+        let whiles_count = &binding;
 
         let while_start_label = Label(String::from("while_start") + whiles_count);
         let while_end_label = Label(String::from("while_end") + whiles_count);
