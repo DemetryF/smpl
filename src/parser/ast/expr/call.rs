@@ -2,14 +2,18 @@ use derive_more::Constructor;
 
 use crate::{
     lexer::token::token_value::TokenValue,
-    parser::{ast::Collect, parser_utils::ParserUtils, token_stream::TokenStream},
+    parser::{
+        ast::{Collect, Id},
+        parser_utils::ParserUtils,
+        token_stream::TokenStream,
+    },
 };
 
 use super::Expr;
 
 #[derive(Debug, Constructor)]
 pub struct Call {
-    pub id: String,
+    pub id: Id,
     pub args: Vec<Expr>,
 }
 

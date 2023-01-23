@@ -1,7 +1,7 @@
 use crate::{
     lexer::token::token_value::TokenValue,
     parser::{
-        ast::{block::Block, Collect},
+        ast::{block::Block, Collect, Id},
         parser_utils::ParserUtils,
         token_stream::TokenStream,
     },
@@ -11,8 +11,8 @@ use super::Statement;
 
 #[derive(Debug)]
 pub struct FunctionStatement {
-    pub id: String,
-    pub args: Vec<String>,
+    pub id: Id,
+    pub args: Vec<Id>,
     pub body: Block,
 
     pub has_return: bool,
@@ -31,7 +31,7 @@ impl Collect for FunctionStatement {
 }
 
 impl FunctionStatement {
-    fn new(id: String, args: Vec<String>, body: Block) -> Self {
+    fn new(id: Id, args: Vec<Id>, body: Block) -> Self {
         let has_return = body
             .0
             .iter()
@@ -45,7 +45,7 @@ impl FunctionStatement {
         }
     }
 
-    fn args(token_stream: &mut TokenStream) -> Vec<String> {
+    fn args(token_stream: &mut TokenStream) -> Vec<Id> {
         let mut args = Vec::new();
 
         token_stream.accept(&TokenValue::OpeningParen);
