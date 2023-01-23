@@ -35,9 +35,10 @@ impl Check for Binary {
 
 impl Check for Call {
     fn check(&self, analyzer: &mut StaticAnalyzer, env: &mut Env) {
-        match analyzer.functions.get(&self.id.value) {
+        match analyzer.functions.get_mut(&self.id.value) {
             Some(func) => {
                 if func.args_count != self.args.len() {
+                    func.uses_count += 1;
                     analyzer.errors.push(StaticError::InvalidArgumentsCount)
                 }
             }
