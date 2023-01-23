@@ -29,12 +29,15 @@ impl Env {
         }
     }
 
-    pub fn search(&self, id: &String) -> bool {
+    pub fn search(&mut self, id: &String) -> bool {
         if self.variables.contains_key(id) {
+            let var = self.variables.get_mut(id).expect("");
+            var.uses_count += 1;
+
             return true;
         }
 
-        match &self.parent {
+        match &mut self.parent {
             Some(env) => env.search(id),
             None => false,
         }
