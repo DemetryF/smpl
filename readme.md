@@ -1,31 +1,53 @@
-# What is SMPL
+# About SMPL
 SMPL is primitive math programming language under development.
 
-# Basic Syntax
-## Declare a variable
-```cs
-define a = expr;
-```
-## While loop
+# Syntax
+All expressions end with a semicolon.
+
+## `Variable Declaration`
+You can declare a variable by using `define` keyword:
 ```js
-while (condition) {
-    // loop body
+define a = 2;
+```
+## `If Statement`
+Conditional constructs in SMPL are similar to conditional constructs in JavaScript:
+```js
+if (cond) {
+    // body
 }
 ```
-## If Statement
+Also you can use `else` branch:
 ```js
-if (condition) {
+if (cond) {
     // body
 } else {
     // else body
 }
 ```
+Warning! Language does not yet support else if, attempting to use this syntax will result in an error.
 
-## Functions
+## `While loop`
+While loop is also similar to while loop in js
+```js
+while (cond) {
+    // body
+}
+```
+
+## `Function Declaration`
+You can declare a function by using `function` keyword:
 ```js
 function name(arg1, arg2) {
     // body
-    return expr;
 }
 ```
+
+Use return statement for exit from function:
+
+```js
+function add(a, b) {
+    return a + b;
+}
+```
+
 you can see more examples [here](https://github.com/demetryf/smpl/tree/main/examples)
