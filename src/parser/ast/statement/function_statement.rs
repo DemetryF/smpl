@@ -21,10 +21,12 @@ pub struct FunctionStatement {
 impl Collect for FunctionStatement {
     fn collect(token_stream: &mut TokenStream) -> Self {
         token_stream.accept(&TokenValue::Function);
+        token_stream.in_function = true;
 
         let id = ParserUtils::id(token_stream);
         let args = Self::args(token_stream);
         let body = Block::collect(token_stream);
+        token_stream.in_function = false;
 
         FunctionStatement::new(id, args, body)
     }
