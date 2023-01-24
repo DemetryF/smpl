@@ -12,6 +12,8 @@ pub struct TokenStream {
     current: Token,
     following: Option<Token>,
 
+    pub in_function: bool,
+
     pub errors: Vec<Error>,
 }
 
@@ -32,6 +34,7 @@ impl TokenStream {
             errors,
             current,
             following: None,
+            in_function: false,
         }
     }
 

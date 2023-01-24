@@ -19,6 +19,10 @@ impl Collect for ReturnStatement {
 
         token_stream.accept(&TokenValue::Semicolon);
 
+        if !token_stream.in_function {
+            panic!("use return outside function");
+        }
+
         ReturnStatement::new(expr)
     }
 }
