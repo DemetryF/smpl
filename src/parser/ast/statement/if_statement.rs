@@ -4,7 +4,6 @@ use crate::{
     lexer::token::token_value::TokenValue,
     parser::{
         ast::{block::Block, expr::Expr, Collect},
-        parser_utils::ParserUtils,
         token_stream::TokenStream,
     },
 };
@@ -20,8 +19,7 @@ impl Collect for IfStatement {
     fn collect(token_stream: &mut TokenStream) -> Self {
         token_stream.accept(&TokenValue::If);
 
-        let cond = ParserUtils::parenthesis(token_stream);
-
+        let cond = Expr::collect(token_stream);
         let then_body = Block::collect(token_stream);
         let else_body = Self::parse_else_body(token_stream);
 

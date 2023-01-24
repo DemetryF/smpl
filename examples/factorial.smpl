@@ -1,8 +1,8 @@
-function factorial(n) {
-    define result = 1;
-    define i = 1;
+fn factorial(n) {
+    let result = 1;
+    let i = 1;
 
-    while (i <= n) {
+    while i <= n {
         result *= i; 
         i += 1;
     }

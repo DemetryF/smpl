@@ -33,9 +33,9 @@ impl TokenCollector for WordCollector {
         let len = Self::lex_word_literal(code);
 
         Some(match code.get_code_slice(start, len) {
-            "define" => TokenValue::Define,
+            "let" => TokenValue::Define,
             "else" => TokenValue::Else,
-            "function" => TokenValue::Function,
+            "fn" => TokenValue::Function,
             "if" => TokenValue::If,
             "return" => TokenValue::Return,
             "while" => TokenValue::While,
