@@ -6,25 +6,25 @@ pub struct CommentType {
 }
 
 impl CommentType {
-    pub fn is_begin(&self, code: &CodeStream) -> bool {
-        code.check(self.begin)
+    pub fn is_begin(&self, code_stream: &CodeStream) -> bool {
+        code_stream.check(self.begin)
     }
 
-    fn is_end(&self, code: &CodeStream) -> bool {
-        code.check(self.end)
+    fn is_end(&self, code_stream: &CodeStream) -> bool {
+        code_stream.check(self.end)
     }
 
-    pub fn try_skip(&self, code: &mut CodeStream) {
-        if !self.is_begin(code) {
+    pub fn try_skip(&self, code_stream: &mut CodeStream) {
+        if !self.is_begin(code_stream) {
             return;
         }
 
-        code.skip(self.begin.len());
+        code_stream.skip(self.begin.len());
 
-        while !self.is_end(code) && !code.is_eof() {
-            code.accept();
+        while !self.is_end(code_stream) && !code_stream.is_eof() {
+            code_stream.accept();
         }
 
-        code.skip(self.end.len());
+        code_stream.skip(self.end.len());
     }
 }

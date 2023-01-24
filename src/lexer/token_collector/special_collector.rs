@@ -5,8 +5,8 @@ use crate::lexer::{
 pub struct SpecialCollector;
 
 impl TokenCollector for SpecialCollector {
-    fn try_next(&mut self, code: &mut CodeStream) -> Option<TokenValue> {
-        let value = match code.current() {
+    fn try_next(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
+        let value = match code_stream.current() {
             ',' => TokenValue::Comma,
             ';' => TokenValue::Semicolon,
             '(' => TokenValue::OpeningParen,
@@ -17,7 +17,7 @@ impl TokenCollector for SpecialCollector {
             _ => return None,
         };
 
-        code.accept();
+        code_stream.accept();
 
         Some(value)
     }
