@@ -6,4 +6,4 @@ function fib(n) {
     return fib(n - 1) + fib(n - 2);
 }
 
-print(fib(6)); // 8
+fib(6); // 8
