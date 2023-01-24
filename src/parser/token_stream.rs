@@ -89,7 +89,7 @@ impl TokenStream {
     pub fn unexpected_token(&self, expected: &TokenValue) -> Error {
         let expected = Some(expected.to_string());
         let value = self.current().value.to_string();
-        let pos = self.lexer.code.get_pos();
+        let pos = self.lexer.code_stream.get_pos();
 
         Error::UnexpectedToken {
             expected,

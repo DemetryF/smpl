@@ -7,15 +7,15 @@ use crate::lexer::{
 pub struct WordCollector;
 
 impl WordCollector {
-    fn is_word_char(code: &CodeStream) -> bool {
-        code.current().is_ascii_alphanumeric()
+    fn is_word_char(code_stream: &CodeStream) -> bool {
+        code_stream.current().is_ascii_alphanumeric()
     }
 
-    fn lex_word_literal(code: &mut CodeStream) -> usize {
+    fn lex_word_literal(code_stream: &mut CodeStream) -> usize {
         let mut len = 0;
 
-        while !code.is_eof() && Self::is_word_char(code) {
-            code.accept();
+        while !code_stream.is_eof() && Self::is_word_char(code_stream) {
+            code_stream.accept();
             len += 1;
         }
 
@@ -24,15 +24,15 @@ impl WordCollector {
 }
 
 impl TokenCollector for WordCollector {
-    fn try_next(&mut self, code: &mut CodeStream) -> Option<TokenValue> {
-        if !code.current().is_alphabetic() {
+    fn try_next(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
+        if !code_stream.current().is_alphabetic() {
             return None;
         }
 
-        let start = code.pos.index;
-        let len = Self::lex_word_literal(code);
+        let start = code_stream.pos.index;
+        let len = Self::lex_word_literal(code_stream);
 
-        Some(match code.get_code_slice(start, len) {
+        Some(match code_stream.get_code_slice(start, len) {
             "let" => TokenValue::Define,
             "else" => TokenValue::Else,
             "fn" => TokenValue::Function,
