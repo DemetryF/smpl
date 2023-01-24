@@ -1,1 +1,3 @@
-return;
+define a = 0xDEF228;
+define b = 0o17;
+define c = 0b101;
