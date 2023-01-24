@@ -1,11 +1,11 @@
-stmt = if | while | function | declare | expr ';';
+stmt = if | while | function | declare | return | expr ';';
 
 (* main statements *)
 
-declare  = 'define' id [ '=' expr ] ';';
-function = 'function' id '(' fargs ')' block;
-if       = 'if' '(' expr ')' block [ 'else' block ];
-while    = 'while' '(' expr ')' block;
+declare  = 'let' id [ '=' expr ] ';';
+function = 'fn' id '(' fargs ')' block;
+if       = 'if' expr block [ 'else' block ];
+while    = 'while' expr block;
 
 return   = 'return' expr ';';
 expr     = assignment;
@@ -14,8 +14,6 @@ expr     = assignment;
 
 block  = '{' { bstmt } '}';
 bstmt  = if | while | declare | expr ';';
-fblock = '{' { fstmt } '}';
-fstmt  = bstmt | return;
 
 (* expressions *)
 
