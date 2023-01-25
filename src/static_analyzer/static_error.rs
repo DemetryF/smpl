@@ -23,7 +23,7 @@ pub enum StaticErrorKind {
         received_args_count: usize,
         function_id: Id,
     },
-    DuplicatesFunctionArgs(String),
+    DuplicateFunctionArgs(String),
 }
 
 impl Display for StaticErrorKind {
@@ -41,7 +41,7 @@ impl Display for StaticErrorKind {
                 "expected {} args, received {}",
                 expected_args_count, received_args_count
             ),
-            Self::DuplicatesFunctionArgs(id) => write!(f, "duplicate arg \"{}\"", id),
+            Self::DuplicateFunctionArgs(id) => write!(f, "duplicate arg \"{}\"", id),
         }
     }
 }

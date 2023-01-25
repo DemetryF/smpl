@@ -2,9 +2,13 @@ use std::collections::HashMap;
 
 use derive_more::Constructor;
 
-use crate::parser::ast::{statement::Statement, Id};
+use crate::parser::ast::{expr::call::Call, statement::Statement, Id};
 
-use self::{check::Check, env::Env, static_error::StaticError};
+use self::{
+    check::Check,
+    env::{Env, StaticIdInfo},
+    static_error::{StaticError, StaticErrorKind},
+};
 
 pub mod check;
 pub mod env;
@@ -56,5 +60,60 @@ impl StaticAnalyzer {
         }
 
         (funcs, stmts)
+    }
+
+    pub fn redeclaring_error(&mut self, id: Id, existing_id: &StaticIdInfo) {
+        self.errors.push(StaticError::new(
+            StaticErrorKind::ReDeclaringVariable {
+                name: id.value,
+                defined_at: existing_id.define_pos,
+            },
+            id.pos,
+        ));
+    }
+
+    pub fn add_function(&mut self, id: Id, args_count: usize) {
+        self.functions.insert(
+            id.value.clone(),
+            StaticFunctionInfo {
+                uses_count: 0,
+                args_count,
+                id,
+            },
+        );
+    }
+
+    pub fn duplicate_args_error(&mut self, id: Id) {
+        self.errors.push(StaticError::new(
+            StaticErrorKind::DuplicateFunctionArgs(id.value),
+            id.pos,
+        ))
+    }
+
+    pub fn non_existing_variable_error(&mut self, id: Id) {
+        self.errors.push(StaticError::new(
+            StaticErrorKind::NonExistingVariable(id.value),
+            id.pos,
+        ));
+    }
+
+    pub fn non_existing_function_error(&mut self, id: Id) {
+        self.errors.push(StaticError::new(
+            StaticErrorKind::NonExistingFunction(id.value),
+            id.pos,
+        ))
+    }
+
+    pub fn invalid_args_count_error(&mut self, call: &Call) {
+        let func = self.functions.get_mut(&call.id.value).unwrap();
+
+        self.errors.push(StaticError::new(
+            StaticErrorKind::InvalidArgumentsCount {
+                expected_args_count: func.args_count,
+                received_args_count: call.args.len(),
+                function_id: func.id.clone(),
+            },
+            call.id.pos,
+        ))
     }
 }

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::lexer::pos::Pos;
+use crate::{lexer::pos::Pos, parser::ast::Id};
 
 #[derive(Debug, Clone)]
 pub struct StaticIdInfo {
@@ -41,5 +41,15 @@ impl Env {
             Some(env) => env.search(id),
             None => false,
         }
+    }
+
+    pub fn add_variable(&mut self, id: Id) {
+        self.variables.insert(
+            id.value.clone(),
+            StaticIdInfo {
+                define_pos: id.pos,
+                uses_count: 0,
+            },
+        );
     }
 }

@@ -5,7 +5,7 @@ use crate::{
         operator::Operator,
         token_value::{Literal, TokenValue},
     },
-    parser::{parser_utils::ParserUtils, power_bindings::PowerBinding, token_stream::TokenStream},
+    parser::{power_bindings::PowerBinding, token_stream::TokenStream},
 };
 
 use self::{call::Call, unary::Unary};
