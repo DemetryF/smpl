@@ -25,6 +25,7 @@ fn main() {
             Err(errors) => {
                 const RED: &str = "\x1b[31m\x1b[1m";
                 const CANCEL: &str = "\x1b[0m";
+                const GREEN: &str = "\x1b[32m\x1b[1m";
                 for error in errors {
                     println!(
                         "{}:{}:{}: {}error:{} {}",
@@ -47,8 +48,8 @@ fn main() {
                     match error.kind {
                         StaticErrorKind::ReDeclaringVariable { name, defined_at } => {
                             println!(
-                                "note: function \"{}\" is declared at {}:{}:{}",
-                                name, filename, defined_at.line, defined_at.column
+                                "{}note:{} function \"{}\" is declared at {}:{}:{}",
+                                GREEN, CANCEL, name, filename, defined_at.line, defined_at.column
                             );
                             println!(
                                 " {} | {}",
@@ -62,7 +63,9 @@ fn main() {
                             function_id,
                         } => {
                             println!(
-                                "note: function \"{}\" is declared at: {}:{}:{}",
+                                "{}note:{} function \"{}\" is declared at: {}:{}:{}",
+                                GREEN,
+                                CANCEL,
                                 function_id.value,
                                 filename,
                                 function_id.pos.line,
@@ -76,7 +79,7 @@ fn main() {
                         }
                         _ => {}
                     }
-                    println!("");
+                    println!();
                 }
             }
         }
