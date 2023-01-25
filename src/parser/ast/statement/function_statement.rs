@@ -21,10 +21,12 @@ pub struct FunctionStatement {
 impl Collect for FunctionStatement {
     fn collect(token_stream: &mut TokenStream) -> Self {
         token_stream.accept(&TokenValue::Function);
-        token_stream.in_function = true;
 
         let id = ParserUtils::id(token_stream);
+
         let args = Self::args(token_stream);
+
+        token_stream.in_function = true;
         let body = Block::collect(token_stream);
         token_stream.in_function = false;
 
@@ -52,13 +54,13 @@ impl FunctionStatement {
 
         token_stream.accept(&TokenValue::OpeningParen);
 
-        if !token_stream.check(&TokenValue::ClosingParen) {
-            args.push(ParserUtils::id(token_stream));
+        if token_stream.skip_if(&TokenValue::ClosingParen).is_some() {
+            return args;
+        }
 
-            while token_stream.check(&TokenValue::Comma) {
-                token_stream.skip();
-                args.push(ParserUtils::id(token_stream));
-            }
+        args.push(ParserUtils::id(token_stream));
+        while token_stream.skip_if(&TokenValue::Comma).is_some() {
+            args.push(ParserUtils::id(token_stream));
         }
 
         token_stream.accept(&TokenValue::ClosingParen);

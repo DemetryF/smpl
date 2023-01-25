@@ -1,10 +1,6 @@
 use crate::lexer::token::{operator::Operator, token_value::TokenValue};
 
-use super::{
-    ast::Collect,
-    ast::{expr::Expr, Id},
-    token_stream::TokenStream,
-};
+use super::{ast::Id, token_stream::TokenStream};
 
 pub struct ParserUtils;
 impl ParserUtils {
@@ -21,13 +17,5 @@ impl ParserUtils {
             TokenValue::Operator(op) => op,
             _ => panic!("expected operator"),
         }
-    }
-
-    pub fn parenthesis(token_stream: &mut TokenStream) -> Expr {
-        token_stream.accept(&TokenValue::OpeningParen);
-        let expr = Expr::collect(token_stream);
-        token_stream.accept(&TokenValue::ClosingParen);
-
-        expr
     }
 }
