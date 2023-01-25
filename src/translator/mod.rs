@@ -82,6 +82,4 @@ impl Translator {
 
         (global_stmts, local_stmts)
     }
-
-    fn format_error(&self, errors: Vec<StaticError>) {}
 }
