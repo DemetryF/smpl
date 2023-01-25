@@ -2,39 +2,18 @@ use itertools::Itertools;
 
 use crate::{
     parser::ast::statement::function_statement::FunctionStatement,
-    static_analyzer::{
-        check::Check,
-        env::{Env, StaticIdInfo},
-        static_error::{StaticError, StaticErrorKind},
-        StaticAnalyzer, StaticFunctionInfo,
-    },
+    static_analyzer::{check::Check, env::Env, StaticAnalyzer},
 };
 
 impl Check for FunctionStatement {
     fn check(&self, analyzer: &mut StaticAnalyzer, _: &mut Env) {
-        let mut f_env = Env::new();
         self.check_args(analyzer);
 
-        analyzer.functions.insert(
-            self.id.value.clone(),
-            StaticFunctionInfo {
-                uses_count: 0,
-                args_count: self.args.len(),
-                id: self.id.clone(),
-            },
-        );
+        analyzer.add_function(self.id.clone(), self.args.len());
 
-        for arg in self.args.iter() {
-            f_env.variables.insert(
-                arg.value.clone(),
-                StaticIdInfo {
-                    define_pos: arg.pos,
-                    uses_count: 0,
-                },
-            );
-        }
+        let mut env = self.env_from_args();
 
-        self.body.check(analyzer, &mut f_env);
+        self.body.check(analyzer, &mut env);
     }
 }
 
@@ -44,10 +23,17 @@ impl FunctionStatement {
 
         match duplicates.next() {
             None => (),
-            Some(id) => analyzer.errors.push(StaticError::new(
-                StaticErrorKind::DuplicatesFunctionArgs(id.value.clone()),
-                id.pos,
-            )),
+            Some(id) => analyzer.duplicate_args_error(id.to_owned()),
         }
+    }
+
+    fn env_from_args(&self) -> Env {
+        let mut env = Env::new();
+
+        for arg in self.args.iter() {
+            env.add_variable(arg.to_owned());
+        }
+
+        env
     }
 }
