@@ -1,7 +1,7 @@
 use super::pos::Pos;
 
 pub struct CodeStream {
-    pub pos: Pos,
+    pos: Pos,
     code: String,
 }
 
@@ -27,17 +27,23 @@ impl CodeStream {
             return false;
         }
 
-        self.get_code_slice(start, str.len()) == str
+        self.slice(start, str.len()) == str
     }
 
-    pub fn get_code_slice(&self, start: usize, len: usize) -> &str {
+    pub fn slice(&self, start: usize, len: usize) -> &str {
         &self.code[start..start + len]
     }
 
-    pub fn skip(&mut self, count: usize) {
+    pub fn slice_from_current(&self, len: usize) -> &str {
+        &self.code[self.pos.index..self.pos.index + len]
+    }
+
+    pub fn skip(&mut self, count: usize) -> &str {
         for _ in 0..count {
             self.accept();
         }
+
+        &self.code[self.pos.index - count..self.pos.index]
     }
 
     pub fn accept(&mut self) -> char {

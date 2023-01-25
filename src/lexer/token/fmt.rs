@@ -5,7 +5,7 @@ use super::token_value::TokenValue::{self, *};
 impl Display for TokenValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Operator(op) => write!(f, "{}", String::from(op.to_owned())),
+            Operator(op) => write!(f, "{}", op),
             Literal(literal) => write!(f, "{}", literal),
             Id(id) => write!(f, "{}", id),
 
