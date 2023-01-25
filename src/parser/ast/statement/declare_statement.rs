@@ -28,11 +28,8 @@ impl Collect for DeclareStatement {
 
 impl DeclareStatement {
     fn init_expr(token_stream: &mut TokenStream) -> Option<Expr> {
-        if token_stream.check(&TokenValue::Operator(Operator::Assignment)) {
-            token_stream.skip();
-            Some(Expr::collect(token_stream))
-        } else {
-            None
-        }
+        token_stream.skip_if(&TokenValue::Operator(Operator::Assignment))?;
+
+        Some(Expr::collect(token_stream))
     }
 }

@@ -101,4 +101,12 @@ impl TokenStream {
     pub fn is_end(&self) -> bool {
         self.check(&TokenValue::Eof)
     }
+
+    pub fn skip_if(&mut self, value: &TokenValue) -> Option<Token> {
+        if self.check(value) {
+            return Some(self.skip());
+        }
+
+        None
+    }
 }

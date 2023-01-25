@@ -13,15 +13,11 @@ pub struct ReturnStatement(pub Option<Expr>);
 
 impl Collect for ReturnStatement {
     fn collect(token_stream: &mut TokenStream) -> Self {
+        Self::check_in_function(token_stream);
+
         token_stream.accept(&TokenValue::Return);
-
         let expr = Self::return_expr(token_stream);
-
         token_stream.accept(&TokenValue::Semicolon);
-
-        if !token_stream.in_function {
-            panic!("use return outside function");
-        }
 
         ReturnStatement::new(expr)
     }
@@ -33,6 +29,12 @@ impl ReturnStatement {
             None
         } else {
             Some(Expr::collect(token_stream))
+        }
+    }
+
+    pub fn check_in_function(token_stream: &TokenStream) {
+        if !token_stream.in_function {
+            panic!("use return outside function");
         }
     }
 }

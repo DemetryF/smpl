@@ -20,6 +20,7 @@ pub struct Call {
 impl Collect for Call {
     fn collect(token_stream: &mut TokenStream) -> Self {
         let id = ParserUtils::id(token_stream);
+
         let args = Self::call_args(token_stream);
 
         Self::new(id, args)
@@ -32,13 +33,13 @@ impl Call {
 
         token_stream.accept(&TokenValue::OpeningParen);
 
-        if !token_stream.check(&TokenValue::ClosingParen) {
-            args.push(Expr::collect(token_stream));
+        if token_stream.skip_if(&TokenValue::ClosingParen).is_some() {
+            return args;
+        }
 
-            while token_stream.check(&TokenValue::Comma) {
-                token_stream.skip();
-                args.push(Expr::collect(token_stream));
-            }
+        args.push(Expr::collect(token_stream));
+        while token_stream.skip_if(&TokenValue::Comma).is_some() {
+            args.push(Expr::collect(token_stream));
         }
 
         token_stream.accept(&TokenValue::ClosingParen);

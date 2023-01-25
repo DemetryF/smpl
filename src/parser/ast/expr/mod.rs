@@ -73,7 +73,7 @@ impl Expr {
         let pos = token_stream.current().pos;
         match token_stream.current().value.clone() {
             TokenValue::Literal(literal) => Self::literal(token_stream, literal),
-            TokenValue::OpeningParen => ParserUtils::parenthesis(token_stream),
+            TokenValue::OpeningParen => Self::parenthesis(token_stream),
             TokenValue::Operator(_) => Self::Unary(Unary::collect(token_stream)),
 
             TokenValue::Id(id) => {
@@ -92,5 +92,13 @@ impl Expr {
     fn literal(token_stream: &mut TokenStream, literal: Literal) -> Self {
         token_stream.skip();
         Self::Atom(Atom::Literal(literal))
+    }
+
+    pub fn parenthesis(token_stream: &mut TokenStream) -> Expr {
+        token_stream.accept(&TokenValue::OpeningParen);
+        let expr = Self::collect(token_stream);
+        token_stream.accept(&TokenValue::ClosingParen);
+
+        expr
     }
 }
