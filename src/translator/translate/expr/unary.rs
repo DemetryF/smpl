@@ -15,6 +15,6 @@ impl Translate for Unary {
             operand,
         });
 
-        Some(Atom::Id(result))
+        Some(Atom::Temp(result))
     }
 }

@@ -1,6 +1,10 @@
 use crate::{
     parser::ast::expr::{call::Call, unary::Unary, Atom, Binary, Expr},
-    static_analyzer::{env::Env, static_error::StaticError, StaticAnalyzer},
+    static_analyzer::{
+        env::Env,
+        static_error::{StaticError, StaticErrorKind},
+        StaticAnalyzer,
+    },
 };
 
 use super::Check;
@@ -19,8 +23,11 @@ impl Check for Expr {
 impl Check for Atom {
     fn check(&self, analyzer: &mut StaticAnalyzer, env: &mut Env) {
         if let Atom::Id(id) = &self {
-            if !env.search(id) {
-                analyzer.errors.push(StaticError::NonExistingVariable);
+            if !env.search(&id.value) {
+                analyzer.errors.push(StaticError::new(
+                    StaticErrorKind::NonExistingVariable(id.value.clone()),
+                    id.pos,
+                ));
             }
         }
     }
@@ -39,10 +46,20 @@ impl Check for Call {
             Some(func) => {
                 if func.args_count != self.args.len() {
                     func.uses_count += 1;
-                    analyzer.errors.push(StaticError::InvalidArgumentsCount)
+                    analyzer.errors.push(StaticError::new(
+                        StaticErrorKind::InvalidArgumentsCount {
+                            expected_args_count: func.args_count,
+                            received_args_count: self.args.len(),
+                            function_id: func.id.clone(),
+                        },
+                        self.id.pos,
+                    ))
                 }
             }
-            None => analyzer.errors.push(StaticError::NonExistingFunction),
+            None => analyzer.errors.push(StaticError::new(
+                StaticErrorKind::NonExistingFunction(self.id.value.clone()),
+                self.id.pos,
+            )),
         }
 
         for arg in self.args.iter() {

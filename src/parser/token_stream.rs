@@ -7,7 +7,7 @@ use crate::{
 };
 
 pub struct TokenStream {
-    lexer: Lexer,
+    pub lexer: Lexer,
 
     current: Token,
     following: Option<Token>,

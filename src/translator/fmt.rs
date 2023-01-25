@@ -1,6 +1,9 @@
 use std::fmt::Display;
 
-use crate::{lexer::token::token_value::Literal, parser::ast::expr::Atom};
+use crate::{
+    lexer::token::token_value::Literal,
+    parser::ast::{expr::Atom, Id},
+};
 
 use super::instruction::Instruction;
 
@@ -59,8 +62,15 @@ impl Display for Atom {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Id(id) => write!(f, "{}", id),
+            Self::Temp(id) => write!(f, "{}", id),
             Self::Literal(literal) => write!(f, "{}", literal),
         }
+    }
+}
+
+impl Display for Id {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
     }
 }
 

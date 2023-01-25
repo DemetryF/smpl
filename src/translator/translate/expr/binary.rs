@@ -1,6 +1,9 @@
 use crate::{
     lexer::token::operator::Operator,
-    parser::ast::expr::{Atom, Binary, Expr},
+    parser::ast::{
+        expr::{Atom, Binary, Expr},
+        Id,
+    },
     translator::{instruction::Instruction, translate::Translate, Translator},
 };
 
@@ -21,9 +24,10 @@ impl Translate for Binary {
                 translator.push(Instruction::Assign {
                     what,
                     op,
-                    to: to.clone(),
+                    to: to.value.clone(),
                 });
-                Some(Atom::Id(to.clone()))
+
+                Some(Atom::Id(Id::new(to.value.clone(), to.pos)))
             }
 
             _ => {
@@ -38,7 +42,7 @@ impl Translate for Binary {
                     right,
                 });
 
-                Some(Atom::Id(result))
+                Some(Atom::Temp(result))
             }
         }
     }

@@ -12,7 +12,7 @@ pub trait Collect {
     fn collect(token_stream: &mut TokenStream) -> Self;
 }
 
-#[derive(Debug, Constructor)]
+#[derive(Debug, Constructor, Clone)]
 pub struct Id {
     pub value: String,
     pub pos: Pos,

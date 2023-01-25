@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use derive_more::Constructor;
 
-use crate::parser::ast::statement::Statement;
+use crate::parser::ast::{statement::Statement, Id};
 
 use self::{check::Check, env::Env, static_error::StaticError};
 
@@ -14,6 +14,7 @@ pub mod static_error;
 pub struct StaticFunctionInfo {
     uses_count: usize,
     args_count: usize,
+    id: Id,
 }
 
 pub struct StaticAnalyzer {

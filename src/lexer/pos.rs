@@ -30,7 +30,7 @@ impl Pos {
     pub fn new_line(&mut self) {
         self.line += 1;
         self.column = 1;
-        self.line_begin = self.index;
+        self.line_begin = self.index + 1;
     }
 }
 
