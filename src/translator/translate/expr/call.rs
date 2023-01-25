@@ -19,6 +19,6 @@ impl Translate for Call {
             args_count,
         });
 
-        Some(Atom::Id(result))
+        Some(Atom::Temp(result))
     }
 }

@@ -6,7 +6,7 @@ pub mod power_bindings;
 pub mod token_stream;
 
 pub struct Parser {
-    token_stream: TokenStream,
+    pub token_stream: TokenStream,
 }
 
 impl Parser {

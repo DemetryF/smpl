@@ -10,7 +10,7 @@ use crate::{
 
 use self::{call::Call, unary::Unary};
 
-use super::Collect;
+use super::{Collect, Id};
 
 pub mod call;
 pub mod unary;
@@ -33,7 +33,8 @@ pub struct Binary {
 #[derive(Debug)]
 pub enum Atom {
     Literal(Literal),
-    Id(String),
+    Temp(String),
+    Id(Id),
 }
 
 impl Collect for Expr {
@@ -69,6 +70,7 @@ impl Expr {
     }
 
     fn fact(token_stream: &mut TokenStream) -> Self {
+        let pos = token_stream.current().pos;
         match token_stream.current().value.clone() {
             TokenValue::Literal(literal) => Self::literal(token_stream, literal),
             TokenValue::OpeningParen => ParserUtils::parenthesis(token_stream),
@@ -79,7 +81,7 @@ impl Expr {
                     Self::Call(Call::collect(token_stream))
                 } else {
                     token_stream.skip();
-                    Self::Atom(Atom::Id(id))
+                    Self::Atom(Atom::Id(Id::new(id, pos)))
                 }
             }
 

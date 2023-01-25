@@ -1,6 +1,6 @@
 use crate::{
     parser::{ast::statement::Statement, Parser},
-    static_analyzer::StaticAnalyzer,
+    static_analyzer::{static_error::StaticError, StaticAnalyzer},
 };
 
 use self::{
@@ -35,22 +35,19 @@ impl Translator {
 
     pub fn get_temp_var(&mut self) -> String {
         self.temps_count += 1;
-        return String::from("t") + self.temps_count.to_string().as_str();
+        return String::from("%") + self.temps_count.to_string().as_str();
     }
 
     pub fn push(&mut self, instruction: Instruction) {
         self.instructions.push(instruction);
     }
 
-    pub fn translate(&mut self) {
+    pub fn translate(&mut self) -> Result<(), Vec<StaticError>> {
         let stmts = self.parser.parse();
         let analyzer = StaticAnalyzer::new(&stmts);
 
         if !analyzer.errors.is_empty() {
-            for error in analyzer.errors {
-                println!("error: {:#?}", error)
-            }
-            panic!("я обкакался");
+            return Err(analyzer.errors);
         }
 
         let (global, local) = Self::global_and_local_stmts(stmts);
@@ -58,6 +55,8 @@ impl Translator {
         self.translate_stmts(global);
         self.add_main_label();
         self.translate_stmts(local);
+
+        Ok(())
     }
 
     pub fn add_main_label(&mut self) {
@@ -83,4 +82,6 @@ impl Translator {
 
         (global_stmts, local_stmts)
     }
+
+    fn format_error(&self, errors: Vec<StaticError>) {}
 }

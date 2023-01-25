@@ -5,7 +5,7 @@ use crate::{
     static_analyzer::{
         check::Check,
         env::{Env, StaticIdInfo},
-        static_error::StaticError,
+        static_error::{StaticError, StaticErrorKind},
         StaticAnalyzer, StaticFunctionInfo,
     },
 };
@@ -20,6 +20,7 @@ impl Check for FunctionStatement {
             StaticFunctionInfo {
                 uses_count: 0,
                 args_count: self.args.len(),
+                id: self.id.clone(),
             },
         );
 
@@ -41,8 +42,12 @@ impl FunctionStatement {
     fn check_args(&self, analyzer: &mut StaticAnalyzer) {
         let mut duplicates = self.args.iter().duplicates_by(|x| &x.value);
 
-        if duplicates.next().is_some() {
-            analyzer.errors.push(StaticError::DuplicatesFunctionArgs)
+        match duplicates.next() {
+            None => (),
+            Some(id) => analyzer.errors.push(StaticError::new(
+                StaticErrorKind::DuplicatesFunctionArgs(id.value.clone()),
+                id.pos,
+            )),
         }
     }
 }
