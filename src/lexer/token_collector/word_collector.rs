@@ -29,10 +29,10 @@ impl TokenCollector for WordCollector {
             return None;
         }
 
-        let start = code_stream.pos.index;
+        let start = code_stream.get_pos().index;
         let len = Self::lex_word_literal(code_stream);
 
-        Some(match code_stream.get_code_slice(start, len) {
+        Some(match code_stream.slice(start, len) {
             "let" => TokenValue::Define,
             "else" => TokenValue::Else,
             "fn" => TokenValue::Function,
