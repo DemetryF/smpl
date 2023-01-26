@@ -7,7 +7,7 @@ impl Translate for Unary {
     fn translate(self, translator: &mut Translator) -> Option<Atom> {
         let result = translator.get_temp_var();
 
-        let operand = self.rhs.translate(translator).expect("msg");
+        let operand = self.rhs.translate(translator).unwrap();
 
         translator.push(Instruction::Unary {
             result: result.clone(),

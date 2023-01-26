@@ -7,7 +7,7 @@ use crate::{
 impl Translate for DeclareStatement {
     fn translate(self, translator: &mut Translator) -> Option<Atom> {
         let value = if let Some(expr) = self.expr {
-            expr.translate(translator).expect("")
+            expr.translate(translator).unwrap()
         } else {
             Atom::Literal(Literal::Number(0.0))
         };
