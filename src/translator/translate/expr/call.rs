@@ -1,5 +1,5 @@
 use crate::{
-    parser::ast::expr::{call::Call, Atom},
+    parser::ast::expr::{call::Call, Atom, Expr},
     translator::{instruction::Instruction, translate::Translate, Translator},
 };
 
@@ -8,10 +8,7 @@ impl Translate for Call {
         let args_count = self.args.len();
         let result = translator.get_temp_var();
 
-        for arg in self.args {
-            let arg_result = arg.translate(translator).expect("");
-            translator.push(Instruction::Push(arg_result));
-        }
+        Self::translate_args(self.args, translator);
 
         translator.push(Instruction::Call {
             result: result.clone(),
@@ -20,5 +17,14 @@ impl Translate for Call {
         });
 
         Some(Atom::Temp(result))
+    }
+}
+
+impl Call {
+    fn translate_args(args: Vec<Expr>, translator: &mut Translator) {
+        for arg in args {
+            let arg_result = arg.translate(translator).unwrap();
+            translator.push(Instruction::Push(arg_result));
+        }
     }
 }

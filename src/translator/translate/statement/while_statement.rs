@@ -11,28 +11,33 @@ impl Translate for WhileStatement {
     fn translate(self, translator: &mut Translator) -> Option<Atom> {
         translator.whiles_count += 1;
 
-        let binding = translator.whiles_count.to_string();
-        let whiles_count = &binding;
+        let (start_label, end_label) = Self::labels(translator.whiles_count);
 
-        let while_start_label = Label(String::from("while_start") + whiles_count);
-        let while_end_label = Label(String::from("while_end") + whiles_count);
-
-        translator.push(Instruction::Label(while_start_label.clone()));
-        let cond = self.cond.translate(translator).expect("");
+        translator.push(Instruction::Label(start_label.clone()));
+        let cond = self.cond.translate(translator).unwrap();
 
         translator.push(Instruction::Unless {
             cond,
-            to: while_end_label.clone(),
+            to: end_label.clone(),
         });
 
         self.body.translate(translator);
 
-        translator.push(Instruction::Goto {
-            to: while_start_label,
-        });
-
-        translator.push(Instruction::Label(while_end_label));
+        translator.push(Instruction::Goto { to: start_label });
+        translator.push(Instruction::Label(end_label));
 
         None
+    }
+}
+
+impl WhileStatement {
+    fn labels(n: usize) -> (Label, Label) {
+        let binding = n.to_string();
+        let whiles_count = &binding;
+
+        let start_label = Label(String::from("while_start") + whiles_count);
+        let end_label = Label(String::from("while_end") + whiles_count);
+
+        (start_label, end_label)
     }
 }

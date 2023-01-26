@@ -5,12 +5,8 @@ use crate::{
 
 impl Translate for ReturnStatement {
     fn translate(self, translator: &mut Translator) -> Option<Atom> {
-        if let Some(expr) = self.0 {
-            let value = expr.translate(translator).expect("");
-            translator.push(Instruction::Return(Some(value)));
-        } else {
-            translator.push(Instruction::Return(None));
-        }
+        let value = self.0.map(|x| x.translate(translator));
+        translator.push(Instruction::Return(value.unwrap()));
 
         None
     }

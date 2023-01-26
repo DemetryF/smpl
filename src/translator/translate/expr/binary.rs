@@ -10,40 +10,47 @@ use crate::{
 impl Translate for Binary {
     fn translate(self, translator: &mut Translator) -> Option<Atom> {
         match self.op {
-            op @ (Operator::Assignment
-            | Operator::AdditionAssignment
+            Operator::MultiplicationAssignment
             | Operator::SubtractionAssignment
-            | Operator::MultiplicationAssignment
-            | Operator::DivisionAssignment) => {
-                let what = self.rhs.translate(translator).expect("");
+            | Operator::AdditionAssignment
+            | Operator::Assignment
+            | Operator::DivisionAssignment => self.translate_assignment(translator),
 
-                let Expr::Atom(Atom::Id(to)) = self.lhs.as_ref() else {
-                    panic!();
-                };
-
-                translator.push(Instruction::Assign {
-                    what,
-                    op,
-                    to: to.value.clone(),
-                });
-
-                Some(Atom::Id(Id::new(to.value.clone(), to.pos)))
-            }
-
-            _ => {
-                let result = translator.get_temp_var();
-                let left = self.lhs.translate(translator).expect("");
-                let right = self.rhs.translate(translator).expect("");
-
-                translator.push(Instruction::Binary {
-                    result: result.clone(),
-                    left,
-                    op: self.op,
-                    right,
-                });
-
-                Some(Atom::Temp(result))
-            }
+            _ => self.translate_no_assignment(translator),
         }
+    }
+}
+
+impl Binary {
+    fn translate_assignment(self, translator: &mut Translator) -> Option<Atom> {
+        let what = self.rhs.translate(translator).unwrap();
+
+        let Expr::Atom(Atom::Id(to)) = self.lhs.as_ref() else {
+            panic!();
+        };
+
+        translator.push(Instruction::Assign {
+            what,
+            op: self.op,
+            to: to.value.clone(),
+        });
+
+        Some(Atom::Id(Id::new(to.value.clone(), to.pos)))
+    }
+
+    fn translate_no_assignment(self, translator: &mut Translator) -> Option<Atom> {
+        let result = translator.get_temp_var();
+
+        let left = self.lhs.translate(translator).unwrap();
+        let right = self.rhs.translate(translator).unwrap();
+
+        translator.push(Instruction::Binary {
+            result: result.clone(),
+            left,
+            op: self.op,
+            right,
+        });
+
+        Some(Atom::Temp(result))
     }
 }
