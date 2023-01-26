@@ -15,7 +15,7 @@ impl Translate for DeclareStatement {
         translator.push(Instruction::Assign {
             what: value,
             op: Operator::Assignment,
-            to: self.id.value,
+            to: Atom::Id(self.id),
         });
 
         None
