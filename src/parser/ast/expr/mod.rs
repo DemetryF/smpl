@@ -30,10 +30,10 @@ pub struct Binary {
     pub rhs: Box<Expr>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Atom {
     Literal(Literal),
-    Temp(String),
+    Temp(usize),
     Id(Id),
 }
 

@@ -6,20 +6,20 @@ pub struct Label(pub String);
 #[derive(Debug)]
 pub enum Instruction {
     Binary {
-        result: String,
+        result: Atom,
         left: Atom,
         op: Operator,
         right: Atom,
     },
     Unary {
-        result: String,
+        result: Atom,
         op: Operator,
         operand: Atom,
     },
     Assign {
         what: Atom,
         op: Operator,
-        to: String,
+        to: Atom,
     },
     Goto {
         to: Label,
@@ -29,7 +29,7 @@ pub enum Instruction {
         to: Label,
     },
     Call {
-        result: String,
+        result: Atom,
         name: String,
         args_count: usize,
     },

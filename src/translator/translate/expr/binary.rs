@@ -1,9 +1,6 @@
 use crate::{
     lexer::token::operator::Operator,
-    parser::ast::{
-        expr::{Atom, Binary, Expr},
-        Id,
-    },
+    parser::ast::expr::{Atom, Binary, Expr},
     translator::{instruction::Instruction, translate::Translate, Translator},
 };
 
@@ -25,17 +22,18 @@ impl Binary {
     fn translate_assignment(self, translator: &mut Translator) -> Option<Atom> {
         let what = self.rhs.translate(translator).unwrap();
 
-        let Expr::Atom(Atom::Id(to)) = self.lhs.as_ref() else {
+        let Expr::Atom(to) = self.lhs.as_ref() else {
             panic!();
         };
+        let to = to.to_owned();
 
         translator.push(Instruction::Assign {
             what,
             op: self.op,
-            to: to.value.clone(),
+            to: to.clone(),
         });
 
-        Some(Atom::Id(Id::new(to.value.clone(), to.pos)))
+        Some(to)
     }
 
     fn translate_no_assignment(self, translator: &mut Translator) -> Option<Atom> {
@@ -51,6 +49,6 @@ impl Binary {
             right,
         });
 
-        Some(Atom::Temp(result))
+        Some(result)
     }
 }

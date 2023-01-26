@@ -1,5 +1,8 @@
 use crate::{
-    parser::{ast::statement::Statement, Parser},
+    parser::{
+        ast::{expr::Atom, statement::Statement},
+        Parser,
+    },
     static_analyzer::{static_error::StaticError, StaticAnalyzer},
 };
 
@@ -33,9 +36,9 @@ impl Translator {
         }
     }
 
-    pub fn get_temp_var(&mut self) -> String {
+    pub fn get_temp_var(&mut self) -> Atom {
         self.temps_count += 1;
-        return String::from("%") + self.temps_count.to_string().as_str();
+        Atom::Temp(self.temps_count)
     }
 
     pub fn push(&mut self, instruction: Instruction) {
