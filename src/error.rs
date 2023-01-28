@@ -19,9 +19,9 @@ impl Display for Error {
                 value,
                 pos,
             } => {
-                write!(f, "unexpected token '{}' at {}", value, pos)?;
+                write!(f, "unexpected token '{value}' at {pos}")?;
                 match expected {
-                    Some(expected) => write!(f, ", expected {}", expected),
+                    Some(expected) => write!(f, ", expected {expected}"),
                     None => write!(f, ""),
                 }
             }
