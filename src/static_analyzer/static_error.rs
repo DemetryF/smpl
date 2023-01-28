@@ -29,19 +29,18 @@ pub enum StaticErrorKind {
 impl Display for StaticErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::NonExistingFunction(id) => write!(f, "\"{}\" is not defined", id),
-            Self::NonExistingVariable(id) => write!(f, "\"{}\" is not defined", id),
-            Self::ReDeclaringVariable { name, .. } => write!(f, "\"{}\" is already declared", name),
+            Self::NonExistingFunction(id) => write!(f, "\"{id}\" is not defined"),
+            Self::NonExistingVariable(id) => write!(f, "\"{id}\" is not defined"),
+            Self::ReDeclaringVariable { name, .. } => write!(f, "\"{name}\" is already declared"),
             Self::InvalidArgumentsCount {
                 expected_args_count,
                 received_args_count,
                 ..
             } => write!(
                 f,
-                "expected {} args, received {}",
-                expected_args_count, received_args_count
+                "expected {expected_args_count} args, received {received_args_count}"
             ),
-            Self::DuplicateFunctionArgs(id) => write!(f, "duplicate arg \"{}\"", id),
+            Self::DuplicateFunctionArgs(id) => write!(f, "duplicate arg \"{id}\""),
         }
     }
 }

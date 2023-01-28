@@ -14,10 +14,7 @@ impl CodeStream {
     }
 
     pub fn current(&self) -> char {
-        self.code[self.pos.index..]
-            .chars()
-            .next()
-            .expect("CodeStream::current")
+        self.code[self.pos.index..].chars().next().unwrap()
     }
 
     pub fn check(&self, str: &str) -> bool {

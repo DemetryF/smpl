@@ -19,37 +19,38 @@ fn main() {
         match t.translate() {
             Ok(_) => {
                 for i in t.instructions {
-                    println!("{}", i);
+                    println!("{i}");
                 }
             }
             Err(errors) => {
                 const RED: &str = "\x1b[31m\x1b[1m";
                 const CANCEL: &str = "\x1b[0m";
                 const GREEN: &str = "\x1b[32m\x1b[1m";
+
                 for error in errors {
                     println!(
-                        "{}:{}:{}: {}error:{} {}",
-                        filename, error.pos.line, error.pos.column, RED, CANCEL, error.kind
+                        "{filename}:{}:{}: {RED}error:{CANCEL} {}",
+                        error.pos.line, error.pos.column, error.kind
                     );
+
                     let line = error.pos.line;
                     let len = (line as f64).log10().floor() as usize + 1;
+
                     println!(
-                        " {} | {}",
-                        line,
+                        " {line} | {}",
                         get_line_from(code.as_str(), error.pos.line_begin)
                     );
                     println!(
-                        "{}| {}{}^{}",
+                        "{}| {}{RED}^{CANCEL}",
                         " ".repeat(len + 2),
                         " ".repeat(error.pos.column - 1),
-                        RED,
-                        CANCEL,
                     );
+
                     match error.kind {
                         StaticErrorKind::ReDeclaringVariable { name, defined_at } => {
                             println!(
-                                "{}note:{} function \"{}\" is declared at {}:{}:{}",
-                                GREEN, CANCEL, name, filename, defined_at.line, defined_at.column
+                                "{GREEN}note:{CANCEL} function \"{name}\" is declared at {}:{}:{}",
+                                filename, defined_at.line, defined_at.column
                             );
                             println!(
                                 " {} | {}",
@@ -63,11 +64,8 @@ fn main() {
                             function_id,
                         } => {
                             println!(
-                                "{}note:{} function \"{}\" is declared at: {}:{}:{}",
-                                GREEN,
-                                CANCEL,
+                                "{GREEN}note:{CANCEL} function \"{}\" is declared at: {filename}:{}:{}",
                                 function_id.value,
-                                filename,
                                 function_id.pos.line,
                                 function_id.pos.column
                             );
@@ -84,7 +82,7 @@ fn main() {
             }
         }
     } else {
-        println!("no such file \"{}\"", filename);
+        println!("no such file \"{filename}\"");
     }
 }
 
