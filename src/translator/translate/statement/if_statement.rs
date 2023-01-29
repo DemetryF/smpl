@@ -1,7 +1,7 @@
 use crate::{
     parser::ast::{expr::Atom, statement::if_statement::IfStatement},
     translator::{
-        instruction::{Instruction, Label},
+        instruction::{Goto, Instruction, Label, Unless},
         translate::Translate,
         Translator,
     },
@@ -20,23 +20,15 @@ impl Translate for IfStatement {
         if let Some(else_body) = self.else_body {
             let else_label = Label(String::from("else") + ifs_count);
 
-            translator.push(Instruction::Unless {
-                cond,
-                to: else_label.clone(),
-            });
+            translator.push(Instruction::Unless(Unless::new(cond, else_label.clone())));
 
             self.then_body.translate(translator);
-            translator.push(Instruction::Goto {
-                to: endif_label.clone(),
-            });
+            translator.push(Instruction::Goto(Goto::new(endif_label.clone())));
 
             translator.push(Instruction::Label(else_label));
             else_body.translate(translator);
         } else {
-            translator.push(Instruction::Unless {
-                cond,
-                to: endif_label.clone(),
-            });
+            translator.push(Instruction::Unless(Unless::new(cond, endif_label.clone())));
             self.then_body.translate(translator);
         }
 

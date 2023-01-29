@@ -1,7 +1,7 @@
 use crate::{
     parser::ast::{expr::Atom, statement::while_statement::WhileStatement},
     translator::{
-        instruction::{Instruction, Label},
+        instruction::{Goto, Instruction, Label, Unless},
         translate::Translate,
         Translator,
     },
@@ -16,14 +16,11 @@ impl Translate for WhileStatement {
         translator.push(Instruction::Label(start_label.clone()));
         let cond = self.cond.translate(translator).unwrap();
 
-        translator.push(Instruction::Unless {
-            cond,
-            to: end_label.clone(),
-        });
+        translator.push(Instruction::Unless(Unless::new(cond, end_label.clone())));
 
         self.body.translate(translator);
 
-        translator.push(Instruction::Goto { to: start_label });
+        translator.push(Instruction::Goto(Goto::new(start_label)));
         translator.push(Instruction::Label(end_label));
 
         None
