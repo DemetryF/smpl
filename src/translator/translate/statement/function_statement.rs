@@ -1,7 +1,7 @@
 use crate::{
     parser::ast::{expr::Atom, statement::function_statement::FunctionStatement},
     translator::{
-        instruction::{Instruction, Label},
+        instruction::{Instruction, Label, Pop, Return},
         translate::Translate,
         Translator,
     },
@@ -14,13 +14,13 @@ impl Translate for FunctionStatement {
         self.args.reverse();
 
         for arg in self.args {
-            translator.push(Instruction::Pop(arg.value))
+            translator.push(Instruction::Pop(Pop(arg.value)))
         }
 
         self.body.translate(translator);
 
         if !self.has_return {
-            translator.push(Instruction::Return(None))
+            translator.push(Instruction::Return(Return(None)))
         }
 
         None

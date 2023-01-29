@@ -1,7 +1,11 @@
 use crate::{
     lexer::token::{operator::Operator, token_value::Literal},
     parser::ast::{expr::Atom, statement::declare_statement::DeclareStatement},
-    translator::{instruction::Instruction, translate::Translate, Translator},
+    translator::{
+        instruction::{Assign, Instruction},
+        translate::Translate,
+        Translator,
+    },
 };
 
 impl Translate for DeclareStatement {
@@ -12,11 +16,11 @@ impl Translate for DeclareStatement {
             Atom::Literal(Literal::Number(0.0))
         };
 
-        translator.push(Instruction::Assign {
-            what: value,
-            op: Operator::Assignment,
-            to: Atom::Id(self.id),
-        });
+        translator.push(Instruction::Assign(Assign::new(
+            value,
+            Operator::Assignment,
+            Atom::Id(self.id),
+        )));
 
         None
     }
