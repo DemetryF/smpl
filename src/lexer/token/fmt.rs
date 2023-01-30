@@ -1,6 +1,9 @@
 use std::fmt::Display;
 
-use super::token_value::TokenValue::{self, *};
+use super::token_value::{
+    Literal,
+    TokenValue::{self, *},
+};
 
 impl Display for TokenValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -24,6 +27,15 @@ impl Display for TokenValue {
             ClosingParen => write!(f, ")"),
             OpeningBrace => write!(f, "{{"),
             ClosingBrace => write!(f, "}}"),
+        }
+    }
+}
+
+impl Display for Literal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Number(num) => write!(f, "{num}"),
+            Self::Bool(bool) => write!(f, "{bool}"),
         }
     }
 }
