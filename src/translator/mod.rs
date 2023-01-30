@@ -15,17 +15,17 @@ pub mod fmt;
 pub mod instruction;
 pub mod translate;
 
-pub struct Translator {
+pub struct Translator<'code> {
     pub instructions: Vec<Instruction>,
-    parser: Parser,
+    parser: Parser<'code>,
 
     temps_count: usize,
     pub ifs_count: usize,
     pub whiles_count: usize,
 }
 
-impl Translator {
-    pub fn new(code: String) -> Self {
+impl<'code> Translator<'code> {
+    pub fn new(code: &'code str) -> Self {
         Self {
             instructions: Vec::new(),
             parser: Parser::new(code),

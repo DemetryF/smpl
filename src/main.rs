@@ -15,7 +15,7 @@ fn main() {
     if let Ok(code) = fs::read_to_string(filename.clone()) {
         println!("{}", code);
 
-        let mut t = Translator::new(code.clone());
+        let mut t = Translator::new(code.as_str());
 
         match t.translate() {
             Ok(_) => {

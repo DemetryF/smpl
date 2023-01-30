@@ -1,12 +1,12 @@
-use super::pos::Pos;
+use super::Pos;
 
-pub struct CodeStream {
+pub struct CodeStream<'code> {
     pos: Pos,
-    code: String,
+    code: &'code str,
 }
 
-impl CodeStream {
-    pub fn new(code: String) -> Self {
+impl<'code> CodeStream<'code> {
+    pub fn new(code: &'code str) -> Self {
         Self {
             code,
             pos: Pos::empty(),

@@ -12,13 +12,13 @@ pub mod pos;
 pub mod token;
 mod token_collector;
 
-pub struct Lexer {
+pub struct Lexer<'code> {
     pub collectors: Vec<Box<dyn TokenCollector>>,
-    pub code_stream: CodeStream,
+    pub code_stream: CodeStream<'code>,
 }
 
-impl Lexer {
-    pub fn new(code: String) -> Self {
+impl<'code> Lexer<'code> {
+    pub fn new(code: &'code str) -> Self {
         Self {
             code_stream: CodeStream::new(code),
             collectors: vec![
