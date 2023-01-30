@@ -1,6 +1,4 @@
-use crate::lexer::{
-    code_stream::CodeStream, token::token_value::TokenValue, token_collector::TokenCollector,
-};
+use crate::lexer::{code_stream::CodeStream, token::TokenValue, token_collector::TokenCollector};
 
 pub struct SpecialCollector;
 

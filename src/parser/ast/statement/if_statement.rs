@@ -1,9 +1,9 @@
 use derive_more::Constructor;
 
 use crate::{
-    lexer::token::token_value::TokenValue,
+    lexer::TokenValue,
     parser::{
-        ast::{block::Block, expr::Expr, Collect},
+        ast::{Block, Collect, Expr},
         token_stream::TokenStream,
     },
 };

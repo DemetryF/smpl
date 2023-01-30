@@ -1,7 +1,7 @@
 use crate::{
-    lexer::token::token_value::TokenValue,
+    lexer::TokenValue,
     parser::{
-        ast::{block::Block, Collect, Id},
+        ast::{Block, Collect, Id},
         parser_utils::ParserUtils,
         token_stream::TokenStream,
     },

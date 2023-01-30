@@ -1,4 +1,4 @@
-use crate::{lexer::token::token_value::TokenValue, parser::token_stream::TokenStream};
+use crate::{lexer::TokenValue, parser::token_stream::TokenStream};
 
 use super::{statement::Statement, Collect};
 

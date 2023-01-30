@@ -1,6 +1,6 @@
 use crate::{
-    lexer::token::{operator::Operator, token_value::Literal},
-    parser::ast::{expr::Atom, statement::declare_statement::DeclareStatement},
+    lexer::{Literal, Operator},
+    parser::ast::{Atom, DeclareStatement},
     translator::{
         instruction::{Assign, Instruction},
         translate::Translate,

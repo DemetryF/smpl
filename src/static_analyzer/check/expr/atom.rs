@@ -1,6 +1,6 @@
 use crate::{
-    parser::ast::expr::Atom,
-    static_analyzer::{ check::Check, env::Env, StaticAnalyzer},
+    parser::ast::Atom,
+    static_analyzer::{check::Check, env::Env, StaticAnalyzer},
 };
 
 impl Check for Atom {

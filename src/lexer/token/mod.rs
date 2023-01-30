@@ -1,6 +1,8 @@
 use derive_more::Constructor;
 
-use self::token_value::TokenValue;
+pub use self::operator::Operator;
+pub use self::token_value::Literal;
+pub use self::token_value::TokenValue;
 use super::pos::Pos;
 
 pub mod fmt;

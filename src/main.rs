@@ -1,6 +1,6 @@
 use std::{env, fs};
 
-use crate::{static_analyzer::static_error::StaticErrorKind, translator::Translator};
+use crate::{static_analyzer::StaticErrorKind, translator::Translator};
 
 mod compiler;
 mod error;

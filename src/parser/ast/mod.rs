@@ -1,9 +1,12 @@
-use self::expr::Atom;
-
-use super::token_stream::TokenStream;
-use crate::lexer::pos::Pos;
 use derive_more::Constructor;
 use std::fmt::Display;
+
+pub use self::block::Block;
+pub use self::expr::*;
+pub use self::statement::*;
+
+use super::token_stream::TokenStream;
+use crate::lexer::Pos;
 
 pub mod block;
 pub mod expr;

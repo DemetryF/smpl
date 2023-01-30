@@ -2,7 +2,7 @@ use parse_int::parse;
 
 use crate::lexer::{
     code_stream::CodeStream,
-    token::token_value::{Literal, TokenValue},
+    token::{Literal, TokenValue},
     token_collector::TokenCollector,
 };
 

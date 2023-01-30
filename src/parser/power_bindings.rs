@@ -1,4 +1,4 @@
-use crate::lexer::token::operator::Operator;
+use crate::lexer::Operator;
 
 pub struct PowerBinding;
 impl PowerBinding {

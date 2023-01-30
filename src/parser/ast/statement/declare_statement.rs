@@ -1,11 +1,11 @@
 use derive_more::Constructor;
 
 use crate::{
-    lexer::token::{operator::Operator, token_value::TokenValue},
+    lexer::{Operator, TokenValue},
     parser::{ast::Id, parser_utils::ParserUtils, token_stream::TokenStream},
 };
 
-use super::super::{expr::Expr, Collect};
+use super::super::{Collect, Expr};
 
 #[derive(Debug, Constructor)]
 pub struct DeclareStatement {

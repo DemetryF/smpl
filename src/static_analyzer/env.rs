@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{lexer::pos::Pos, parser::ast::Id};
+use crate::{lexer::Pos, parser::ast::Id};
 
 #[derive(Debug, Clone)]
 pub struct StaticIdInfo {

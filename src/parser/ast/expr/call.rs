@@ -1,7 +1,7 @@
 use derive_more::Constructor;
 
 use crate::{
-    lexer::token::token_value::TokenValue,
+    lexer::TokenValue,
     parser::{
         ast::{Collect, Id},
         parser_utils::ParserUtils,

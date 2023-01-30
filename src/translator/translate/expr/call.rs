@@ -1,5 +1,5 @@
 use crate::{
-    parser::ast::expr::{call::Call as PCall, Atom, Expr},
+    parser::ast::{Atom, Call as PCall, Expr},
     translator::{
         instruction::{Call, Instruction, Push},
         translate::Translate,

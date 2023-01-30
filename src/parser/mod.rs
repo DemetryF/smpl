@@ -1,4 +1,7 @@
-use self::{ast::statement::Statement, ast::Collect, token_stream::TokenStream};
+use self::{
+    ast::{statement::Statement, Collect},
+    token_stream::TokenStream,
+};
 
 pub mod ast;
 pub mod parser_utils;
