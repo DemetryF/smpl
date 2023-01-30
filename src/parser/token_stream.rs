@@ -3,8 +3,8 @@ use crate::{
     lexer::{Lexer, Token, TokenValue},
 };
 
-pub struct TokenStream {
-    pub lexer: Lexer,
+pub struct TokenStream<'code> {
+    pub lexer: Lexer<'code>,
 
     current: Token,
     following: Option<Token>,
@@ -14,8 +14,8 @@ pub struct TokenStream {
     pub errors: Vec<Error>,
 }
 
-impl TokenStream {
-    pub fn new(code: String) -> Self {
+impl<'code> TokenStream<'code> {
+    pub fn new(code: &'code str) -> Self {
         let mut lexer = Lexer::new(code);
         let mut errors: Vec<Error> = Vec::new();
 

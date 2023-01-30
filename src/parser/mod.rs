@@ -8,12 +8,12 @@ pub mod parser_utils;
 pub mod power_bindings;
 pub mod token_stream;
 
-pub struct Parser {
-    pub token_stream: TokenStream,
+pub struct Parser<'code> {
+    pub token_stream: TokenStream<'code>,
 }
 
-impl Parser {
-    pub fn new(code: String) -> Self {
+impl<'code> Parser<'code> {
+    pub fn new(code: &'code str) -> Self {
         Self {
             token_stream: TokenStream::new(code),
         }
