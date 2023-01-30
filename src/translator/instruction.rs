@@ -1,9 +1,13 @@
 use derive_more::Constructor;
 use enum_dispatch::enum_dispatch;
 
-use crate::{lexer::token::operator::Operator, parser::ast::expr::Atom};
+use crate::{
+    compiler::{Compile, Compiler},
+    lexer::token::operator::Operator,
+    parser::ast::expr::Atom,
+};
 
-#[enum_dispatch(Compile)]
+#[enum_dispatch]
 pub enum Instruction {
     Binary,
     Unary,

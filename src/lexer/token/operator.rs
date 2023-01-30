@@ -1,8 +1,9 @@
 use std::fmt::Display;
+use strum_macros::EnumIter;
 
 macro_rules! operators {
     [ $($Case:ident = $CaseValue:literal,)* ] => {
-        #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+        #[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter)]
         pub enum Operator {
             $($Case,)*
         }
@@ -12,12 +13,6 @@ macro_rules! operators {
                 match op {
                     $( Operator::$Case => $CaseValue, )*
                 }
-            }
-        }
-
-        impl Operator {
-            pub fn all() -> Vec<Self> {
-                vec![ $(Self::$Case,)* ]
             }
         }
 

@@ -2,6 +2,7 @@ use std::{env, fs};
 
 use crate::{static_analyzer::static_error::StaticErrorKind, translator::Translator};
 
+mod compiler;
 mod error;
 mod lexer;
 mod parser;
