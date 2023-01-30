@@ -3,8 +3,8 @@ use enum_dispatch::enum_dispatch;
 
 use crate::{
     compiler::{Compile, Compiler},
-    lexer::token::operator::Operator,
-    parser::ast::expr::Atom,
+    lexer::Operator,
+    parser::ast::Atom,
 };
 
 #[enum_dispatch]

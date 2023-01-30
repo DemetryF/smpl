@@ -1,9 +1,8 @@
+use super::Translate;
 use crate::{
-    parser::ast::expr::{Atom, Expr},
+    parser::ast::{Atom, Expr},
     translator::Translator,
 };
-
-use super::Translate;
 
 pub mod binary;
 pub mod call;

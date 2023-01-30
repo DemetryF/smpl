@@ -2,7 +2,7 @@ use strum::IntoEnumIterator;
 
 use crate::lexer::{
     code_stream::CodeStream,
-    token::{operator::Operator, token_value::TokenValue},
+    token::{Operator, TokenValue},
     token_collector::TokenCollector,
 };
 

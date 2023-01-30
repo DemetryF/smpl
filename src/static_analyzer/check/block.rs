@@ -1,5 +1,5 @@
 use crate::{
-    parser::ast::block::Block,
+    parser::ast::Block,
     static_analyzer::{env::Env, StaticAnalyzer},
 };
 

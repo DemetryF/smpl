@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::lexer::pos::Pos;
+use crate::lexer::Pos;
 
 #[derive(Debug)]
 pub enum Error {

@@ -2,15 +2,15 @@ use std::collections::HashMap;
 
 use derive_more::Constructor;
 
-use crate::parser::ast::{expr::call::Call, statement::Statement, Id};
+use crate::parser::ast::{Call, Id, Statement};
 
-use self::{
-    check::Check,
+use self::check::Check;
+pub use {
     env::{Env, StaticIdInfo},
     static_error::{StaticError, StaticErrorKind},
 };
 
-pub mod check;
+mod check;
 pub mod env;
 pub mod static_error;
 

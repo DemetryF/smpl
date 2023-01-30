@@ -1,5 +1,4 @@
 use self::comment_type::CommentType;
-
 use super::code_stream::CodeStream;
 
 mod comment_type;

@@ -1,6 +1,5 @@
-use crate::lexer::token::{operator::Operator, token_value::TokenValue};
-
 use super::{ast::Id, token_stream::TokenStream};
+use crate::lexer::{Operator, TokenValue};
 
 pub struct ParserUtils;
 impl ParserUtils {

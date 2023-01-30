@@ -1,7 +1,7 @@
 use itertools::Itertools;
 
 use crate::{
-    parser::ast::statement::function_statement::FunctionStatement,
+    parser::ast::FunctionStatement,
     static_analyzer::{check::Check, env::Env, StaticAnalyzer},
 };
 

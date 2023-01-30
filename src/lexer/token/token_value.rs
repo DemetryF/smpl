@@ -1,4 +1,4 @@
-use super::operator::Operator;
+use super::Operator;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum TokenValue {

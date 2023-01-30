@@ -1,9 +1,9 @@
 use crate::{
     parser::{
-        ast::{expr::Atom, statement::Statement},
+        ast::{Atom, Statement},
         Parser,
     },
-    static_analyzer::{static_error::StaticError, StaticAnalyzer},
+    static_analyzer::{StaticAnalyzer, StaticError},
 };
 
 use self::{

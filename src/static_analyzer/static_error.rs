@@ -2,15 +2,14 @@ use std::fmt::Display;
 
 use derive_more::Constructor;
 
-use crate::{lexer::pos::Pos, parser::ast::Id};
+use crate::{lexer::Pos, parser::ast::Id};
 
-#[derive(Debug, Constructor)]
+#[derive(Constructor)]
 pub struct StaticError {
     pub kind: StaticErrorKind,
     pub pos: Pos,
 }
 
-#[derive(Debug)]
 pub enum StaticErrorKind {
     NonExistingVariable(String),
     NonExistingFunction(String),

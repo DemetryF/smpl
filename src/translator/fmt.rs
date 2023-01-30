@@ -1,8 +1,5 @@
+use super::instruction::*;
 use std::fmt::Display;
-
-use super::instruction::{
-    Assign, Binary, Call, Goto, Instruction, Pop, Push, Return, Unary, Unless,
-};
 
 impl Display for Instruction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

@@ -1,14 +1,9 @@
 use crate::error::Error;
 
-use self::{
-    code_stream::CodeStream,
-    comments_handler::CommentsHandler,
+use self::{code_stream::CodeStream, comments_handler::CommentsHandler, token_collector::*};
+pub use self::{
     pos::Pos,
-    token::{token_value::TokenValue, Token},
-    token_collector::{
-        number_collector::NumberCollector, operator_collector::OperatorCollector,
-        special_collector::SpecialCollector, word_collector::WordCollector, TokenCollector,
-    },
+    token::{Literal, Operator, Token, TokenValue},
 };
 
 mod code_stream;

@@ -1,9 +1,8 @@
+use super::Translate;
 use crate::{
-    parser::ast::{expr::Atom, statement::Statement},
+    parser::ast::{Atom, Statement},
     translator::Translator,
 };
-
-use super::Translate;
 
 pub mod declare_statement;
 pub mod function_statement;
