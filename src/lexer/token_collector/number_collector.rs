@@ -54,7 +54,8 @@ impl NumberCollector {
     fn num_literal(code_stream: &mut CodeStream, rad: u32) -> String {
         let mut buffer = String::new();
 
-        while !code_stream.is_eof() && Self::is_digit(code_stream, rad) {
+        while !code_stream.is_eof() && (Self::is_digit(code_stream, rad) || code_stream.check("_"))
+        {
             buffer.push(code_stream.accept());
         }
 
