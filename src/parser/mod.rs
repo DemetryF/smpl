@@ -1,7 +1,10 @@
 use self::{
-    ast::{statement::Statement, Collect},
+    ast::{Collect, Statement},
+    parser_utils::ParserUtils,
+    power_bindings::PowerBinding,
     token_stream::TokenStream,
 };
+use crate::error::*;
 
 pub mod ast;
 pub mod parser_utils;
@@ -19,13 +22,13 @@ impl<'code> Parser<'code> {
         }
     }
 
-    pub fn parse(&mut self) -> Vec<Statement> {
+    pub fn parse(&mut self) -> Result<Vec<Statement>> {
         let mut stmts = Vec::new();
 
         while !self.token_stream.is_end() {
-            stmts.push(Statement::collect(&mut self.token_stream));
+            stmts.push(Statement::collect(&mut self.token_stream)?);
         }
 
-        stmts
+        Ok(stmts)
     }
 }

@@ -3,7 +3,7 @@ pub mod operator_collector;
 pub mod special_collector;
 pub mod word_collector;
 
-use super::{code_stream::CodeStream, token::TokenValue};
+use super::{CodeStream, TokenValue};
 
 pub use self::{
     number_collector::NumberCollector, operator_collector::OperatorCollector,

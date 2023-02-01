@@ -1,5 +1,5 @@
 use crate::{
-    error::Error,
+    error::*,
     lexer::{Lexer, Token, TokenValue},
 };
 
@@ -80,19 +80,7 @@ impl<'code> TokenStream<'code> {
             return;
         }
 
-        panic!("{}", self.unexpected_token(value))
-    }
-
-    pub fn unexpected_token(&self, expected: &TokenValue) -> Error {
-        let expected = Some(expected.to_string());
-        let value = self.current().value.to_string();
-        let pos = self.lexer.code_stream.get_pos();
-
-        Error::UnexpectedToken {
-            expected,
-            value,
-            pos,
-        }
+        panic!("{}", "sperma")
     }
 
     pub fn is_end(&self) -> bool {

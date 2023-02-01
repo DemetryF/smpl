@@ -1,9 +1,8 @@
-use std::fmt::Display;
-
-use super::token_value::{
+use super::{
     Literal,
     TokenValue::{self, *},
 };
+use std::fmt::Display;
 
 impl Display for TokenValue {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

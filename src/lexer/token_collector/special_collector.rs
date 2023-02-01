@@ -1,7 +1,6 @@
-use crate::lexer::{code_stream::CodeStream, token::TokenValue, token_collector::TokenCollector};
+use crate::lexer::{CodeStream, TokenCollector, TokenValue};
 
 pub struct SpecialCollector;
-
 impl TokenCollector for SpecialCollector {
     fn try_next(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
         let value = match code_stream.current() {

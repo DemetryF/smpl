@@ -1,14 +1,15 @@
 use derive_more::Constructor;
 
 use crate::{
+    error::*,
     lexer::TokenValue,
     parser::{
         ast::{Block, Collect, Expr},
-        token_stream::TokenStream,
+        TokenStream,
     },
 };
 
-#[derive(Debug, Constructor)]
+#[derive(Constructor)]
 pub struct IfStatement {
     pub cond: Expr,
     pub then_body: Block,
@@ -16,24 +17,24 @@ pub struct IfStatement {
 }
 
 impl Collect for IfStatement {
-    fn collect(token_stream: &mut TokenStream) -> Self {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self> {
         token_stream.accept(&TokenValue::If);
 
-        let cond = Expr::collect(token_stream);
-        let then_body = Block::collect(token_stream);
-        let else_body = Self::parse_else_body(token_stream);
+        let cond = Expr::collect(token_stream)?;
+        let then_body = Block::collect(token_stream)?;
+        let else_body = Self::parse_else_body(token_stream)?;
 
-        IfStatement::new(cond, then_body, else_body)
+        Ok(IfStatement::new(cond, then_body, else_body))
     }
 }
 
 impl IfStatement {
-    fn parse_else_body(token_stream: &mut TokenStream) -> Option<Block> {
-        if token_stream.check(&TokenValue::Else) {
+    fn parse_else_body(token_stream: &mut TokenStream) -> Result<Option<Block>> {
+        Ok(if token_stream.check(&TokenValue::Else) {
             token_stream.skip();
-            Some(Block::collect(token_stream))
+            Some(Block::collect(token_stream)?)
         } else {
             None
-        }
+        })
     }
 }

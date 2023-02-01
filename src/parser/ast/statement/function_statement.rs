@@ -1,15 +1,12 @@
 use crate::{
+    error::*,
     lexer::TokenValue,
     parser::{
-        ast::{Block, Collect, Id},
-        parser_utils::ParserUtils,
-        token_stream::TokenStream,
+        ast::{Block, Collect, Id, Statement},
+        ParserUtils, TokenStream,
     },
 };
 
-use super::Statement;
-
-#[derive(Debug)]
 pub struct FunctionStatement {
     pub id: Id,
     pub args: Vec<Id>,
@@ -19,18 +16,17 @@ pub struct FunctionStatement {
 }
 
 impl Collect for FunctionStatement {
-    fn collect(token_stream: &mut TokenStream) -> Self {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self> {
         token_stream.accept(&TokenValue::Function);
 
-        let id = ParserUtils::id(token_stream);
-
-        let args = Self::args(token_stream);
+        let id = ParserUtils::id(token_stream)?;
+        let args = Self::args(token_stream)?;
 
         token_stream.in_function = true;
-        let body = Block::collect(token_stream);
+        let body = Block::collect(token_stream)?;
         token_stream.in_function = false;
 
-        FunctionStatement::new(id, args, body)
+        Ok(FunctionStatement::new(id, args, body))
     }
 }
 
@@ -49,22 +45,21 @@ impl FunctionStatement {
         }
     }
 
-    fn args(token_stream: &mut TokenStream) -> Vec<Id> {
+    fn args(token_stream: &mut TokenStream) -> Result<Vec<Id>> {
         let mut args = Vec::new();
 
         token_stream.accept(&TokenValue::OpeningParen);
-
         if token_stream.skip_if(&TokenValue::ClosingParen).is_some() {
-            return args;
+            return Ok(args);
         }
 
-        args.push(ParserUtils::id(token_stream));
+        args.push(ParserUtils::id(token_stream)?);
         while token_stream.skip_if(&TokenValue::Comma).is_some() {
-            args.push(ParserUtils::id(token_stream));
+            args.push(ParserUtils::id(token_stream)?);
         }
 
         token_stream.accept(&TokenValue::ClosingParen);
 
-        args
+        Ok(args)
     }
 }
