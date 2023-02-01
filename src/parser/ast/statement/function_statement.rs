@@ -17,7 +17,7 @@ pub struct FunctionStatement {
 
 impl Collect for FunctionStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {
-        token_stream.accept(&TokenValue::Function);
+        token_stream.accept(&TokenValue::Function)?;
 
         let id = ParserUtils::id(token_stream)?;
         let args = Self::args(token_stream)?;
@@ -48,17 +48,17 @@ impl FunctionStatement {
     fn args(token_stream: &mut TokenStream) -> Result<Vec<Id>> {
         let mut args = Vec::new();
 
-        token_stream.accept(&TokenValue::OpeningParen);
-        if token_stream.skip_if(&TokenValue::ClosingParen).is_some() {
+        token_stream.accept(&TokenValue::OpeningParen)?;
+        if token_stream.skip_if(&TokenValue::ClosingParen)?.is_some() {
             return Ok(args);
         }
 
         args.push(ParserUtils::id(token_stream)?);
-        while token_stream.skip_if(&TokenValue::Comma).is_some() {
+        while token_stream.skip_if(&TokenValue::Comma)?.is_some() {
             args.push(ParserUtils::id(token_stream)?);
         }
 
-        token_stream.accept(&TokenValue::ClosingParen);
+        token_stream.accept(&TokenValue::ClosingParen)?;
 
         Ok(args)
     }

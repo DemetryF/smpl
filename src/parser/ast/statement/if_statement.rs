@@ -18,7 +18,7 @@ pub struct IfStatement {
 
 impl Collect for IfStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {
-        token_stream.accept(&TokenValue::If);
+        token_stream.accept(&TokenValue::If)?;
 
         let cond = Expr::collect(token_stream)?;
         let then_body = Block::collect(token_stream)?;
@@ -31,7 +31,7 @@ impl Collect for IfStatement {
 impl IfStatement {
     fn parse_else_body(token_stream: &mut TokenStream) -> Result<Option<Block>> {
         Ok(if token_stream.check(&TokenValue::Else) {
-            token_stream.skip();
+            token_stream.skip()?;
             Some(Block::collect(token_stream)?)
         } else {
             None

@@ -1,5 +1,3 @@
-use derive_more::Constructor;
-
 use crate::{
     error::*,
     lexer::TokenValue,
@@ -15,9 +13,9 @@ impl Collect for ReturnStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {
         Self::check_in_function(token_stream);
 
-        token_stream.accept(&TokenValue::Return);
+        token_stream.accept(&TokenValue::Return)?;
         let expr = Self::return_expr(token_stream)?;
-        token_stream.accept(&TokenValue::Semicolon);
+        token_stream.accept(&TokenValue::Semicolon)?;
 
         Ok(ReturnStatement(expr))
     }

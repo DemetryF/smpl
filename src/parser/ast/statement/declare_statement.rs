@@ -5,8 +5,7 @@ use crate::{
     lexer::{Operator, TokenValue},
     parser::{
         ast::{Collect, Expr, Id},
-        parser_utils::ParserUtils,
-        token_stream::TokenStream,
+        ParserUtils, TokenStream,
     },
 };
 
@@ -18,12 +17,12 @@ pub struct DeclareStatement {
 
 impl Collect for DeclareStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {
-        token_stream.accept(&TokenValue::Define);
+        token_stream.accept(&TokenValue::Define)?;
 
         let id = ParserUtils::id(token_stream)?;
         let expr = Self::init_expr(token_stream)?;
 
-        token_stream.accept(&TokenValue::Semicolon);
+        token_stream.accept(&TokenValue::Semicolon)?;
 
         Ok(DeclareStatement::new(id, expr))
     }
@@ -32,7 +31,7 @@ impl Collect for DeclareStatement {
 impl DeclareStatement {
     fn init_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>> {
         if token_stream
-            .skip_if(&TokenValue::Operator(Operator::Assignment))
+            .skip_if(&TokenValue::Operator(Operator::Assignment))?
             .is_none()
         {
             Ok(None)

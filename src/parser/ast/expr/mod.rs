@@ -50,7 +50,7 @@ impl Expr {
                 if l_bp < bp {
                     break;
                 }
-                token_stream.skip();
+                token_stream.skip()?;
 
                 lhs = {
                     let rhs = Self::expr_bp(token_stream, r_bp)?;
@@ -71,15 +71,15 @@ impl Expr {
         let token = token_stream.current().clone();
 
         Ok(match token.value.clone() {
-            TokenValue::Literal(literal) => Self::literal(token_stream, literal),
+            TokenValue::Literal(literal) => Self::literal(token_stream, literal)?,
             TokenValue::OpeningParen => Self::parenthesis(token_stream)?,
             TokenValue::Operator(_) => Self::Unary(Unary::collect(token_stream)?),
 
             TokenValue::Id(id) => {
-                if token_stream.following().value == TokenValue::OpeningParen {
+                if token_stream.following()?.value == TokenValue::OpeningParen {
                     Self::Call(Call::collect(token_stream)?)
                 } else {
-                    token_stream.skip();
+                    token_stream.skip()?;
                     Self::Atom(Atom::Id(Id::new(id, token.pos)))
                 }
             }
@@ -88,15 +88,15 @@ impl Expr {
         })
     }
 
-    fn literal(token_stream: &mut TokenStream, literal: Literal) -> Self {
-        token_stream.skip();
-        Self::Atom(Atom::Literal(literal))
+    fn literal(token_stream: &mut TokenStream, literal: Literal) -> Result<Self> {
+        token_stream.skip()?;
+        Ok(Self::Atom(Atom::Literal(literal)))
     }
 
     pub fn parenthesis(token_stream: &mut TokenStream) -> Result<Expr> {
-        token_stream.accept(&TokenValue::OpeningParen);
+        token_stream.accept(&TokenValue::OpeningParen)?;
         let expr = Self::collect(token_stream)?;
-        token_stream.accept(&TokenValue::ClosingParen);
+        token_stream.accept(&TokenValue::ClosingParen)?;
 
         Ok(expr)
     }
