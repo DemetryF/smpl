@@ -20,7 +20,6 @@ pub struct Call {
 impl Collect for Call {
     fn collect(token_stream: &mut TokenStream) -> Self {
         let id = ParserUtils::id(token_stream);
-
         let args = Self::call_args(token_stream);
 
         Self::new(id, args)
