@@ -64,11 +64,6 @@ pub struct Call {
     pub args_count: usize,
 }
 
-#[derive(Constructor)]
 pub struct Return(pub Option<Atom>);
-
-#[derive(Constructor)]
 pub struct Push(pub Atom);
-
-#[derive(Constructor)]
 pub struct Pop(pub String);
