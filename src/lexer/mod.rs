@@ -1,10 +1,9 @@
-use crate::error::Error;
-
 use self::{code_stream::CodeStream, comments_handler::CommentsHandler, token_collector::*};
 pub use self::{
     pos::Pos,
     token::{Literal, Operator, Token, TokenValue},
 };
+use crate::error::Error;
 
 mod code_stream;
 mod comments_handler;
@@ -49,9 +48,8 @@ impl<'code> Lexer<'code> {
     }
 
     fn unexpected_token(&mut self, pos: Pos) -> Error {
-        Error::UnexpectedToken {
-            expected: None,
-            value: self.code_stream.accept().to_string(),
+        Error::UnexpectedChar {
+            value: self.code_stream.accept(),
             pos,
         }
     }

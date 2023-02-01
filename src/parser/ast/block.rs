@@ -1,17 +1,15 @@
-use crate::{lexer::TokenValue, parser::token_stream::TokenStream};
+use super::{Collect, Statement, TokenStream};
+use crate::{error::*, lexer::TokenValue};
 
-use super::{statement::Statement, Collect};
-
-#[derive(Debug)]
 pub struct Block(pub Vec<Statement>);
 
 impl Collect for Block {
-    fn collect(token_stream: &mut TokenStream) -> Self {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self> {
         let mut stmts = Vec::new();
 
         token_stream.accept(&TokenValue::OpeningBrace);
         while !token_stream.check(&TokenValue::ClosingBrace) {
-            let new_stmt = Statement::collect(token_stream);
+            let new_stmt = Statement::collect(token_stream)?;
 
             if matches!(new_stmt, Statement::Function(_)) {
                 panic!("not allowed function declare a function at a block")
@@ -21,6 +19,6 @@ impl Collect for Block {
         }
         token_stream.accept(&TokenValue::ClosingBrace);
 
-        Block(stmts)
+        Ok(Block(stmts))
     }
 }

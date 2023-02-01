@@ -1,4 +1,5 @@
 use crate::{
+    error::*,
     parser::{
         ast::{Atom, Statement},
         Parser,
@@ -45,12 +46,12 @@ impl<'code> Translator<'code> {
         self.instructions.push(instruction);
     }
 
-    pub fn translate(&mut self) -> Result<(), Vec<StaticError>> {
-        let stmts = self.parser.parse();
+    pub fn translate(&mut self) -> Result<std::result::Result<(), Vec<StaticError>>> {
+        let stmts = self.parser.parse()?;
         let analyzer = StaticAnalyzer::new(&stmts);
 
         if !analyzer.errors.is_empty() {
-            return Err(analyzer.errors);
+            return Ok(Err(analyzer.errors));
         }
 
         let (global, local) = Self::global_and_local_stmts(stmts);
@@ -59,7 +60,7 @@ impl<'code> Translator<'code> {
         self.add_main_label();
         self.translate_stmts(local);
 
-        Ok(())
+        Ok(Ok(()))
     }
 
     pub fn add_main_label(&mut self) {

@@ -6,14 +6,14 @@ pub use self::expr::*;
 pub use self::statement::*;
 
 use super::token_stream::TokenStream;
-use crate::lexer::Pos;
+use crate::{error::*, lexer::Pos};
 
 pub mod block;
 pub mod expr;
 pub mod statement;
 
-pub trait Collect {
-    fn collect(token_stream: &mut TokenStream) -> Self;
+pub trait Collect: Sized {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self>;
 }
 
 #[derive(Debug, Constructor, Clone)]

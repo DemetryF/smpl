@@ -1,9 +1,9 @@
+use super::pos::Pos;
 use derive_more::Constructor;
 
 pub use self::operator::Operator;
 pub use self::token_value::Literal;
 pub use self::token_value::TokenValue;
-use super::pos::Pos;
 
 pub mod fmt;
 pub mod operator;

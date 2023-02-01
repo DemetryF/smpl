@@ -1,20 +1,22 @@
 use super::{ast::Id, token_stream::TokenStream};
+use crate::error::*;
 use crate::lexer::{Operator, TokenValue};
 
 pub struct ParserUtils;
 impl ParserUtils {
-    pub fn id(token_stream: &mut TokenStream) -> Id {
+    pub fn id(token_stream: &mut TokenStream) -> Result<Id> {
         let token = token_stream.skip();
         match token.value {
-            TokenValue::Id(value) => Id::new(value, token.pos),
-            _ => panic!("expected id"),
+            TokenValue::Id(value) => Ok(Id::new(value, token.pos)),
+            _ => Err(Error::UnexpectedToken(token)),
         }
     }
 
-    pub fn op(token_stream: &mut TokenStream) -> Operator {
-        match token_stream.skip().value {
-            TokenValue::Operator(op) => op,
-            _ => panic!("expected operator"),
+    pub fn op(token_stream: &mut TokenStream) -> Result<Operator> {
+        let token = token_stream.skip();
+        match token.value {
+            TokenValue::Operator(op) => Ok(op),
+            _ => Err(Error::UnexpectedToken(token)),
         }
     }
 }

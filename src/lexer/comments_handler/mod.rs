@@ -1,5 +1,5 @@
 use self::comment_type::CommentType;
-use super::code_stream::CodeStream;
+use super::CodeStream;
 
 mod comment_type;
 
@@ -13,8 +13,8 @@ const COMMENTS: [CommentType; 2] = [
         end: "*/",
     },
 ];
-pub struct CommentsHandler;
 
+pub struct CommentsHandler;
 impl CommentsHandler {
     pub fn skip(code_stream: &mut CodeStream) {
         Self::skip_spaces(code_stream);

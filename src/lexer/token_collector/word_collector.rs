@@ -1,8 +1,4 @@
-use crate::lexer::{
-    code_stream::CodeStream,
-    token::token_value::{Literal, TokenValue},
-    token_collector::TokenCollector,
-};
+use crate::lexer::{CodeStream, Literal, TokenCollector, TokenValue};
 
 pub struct WordCollector;
 impl TokenCollector for WordCollector {

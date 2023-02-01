@@ -1,34 +1,34 @@
 use derive_more::Constructor;
 
 use crate::{
+    error::*,
     lexer::TokenValue,
     parser::{
         ast::{Collect, Expr},
-        token_stream::TokenStream,
+        TokenStream,
     },
 };
 
-#[derive(Debug, Constructor)]
 pub struct ReturnStatement(pub Option<Expr>);
 
 impl Collect for ReturnStatement {
-    fn collect(token_stream: &mut TokenStream) -> Self {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self> {
         Self::check_in_function(token_stream);
 
         token_stream.accept(&TokenValue::Return);
-        let expr = Self::return_expr(token_stream);
+        let expr = Self::return_expr(token_stream)?;
         token_stream.accept(&TokenValue::Semicolon);
 
-        ReturnStatement::new(expr)
+        Ok(ReturnStatement(expr))
     }
 }
 
 impl ReturnStatement {
-    pub fn return_expr(token_stream: &mut TokenStream) -> Option<Expr> {
+    pub fn return_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>> {
         if token_stream.check(&TokenValue::Semicolon) {
-            None
+            Ok(None)
         } else {
-            Some(Expr::collect(token_stream))
+            Ok(Some(Expr::collect(token_stream)?))
         }
     }
 
