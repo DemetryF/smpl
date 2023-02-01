@@ -5,13 +5,11 @@ use crate::{
 
 pub struct TokenStream<'code> {
     pub lexer: Lexer<'code>,
+    pub in_function: bool,
+    pub errors: Vec<Error>,
 
     current: Token,
     following: Option<Token>,
-
-    pub in_function: bool,
-
-    pub errors: Vec<Error>,
 }
 
 impl<'code> TokenStream<'code> {
@@ -35,63 +33,53 @@ impl<'code> TokenStream<'code> {
         }
     }
 
-    fn get_next_from_lexer(&mut self) -> Token {
-        match self.lexer.next_token() {
-            Ok(token) => token,
-            Err(error) => {
-                self.errors.push(error);
-                self.get_next_from_lexer()
-            }
-        }
-    }
-
     pub fn current(&self) -> &Token {
         &self.current
     }
 
-    pub fn following(&mut self) -> &Token {
+    pub fn following(&mut self) -> Result<&Token> {
         if self.following.is_some() {
-            return self.following.as_ref().unwrap();
+            return Ok(self.following.as_ref().unwrap());
         }
 
-        let next_token = self.get_next_from_lexer();
+        let next_token = self.lexer.next_token()?;
         self.following = Some(next_token);
         self.following()
     }
 
-    pub fn skip(&mut self) -> Token {
+    pub fn skip(&mut self) -> Result<Token> {
         let token = self.current.clone();
 
         match self.following.take() {
             Some(token) => self.current = token,
-            None => self.current = self.get_next_from_lexer(),
+            None => self.current = self.lexer.next_token()?,
         }
 
-        token
+        Ok(token)
     }
 
     pub fn check(&self, value: &TokenValue) -> bool {
         &self.current().value == value
     }
 
-    pub fn accept(&mut self, value: &TokenValue) {
+    pub fn accept(&mut self, value: &TokenValue) -> Result<()> {
         if self.check(value) {
-            self.skip();
-            return;
+            self.skip()?;
+            return Ok(());
         }
 
-        panic!("{}", "sperma")
+        return Err(Error::UnexpectedToken(self.current.clone()));
     }
 
     pub fn is_end(&self) -> bool {
         self.check(&TokenValue::Eof)
     }
 
-    pub fn skip_if(&mut self, value: &TokenValue) -> Option<Token> {
+    pub fn skip_if(&mut self, value: &TokenValue) -> Result<Option<Token>> {
         if self.check(value) {
-            return Some(self.skip());
+            return Ok(Some(self.skip()?));
         }
 
-        None
+        Ok(None)
     }
 }

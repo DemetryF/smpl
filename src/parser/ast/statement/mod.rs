@@ -32,7 +32,7 @@ impl Collect for Statement {
 
             _ => {
                 let expr = Self::Expr(Expr::collect(token_stream)?);
-                token_stream.accept(&TokenValue::Semicolon);
+                token_stream.accept(&TokenValue::Semicolon)?;
                 expr
             }
         })
