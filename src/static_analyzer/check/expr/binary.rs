@@ -1,5 +1,5 @@
 use crate::{
-    parser::ast::Binary,
+    ast::Binary,
     static_analyzer::{check::Check, env::Env, StaticAnalyzer},
 };
 

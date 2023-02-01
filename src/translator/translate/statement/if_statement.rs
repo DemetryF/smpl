@@ -1,5 +1,5 @@
 use crate::{
-    parser::ast::{Atom, IfStatement},
+    ast::{Atom, IfStatement},
     translator::{
         instruction::{Goto, Instruction, Label, Unless},
         translate::Translate,

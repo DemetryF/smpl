@@ -1,5 +1,5 @@
 use super::Translator;
-use crate::parser::ast::expr::Atom;
+use crate::ast::Atom;
 
 pub mod block;
 pub mod expr;

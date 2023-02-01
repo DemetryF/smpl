@@ -1,19 +1,9 @@
-use derive_more::Constructor;
-
 use crate::{
+    ast::{Block, Expr, WhileStatement},
     error::*,
     lexer::TokenValue,
-    parser::{
-        ast::{Block, Collect, Expr},
-        TokenStream,
-    },
+    parser::{Collect, TokenStream},
 };
-
-#[derive(Constructor)]
-pub struct WhileStatement {
-    pub cond: Expr,
-    pub body: Block,
-}
 
 impl Collect for WhileStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {

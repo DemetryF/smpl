@@ -1,6 +1,6 @@
 use crate::{
+    ast::{Atom, Binary as PBinary, Expr},
     lexer::Operator,
-    parser::ast::{Atom, Binary as PBinary, Expr},
     translator::{
         instruction::{Assign, Binary as IBinary, Instruction},
         translate::Translate,

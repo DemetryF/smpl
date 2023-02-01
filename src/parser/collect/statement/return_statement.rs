@@ -1,13 +1,9 @@
 use crate::{
+    ast::{Expr, ReturnStatement},
     error::*,
     lexer::TokenValue,
-    parser::{
-        ast::{Collect, Expr},
-        TokenStream,
-    },
+    parser::{Collect, TokenStream},
 };
-
-pub struct ReturnStatement(pub Option<Expr>);
 
 impl Collect for ReturnStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {

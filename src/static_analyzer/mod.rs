@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use derive_more::Constructor;
 
-use crate::parser::ast::{Call, Id, Statement};
+use crate::ast::{Call, Id, Statement};
 
 use self::check::Check;
 pub use {

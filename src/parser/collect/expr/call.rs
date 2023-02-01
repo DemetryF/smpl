@@ -1,21 +1,11 @@
-use derive_more::Constructor;
-
 use crate::{
+    ast::Call,
     error::*,
     lexer::TokenValue,
-    parser::{
-        ast::{Collect, Id},
-        ParserUtils, TokenStream,
-    },
+    parser::{Collect, ParserUtils, TokenStream},
 };
 
 use super::Expr;
-
-#[derive(Constructor)]
-pub struct Call {
-    pub id: Id,
-    pub args: Vec<Expr>,
-}
 
 impl Collect for Call {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {

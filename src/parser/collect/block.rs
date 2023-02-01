@@ -1,7 +1,9 @@
-use super::{Collect, Statement, TokenStream};
-use crate::{error::*, lexer::TokenValue};
-
-pub struct Block(pub Vec<Statement>);
+use super::{Collect, TokenStream};
+use crate::{
+    ast::{Block, Statement},
+    error::*,
+    lexer::TokenValue,
+};
 
 impl Collect for Block {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {

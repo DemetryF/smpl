@@ -1,5 +1,5 @@
 use crate::{
-    parser::ast::{Atom, FunctionStatement},
+    ast::{Atom, FunctionStatement},
     translator::{
         instruction::{Instruction, Label, Pop, Return},
         translate::Translate,

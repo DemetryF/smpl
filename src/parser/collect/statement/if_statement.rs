@@ -1,20 +1,9 @@
-use derive_more::Constructor;
-
 use crate::{
+    ast::{Block, Expr, IfStatement},
     error::*,
     lexer::TokenValue,
-    parser::{
-        ast::{Block, Collect, Expr},
-        TokenStream,
-    },
+    parser::{Collect, TokenStream},
 };
-
-#[derive(Constructor)]
-pub struct IfStatement {
-    pub cond: Expr,
-    pub then_body: Block,
-    pub else_body: Option<Block>,
-}
 
 impl Collect for IfStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {

@@ -1,6 +1,6 @@
 use super::Translate;
 use crate::{
-    parser::ast::{Atom, Statement},
+    ast::{Atom, Statement},
     translator::Translator,
 };
 

@@ -1,19 +1,9 @@
 use crate::{
+    ast::{Block, FunctionStatement, Id, Statement},
     error::*,
     lexer::TokenValue,
-    parser::{
-        ast::{Block, Collect, Id, Statement},
-        ParserUtils, TokenStream,
-    },
+    parser::{Collect, ParserUtils, TokenStream},
 };
-
-pub struct FunctionStatement {
-    pub id: Id,
-    pub args: Vec<Id>,
-    pub body: Block,
-
-    pub has_return: bool,
-}
 
 impl Collect for FunctionStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {
