@@ -1,9 +1,11 @@
-use super::{Collect, Expr, TokenStream};
-use crate::{error::*, lexer::TokenValue};
-
-pub use self::{
-    declare_statement::DeclareStatement, function_statement::FunctionStatement,
-    if_statement::IfStatement, return_statement::ReturnStatement, while_statement::WhileStatement,
+use super::{Collect, TokenStream};
+use crate::{
+    ast::{
+        DeclareStatement, Expr, FunctionStatement, IfStatement, ReturnStatement, Statement,
+        WhileStatement,
+    },
+    error::*,
+    lexer::TokenValue,
 };
 
 pub mod declare_statement;
@@ -11,15 +13,6 @@ pub mod function_statement;
 pub mod if_statement;
 pub mod return_statement;
 pub mod while_statement;
-
-pub enum Statement {
-    Expr(Expr),
-    Declare(DeclareStatement),
-    Function(FunctionStatement),
-    If(IfStatement),
-    Return(ReturnStatement),
-    While(WhileStatement),
-}
 
 impl Collect for Statement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {

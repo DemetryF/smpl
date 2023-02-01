@@ -1,12 +1,9 @@
-use derive_more::Constructor;
-use std::fmt::Display;
-
-pub use self::block::Block;
-pub use self::expr::*;
-pub use self::statement::*;
-
 use super::token_stream::TokenStream;
-use crate::{error::*, lexer::Pos};
+use crate::{
+    ast::{Atom, Id},
+    error::*,
+};
+use std::fmt::Display;
 
 pub mod block;
 pub mod expr;
@@ -14,12 +11,6 @@ pub mod statement;
 
 pub trait Collect: Sized {
     fn collect(token_stream: &mut TokenStream) -> Result<Self>;
-}
-
-#[derive(Debug, Constructor, Clone)]
-pub struct Id {
-    pub value: String,
-    pub pos: Pos,
 }
 
 impl Display for Id {

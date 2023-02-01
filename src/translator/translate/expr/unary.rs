@@ -1,5 +1,5 @@
 use crate::{
-    parser::ast::{unary::Unary as PUnary, Atom},
+    ast::{Unary as PUnary, Atom},
     translator::{
         instruction::{Instruction, Unary},
         translate::Translate,

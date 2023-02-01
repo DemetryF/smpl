@@ -1,8 +1,6 @@
-use std::fmt::Display;
-
+use crate::{ast::Id, lexer::Pos};
 use derive_more::Constructor;
-
-use crate::{lexer::Pos, parser::ast::Id};
+use std::fmt::Display;
 
 #[derive(Constructor)]
 pub struct StaticError {

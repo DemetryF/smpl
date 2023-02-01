@@ -1,19 +1,9 @@
-use derive_more::Constructor;
-
 use crate::{
+    ast::{DeclareStatement, Expr},
     error::*,
     lexer::{Operator, TokenValue},
-    parser::{
-        ast::{Collect, Expr, Id},
-        ParserUtils, TokenStream,
-    },
+    parser::{Collect, ParserUtils, TokenStream},
 };
-
-#[derive(Constructor)]
-pub struct DeclareStatement {
-    pub id: Id,
-    pub expr: Option<Expr>,
-}
 
 impl Collect for DeclareStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {

@@ -1,19 +1,8 @@
-use derive_more::Constructor;
-
 use crate::{
+    ast::{Expr, Unary},
     error::*,
-    lexer::Operator,
-    parser::{
-        ast::{Collect, Expr},
-        ParserUtils, PowerBinding, TokenStream,
-    },
+    parser::{Collect, ParserUtils, PowerBinding, TokenStream},
 };
-
-#[derive(Constructor)]
-pub struct Unary {
-    pub op: Operator,
-    pub rhs: Box<Expr>,
-}
 
 impl Collect for Unary {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {

@@ -1,6 +1,6 @@
 use crate::{
+    ast::{Atom, DeclareStatement},
     lexer::{Literal, Operator},
-    parser::ast::{Atom, DeclareStatement},
     translator::{
         instruction::{Assign, Instruction},
         translate::Translate,

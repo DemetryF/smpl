@@ -1,12 +1,10 @@
 use self::{
-    ast::{Collect, Statement},
-    parser_utils::ParserUtils,
-    power_bindings::PowerBinding,
+    collect::Collect, parser_utils::ParserUtils, power_bindings::PowerBinding,
     token_stream::TokenStream,
 };
-use crate::error::*;
+use crate::{ast::Statement, error::*};
 
-pub mod ast;
+pub mod collect;
 pub mod parser_utils;
 pub mod power_bindings;
 pub mod token_stream;

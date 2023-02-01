@@ -1,39 +1,12 @@
-use derive_more::Constructor;
-
-pub use self::{call::Call, unary::Unary};
-
 use crate::{
+    ast::{Atom, Binary, Call, Expr, Id, Unary},
     error::*,
-    lexer::{Literal, Operator, TokenValue},
-    parser::{
-        ast::{Collect, Id},
-        PowerBinding, TokenStream,
-    },
+    lexer::{Literal, TokenValue},
+    parser::{Collect, PowerBinding, TokenStream},
 };
 
 pub mod call;
 pub mod unary;
-
-pub enum Expr {
-    Binary(Binary),
-    Unary(Unary),
-    Call(Call),
-    Atom(Atom),
-}
-
-#[derive(Constructor)]
-pub struct Binary {
-    pub lhs: Box<Expr>,
-    pub op: Operator,
-    pub rhs: Box<Expr>,
-}
-
-#[derive(Clone)]
-pub enum Atom {
-    Literal(Literal),
-    Temp(usize),
-    Id(Id),
-}
 
 impl Collect for Expr {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {

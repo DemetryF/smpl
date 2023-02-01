@@ -2,9 +2,9 @@ use derive_more::Constructor;
 use enum_dispatch::enum_dispatch;
 
 use crate::{
+    ast::Atom,
     compiler::{Compile, Compiler},
     lexer::Operator,
-    parser::ast::Atom,
 };
 
 #[enum_dispatch]

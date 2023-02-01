@@ -1,5 +1,5 @@
 use crate::{
-    parser::ast::DeclareStatement,
+    ast::DeclareStatement,
     static_analyzer::{check::Check, env::Env, StaticAnalyzer},
 };
 

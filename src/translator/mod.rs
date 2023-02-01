@@ -1,9 +1,7 @@
 use crate::{
+    ast::{Atom, Statement},
     error::*,
-    parser::{
-        ast::{Atom, Statement},
-        Parser,
-    },
+    parser::Parser,
     static_analyzer::{StaticAnalyzer, StaticError},
 };
 
