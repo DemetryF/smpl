@@ -68,7 +68,12 @@ impl<'code> TokenStream<'code> {
             return Ok(());
         }
 
-        return Err(Error::UnexpectedToken(self.current.clone()));
+        let current = self.current.clone();
+
+        Err(Error::new(
+            ErrorKind::UnexpectedToken(current.value),
+            current.pos,
+        ))
     }
 
     pub fn is_end(&self) -> bool {

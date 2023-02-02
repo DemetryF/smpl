@@ -1,18 +1,16 @@
+use derive_more::Constructor;
 use std::collections::HashMap;
 
-use derive_more::Constructor;
-
-use crate::ast::{Call, Id, Statement};
-
 use self::check::Check;
-pub use {
-    env::{Env, StaticIdInfo},
-    static_error::{StaticError, StaticErrorKind},
+use crate::{
+    ast::{Call, Id, Statement},
+    error::*,
 };
+
+pub use env::{Env, StaticIdInfo};
 
 mod check;
 pub mod env;
-pub mod static_error;
 
 #[derive(Constructor)]
 pub struct StaticFunctionInfo {
@@ -22,7 +20,7 @@ pub struct StaticFunctionInfo {
 }
 
 pub struct StaticAnalyzer {
-    pub errors: Vec<StaticError>,
+    pub errors: Vec<Error>,
     pub functions: HashMap<String, StaticFunctionInfo>,
 }
 
@@ -63,8 +61,8 @@ impl StaticAnalyzer {
     }
 
     pub fn redeclaring_error(&mut self, id: Id, existing_id: &StaticIdInfo) {
-        self.errors.push(StaticError::new(
-            StaticErrorKind::ReDeclaringVariable {
+        self.errors.push(Error::new(
+            ErrorKind::ReDeclaringVariable {
                 name: id.value,
                 defined_at: existing_id.define_pos,
             },
@@ -84,31 +82,27 @@ impl StaticAnalyzer {
     }
 
     pub fn duplicate_args_error(&mut self, id: Id) {
-        self.errors.push(StaticError::new(
-            StaticErrorKind::DuplicateFunctionArgs(id.value),
+        self.errors.push(Error::new(
+            ErrorKind::DuplicateFunctionArgs(id.value),
             id.pos,
         ))
     }
 
     pub fn non_existing_variable_error(&mut self, id: Id) {
-        self.errors.push(StaticError::new(
-            StaticErrorKind::NonExistingVariable(id.value),
-            id.pos,
-        ));
+        self.errors
+            .push(Error::new(ErrorKind::NonExistingVariable(id.value), id.pos));
     }
 
     pub fn non_existing_function_error(&mut self, id: Id) {
-        self.errors.push(StaticError::new(
-            StaticErrorKind::NonExistingFunction(id.value),
-            id.pos,
-        ))
+        self.errors
+            .push(Error::new(ErrorKind::NonExistingFunction(id.value), id.pos))
     }
 
     pub fn invalid_args_count_error(&mut self, call: &Call) {
         let func = self.functions.get_mut(&call.id.value).unwrap();
 
-        self.errors.push(StaticError::new(
-            StaticErrorKind::InvalidArgumentsCount {
+        self.errors.push(Error::new(
+            ErrorKind::InvalidArgumentsCount {
                 expected_args_count: func.args_count,
                 received_args_count: call.args.len(),
                 function_id: func.id.clone(),
