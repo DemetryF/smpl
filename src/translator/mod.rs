@@ -2,7 +2,7 @@ use crate::{
     ast::{Atom, Statement},
     error::*,
     parser::Parser,
-    static_analyzer::{StaticAnalyzer, StaticError},
+    static_analyzer::StaticAnalyzer,
 };
 
 use self::{
@@ -44,12 +44,12 @@ impl<'code> Translator<'code> {
         self.instructions.push(instruction);
     }
 
-    pub fn translate(&mut self) -> Result<std::result::Result<(), Vec<StaticError>>> {
-        let stmts = self.parser.parse()?;
+    pub fn translate(&mut self) -> std::result::Result<(), Vec<Error>> {
+        let stmts = self.parser.parse().map_err(|e| vec![e])?;
         let analyzer = StaticAnalyzer::new(&stmts);
 
         if !analyzer.errors.is_empty() {
-            return Ok(Err(analyzer.errors));
+            return Err(analyzer.errors);
         }
 
         let (global, local) = Self::global_and_local_stmts(stmts);
@@ -58,7 +58,7 @@ impl<'code> Translator<'code> {
         self.add_main_label();
         self.translate_stmts(local);
 
-        Ok(Ok(()))
+        Ok(())
     }
 
     pub fn add_main_label(&mut self) {

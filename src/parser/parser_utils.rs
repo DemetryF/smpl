@@ -11,7 +11,10 @@ impl ParserUtils {
         let token = token_stream.skip()?;
         match token.value {
             TokenValue::Id(value) => Ok(Id::new(value, token.pos)),
-            _ => Err(Error::UnexpectedToken(token)),
+            _ => Err(Error::new(
+                ErrorKind::UnexpectedToken(token.value),
+                token.pos,
+            )),
         }
     }
 
@@ -19,7 +22,10 @@ impl ParserUtils {
         let token = token_stream.skip()?;
         match token.value {
             TokenValue::Operator(op) => Ok(op),
-            _ => Err(Error::UnexpectedToken(token)),
+            _ => Err(Error::new(
+                ErrorKind::UnexpectedToken(token.value),
+                token.pos,
+            )),
         }
     }
 }

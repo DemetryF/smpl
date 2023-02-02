@@ -57,7 +57,12 @@ impl Expr {
                 }
             }
 
-            _ => return Err(Error::UnexpectedToken(token.clone())),
+            _ => {
+                return Err(Error::new(
+                    ErrorKind::UnexpectedToken(token.value),
+                    token.pos,
+                ))
+            }
         })
     }
 

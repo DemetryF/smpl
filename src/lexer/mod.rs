@@ -3,7 +3,7 @@ pub use self::{
     pos::Pos,
     token::{Literal, Operator, Token, TokenValue},
 };
-use crate::error::Error;
+use crate::error::*;
 
 mod code_stream;
 mod comments_handler;
@@ -29,7 +29,7 @@ impl<'code> Lexer<'code> {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token, Error> {
+    pub fn next_token(&mut self) -> Result<Token> {
         CommentsHandler::skip(&mut self.code_stream);
 
         let pos = self.code_stream.get_pos();
@@ -48,9 +48,6 @@ impl<'code> Lexer<'code> {
     }
 
     fn unexpected_token(&mut self, pos: Pos) -> Error {
-        Error::UnexpectedChar {
-            value: self.code_stream.accept(),
-            pos,
-        }
+        Error::new(ErrorKind::UnexpectedChar(self.code_stream.accept()), pos)
     }
 }
