@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::{ast::Id, lexer::Pos};
 
@@ -10,9 +10,11 @@ pub struct StaticIdInfo {
 
 #[derive(Debug, Clone)]
 pub struct Env {
-    pub parent: Option<Box<Env>>,
+    pub parent: Option<SharedEnv>,
     pub variables: HashMap<String, StaticIdInfo>,
 }
+
+pub type SharedEnv = Rc<RefCell<Env>>;
 
 impl Env {
     pub fn new() -> Self {
@@ -22,7 +24,7 @@ impl Env {
         }
     }
 
-    pub fn new_with_parent(parent: Box<Env>) -> Self {
+    pub fn new_with_parent(parent: SharedEnv) -> Self {
         Self {
             parent: Some(parent),
             variables: HashMap::new(),
@@ -31,14 +33,14 @@ impl Env {
 
     pub fn search(&mut self, id: &String) -> bool {
         if self.variables.contains_key(id) {
-            let var = self.variables.get_mut(id).expect("");
+            let var = self.variables.get_mut(id).unwrap();
             var.uses_count += 1;
 
             return true;
         }
 
-        match &mut self.parent {
-            Some(env) => env.search(id),
+        match self.parent.as_deref() {
+            Some(env) => env.borrow_mut().search(id),
             None => false,
         }
     }

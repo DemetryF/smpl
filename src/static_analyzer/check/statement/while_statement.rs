@@ -1,11 +1,13 @@
+use std::rc::Rc;
+
 use crate::{
     ast::WhileStatement,
-    static_analyzer::{check::Check, env::Env, StaticAnalyzer},
+    static_analyzer::{check::Check, env::*, StaticAnalyzer},
 };
 
 impl Check for WhileStatement {
-    fn check(&self, analyzer: &mut StaticAnalyzer, env: &mut Env) {
-        self.cond.check(analyzer, env);
-        self.body.check(analyzer, env);
+    fn check(&self, analyzer: &mut StaticAnalyzer, env: SharedEnv) {
+        self.cond.check(analyzer, Rc::clone(&env));
+        self.body.check(analyzer, Rc::clone(&env));
     }
 }
