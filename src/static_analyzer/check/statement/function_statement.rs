@@ -1,19 +1,21 @@
+use std::cell::RefCell;
+
 use itertools::Itertools;
 
 use crate::{
     ast::FunctionStatement,
-    static_analyzer::{check::Check, env::Env, StaticAnalyzer},
+    static_analyzer::{check::Check, env::*, StaticAnalyzer},
 };
 
 impl Check for FunctionStatement {
-    fn check(&self, analyzer: &mut StaticAnalyzer, _: &mut Env) {
+    fn check(&self, analyzer: &mut StaticAnalyzer, _: SharedEnv) {
         self.check_args(analyzer);
 
         analyzer.add_function(self.id.clone(), self.args.len());
 
-        let mut env = self.env_from_args();
+        let env = self.env_from_args();
 
-        self.body.check(analyzer, &mut env);
+        self.body.check(analyzer, SharedEnv::new(RefCell::new(env)));
     }
 }
 

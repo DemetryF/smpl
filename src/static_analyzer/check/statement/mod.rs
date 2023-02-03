@@ -1,6 +1,6 @@
 use crate::{
     ast::Statement,
-    static_analyzer::{env::Env, StaticAnalyzer},
+    static_analyzer::{env::*, StaticAnalyzer},
 };
 
 use super::Check;
@@ -12,7 +12,7 @@ pub mod return_statement;
 pub mod while_statement;
 
 impl Check for Statement {
-    fn check(&self, analyzer: &mut StaticAnalyzer, env: &mut Env) {
+    fn check(&self, analyzer: &mut StaticAnalyzer, env: SharedEnv) {
         match self {
             Statement::Expr(expr) => expr.check(analyzer, env),
             Statement::Declare(declare) => declare.check(analyzer, env),

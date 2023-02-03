@@ -1,5 +1,5 @@
 use derive_more::Constructor;
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use self::check::Check;
 use crate::{
@@ -7,7 +7,7 @@ use crate::{
     error::*,
 };
 
-pub use env::{Env, StaticIdInfo};
+pub use env::*;
 
 mod check;
 pub mod env;
@@ -26,7 +26,7 @@ pub struct StaticAnalyzer {
 
 impl StaticAnalyzer {
     pub fn new(all_stmts: &Vec<Statement>) -> Self {
-        let mut global_env = Env::new();
+        let global_env = SharedEnv::new(RefCell::new(Env::new()));
 
         let mut analyzer = Self {
             errors: Vec::new(),
@@ -36,11 +36,11 @@ impl StaticAnalyzer {
         let (funcs, stmts) = Self::sort(all_stmts);
 
         for func in funcs {
-            func.check(&mut analyzer, &mut global_env);
+            func.check(&mut analyzer, Rc::clone(&global_env));
         }
 
         for stmt in stmts {
-            stmt.check(&mut analyzer, &mut global_env)
+            stmt.check(&mut analyzer, Rc::clone(&global_env))
         }
 
         analyzer

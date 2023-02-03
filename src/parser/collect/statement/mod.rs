@@ -1,12 +1,5 @@
 use super::{Collect, TokenStream};
-use crate::{
-    ast::{
-        DeclareStatement, Expr, FunctionStatement, IfStatement, ReturnStatement, Statement,
-        WhileStatement,
-    },
-    error::*,
-    lexer::TokenValue,
-};
+use crate::{ast::*, error::*, lexer::TokenValue};
 
 pub mod declare_statement;
 pub mod function_statement;

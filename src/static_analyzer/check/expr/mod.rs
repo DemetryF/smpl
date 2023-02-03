@@ -1,6 +1,6 @@
 use crate::{
     ast::Expr,
-    static_analyzer::{env::Env, StaticAnalyzer},
+    static_analyzer::{env::*, StaticAnalyzer},
 };
 
 use super::Check;
@@ -11,7 +11,7 @@ pub mod call;
 pub mod unary;
 
 impl Check for Expr {
-    fn check(&self, analyzer: &mut StaticAnalyzer, env: &mut Env) {
+    fn check(&self, analyzer: &mut StaticAnalyzer, env: SharedEnv) {
         match self {
             Expr::Atom(atom) => atom.check(analyzer, env),
             Expr::Binary(binary) => binary.check(analyzer, env),
