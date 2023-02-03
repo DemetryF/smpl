@@ -7,7 +7,7 @@ use derive_more::Constructor;
 pub use self::expr::*;
 pub use self::statements::*;
 
-#[derive(Constructor, Clone)]
+#[derive(Constructor, Clone, Debug)]
 pub struct Id {
     pub value: String,
     pub pos: Pos,

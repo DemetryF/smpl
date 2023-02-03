@@ -1,5 +1,6 @@
 use super::Pos;
 
+#[derive(Debug)]
 pub struct CodeStream<'code> {
     pos: Pos,
     code: &'code str,

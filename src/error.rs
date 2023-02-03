@@ -8,12 +8,13 @@ use crate::{
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Constructor)]
+#[derive(Constructor, Debug)]
 pub struct Error {
     pub kind: ErrorKind,
     pub pos: Pos,
 }
 
+#[derive(Debug)]
 pub enum ErrorKind {
     UnexpectedChar(char),
     UnexpectedToken(TokenValue),
