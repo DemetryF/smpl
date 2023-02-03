@@ -24,15 +24,15 @@ pub struct Translator<'code> {
 }
 
 impl<'code> Translator<'code> {
-    pub fn new(code: &'code str) -> Self {
-        Self {
+    pub fn new(code: &'code str) -> Result<Self> {
+        Ok(Self {
             instructions: Vec::new(),
-            parser: Parser::new(code),
+            parser: Parser::new(code)?,
 
             temps_count: 0,
             ifs_count: 0,
             whiles_count: 0,
-        }
+        })
     }
 
     pub fn get_temp_var(&mut self) -> Atom {

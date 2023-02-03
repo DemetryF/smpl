@@ -13,24 +13,16 @@ pub struct TokenStream<'code> {
 }
 
 impl<'code> TokenStream<'code> {
-    pub fn new(code: &'code str) -> Self {
+    pub fn new(code: &'code str) -> Result<Self> {
         let mut lexer = Lexer::new(code);
-        let mut errors: Vec<Error> = Vec::new();
 
-        let current = loop {
-            match lexer.next_token() {
-                Ok(token) => break token,
-                Err(error) => errors.push(error),
-            }
-        };
-
-        Self {
-            lexer,
-            errors,
-            current,
+        Ok(Self {
+            current: lexer.next_token()?,
+            errors: Vec::new(),
             following: None,
             in_function: false,
-        }
+            lexer,
+        })
     }
 
     pub fn current(&self) -> &Token {

@@ -5,7 +5,7 @@ pub use self::operator::Operator;
 pub use self::token_value::Literal;
 pub use self::token_value::TokenValue;
 
-pub mod fmt;
+mod fmt;
 pub mod operator;
 pub mod token_value;
 
