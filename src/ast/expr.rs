@@ -3,14 +3,14 @@ use crate::lexer::{Literal, Operator};
 use derive_more::Constructor;
 
 pub enum Expr {
-    Binary(Binary),
-    Unary(Unary),
+    Infix(Infix),
+    Prefix(Prefix),
     Call(Call),
     Atom(Atom),
 }
 
 #[derive(Constructor)]
-pub struct Binary {
+pub struct Infix {
     pub lhs: Box<Expr>,
     pub op: Operator,
     pub rhs: Box<Expr>,
@@ -24,7 +24,7 @@ pub enum Atom {
 }
 
 #[derive(Constructor)]
-pub struct Unary {
+pub struct Prefix {
     pub op: Operator,
     pub rhs: Box<Expr>,
 }
