@@ -1,5 +1,5 @@
 use crate::{
-    ast::{Unary as PUnary, Atom},
+    ast::{Atom, Prefix},
     translator::{
         instruction::{Instruction, Unary},
         translate::Translate,
@@ -7,7 +7,7 @@ use crate::{
     },
 };
 
-impl Translate for PUnary {
+impl Translate for Prefix {
     fn translate(self, translator: &mut Translator) -> Option<Atom> {
         let result = translator.get_temp_var();
 

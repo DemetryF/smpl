@@ -1,12 +1,12 @@
 use crate::{
-    ast::{Atom, Binary, Call, Expr, Id, Unary},
+    ast::{Atom, Call, Expr, Id, Infix, Prefix},
     error::*,
     lexer::{Literal, TokenValue},
     parser::{Collect, PowerBinding, TokenStream},
 };
 
 pub mod call;
-pub mod unary;
+pub mod prefix;
 
 impl Collect for Expr {
     fn collect(token_stream: &mut TokenStream) -> Result<Self> {
@@ -28,7 +28,7 @@ impl Expr {
                 lhs = {
                     let rhs = Self::expr_bp(token_stream, r_bp)?;
 
-                    Self::Binary(Binary::new(Box::new(lhs), op, Box::new(rhs)))
+                    Self::Infix(Infix::new(Box::new(lhs), op, Box::new(rhs)))
                 };
 
                 continue;
@@ -46,7 +46,7 @@ impl Expr {
         Ok(match token.value.clone() {
             TokenValue::Literal(literal) => Self::literal(token_stream, literal)?,
             TokenValue::OpeningParen => Self::parenthesis(token_stream)?,
-            TokenValue::Operator(_) => Self::Unary(Unary::collect(token_stream)?),
+            TokenValue::Operator(_) => Self::Prefix(Prefix::collect(token_stream)?),
 
             TokenValue::Id(id) => {
                 if token_stream.following()?.value == TokenValue::OpeningParen {

@@ -4,15 +4,15 @@ use crate::{
     translator::Translator,
 };
 
-pub mod binary;
 pub mod call;
-pub mod unary;
+pub mod infix;
+pub mod prefix;
 
 impl Translate for Expr {
     fn translate(self, translator: &mut Translator) -> Option<Atom> {
         match self {
-            Self::Binary(binary) => binary.translate(translator),
-            Self::Unary(unary) => unary.translate(translator),
+            Self::Infix(infix) => infix.translate(translator),
+            Self::Prefix(prefix) => prefix.translate(translator),
             Self::Call(call) => call.translate(translator),
             Self::Atom(atom) => Some(atom),
         }

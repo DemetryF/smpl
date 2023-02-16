@@ -1,9 +1,9 @@
 use crate::{
-    ast::Unary,
+    ast::Prefix,
     static_analyzer::{check::Check, env::*, StaticAnalyzer},
 };
 
-impl Check for Unary {
+impl Check for Prefix {
     fn check(&self, analyzer: &mut StaticAnalyzer, env: SharedEnv) {
         self.rhs.check(analyzer, env);
     }

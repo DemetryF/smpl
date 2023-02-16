@@ -1,14 +1,14 @@
 use crate::{
-    ast::{Atom, Binary as PBinary, Expr},
+    ast::{Atom, Expr, Infix},
     lexer::Operator,
     translator::{
-        instruction::{Assign, Binary as IBinary, Instruction},
+        instruction::{Assign, Binary, Instruction},
         translate::Translate,
         Translator,
     },
 };
 
-impl Translate for PBinary {
+impl Translate for Infix {
     fn translate(self, translator: &mut Translator) -> Option<Atom> {
         match self.op {
             Operator::MultiplicationAssignment
@@ -22,7 +22,7 @@ impl Translate for PBinary {
     }
 }
 
-impl PBinary {
+impl Infix {
     fn translate_assignment(self, translator: &mut Translator) -> Option<Atom> {
         let what = self.rhs.translate(translator).unwrap();
 
@@ -42,7 +42,7 @@ impl PBinary {
         let left = self.lhs.translate(translator).unwrap();
         let right = self.rhs.translate(translator).unwrap();
 
-        translator.push(Instruction::Binary(IBinary::new(
+        translator.push(Instruction::Binary(Binary::new(
             result.clone(),
             left,
             self.op,
