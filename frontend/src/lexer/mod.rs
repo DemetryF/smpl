@@ -42,10 +42,10 @@ impl<'code> Lexer<'code> {
             }
         }
 
-        Err(self.unexpected_token(pos))
+        Err(self.unexpected_char(pos))
     }
 
-    fn unexpected_token(&mut self, pos: Pos) -> Error {
+    fn unexpected_char(&mut self, pos: Pos) -> Error {
         Error::new(ErrorKind::UnexpectedChar(self.code_stream.accept()), pos)
     }
 }
