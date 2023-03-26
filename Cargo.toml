@@ -1,7 +1,0 @@
-[workspace]
-members = [
-    "bin",
-    "frontend",
-    "static_analyzer",
-    "backend",
-]
