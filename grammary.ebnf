@@ -1,0 +1,62 @@
+stmt ::= if | while | function | declare | return | exprstmt
+
+// statements
+declare  ::= 'let' id ('=' expr)? ';'
+function ::= 'fn' id '(' fargs? ')' block
+if       ::= 'if' expr block ('else' block)?
+while    ::= 'while' expr block
+return   ::= 'return' expr ';'
+exprstmt ::= assignment ';'
+
+// block
+block ::= '{' bstmt* '}'
+bstmt ::= if | while | declare | exprstmt
+
+// expressions 
+expr ::= or
+
+assignment ::= 
+      id '=' or
+    | or;
+
+or ::= or '|' and
+     | and
+
+and ::= and '&' eq
+      | eq
+
+eq ::= eq '!=' comp
+     | eq '==' comp
+     | comp
+
+comp ::=
+      comp '>=' add
+    | comp '>'  add
+    | comp '<=' add
+    | comp '<'  add
+    | add
+
+add ::= add '+' mul
+      | add '-' mul
+      | mul
+
+mul ::= 
+      mul '*'  unary
+    | mul '/'  unary
+    | unary
+
+unary ::= 
+      '!' fact
+    | '+' fact
+    | '-' fact
+    | fact
+
+fact ::= num | id | parenthesis | call
+
+parenthesis ::= '(' expr ')'
+call ::= id '(' cargs? ')'
+
+// arguments
+
+fargs ::= id (',' id)
+cargs ::= expr (',' expr)
