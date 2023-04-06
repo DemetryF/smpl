@@ -19,7 +19,7 @@ impl<'code> CodeStream<'code> {
 
     pub fn consume(&mut self) -> char {
         let ch = self.current();
-        self.pos.change(ch);
+        self.pos.update(ch);
 
         ch
     }
@@ -44,11 +44,7 @@ impl<'code> CodeStream<'code> {
     }
 
     pub fn slice(&self, start: usize, end: usize) -> &str {
-        if start >= self.code.len() || end > self.code.len() {
-            panic!("invalid index")
-        }
-
-        &self.code[start..end]
+        self.code.get(start..end).unwrap_or_default()
     }
 
     pub fn slice_from_current(&self, len: usize) -> &str {
@@ -56,7 +52,7 @@ impl<'code> CodeStream<'code> {
     }
 
     pub fn get_pos(&self) -> Pos {
-        self.pos.clone()
+        self.pos
     }
 
     pub fn skip(&mut self, count: usize) -> &str {
@@ -64,7 +60,7 @@ impl<'code> CodeStream<'code> {
             self.consume();
         }
 
-        &self.code[self.pos.index - count..self.pos.index]
+        self.slice(self.pos.index - count, self.pos.index)
     }
 
     pub fn get_index(&self) -> usize {

@@ -47,7 +47,6 @@ mul ::=
 
 unary ::= 
       '!' fact
-    | '+' fact
     | '-' fact
     | fact
 
@@ -58,5 +57,5 @@ call ::= id '(' cargs? ')'
 
 // arguments
 
-fargs ::= id (',' id)
-cargs ::= expr (',' expr)
+fargs ::= id (',' id)*
+cargs ::= expr (',' expr)*
