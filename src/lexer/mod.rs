@@ -11,10 +11,11 @@ use self::{
 mod code_stream;
 mod comment_handler;
 pub mod pos;
-#[cfg(test)]
-mod tests;
 pub mod token;
 mod token_collector;
+
+#[cfg(test)]
+mod tests;
 
 pub struct Lexer<'code> {
     code_stream: CodeStream<'code>,
@@ -33,25 +34,35 @@ impl<'code> Lexer<'code> {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token, Error> {
+    fn next_token(&mut self) -> Option<Result<Token, Error>> {
         CommentsHandler::skip(&mut self.code_stream);
 
         let pos = self.code_stream.get_pos();
 
         if self.code_stream.is_eof() {
-            return Ok(Token::new(TokenValue::EOF, pos));
+            return None;
         }
 
         for collector in self.collectors.iter_mut() {
             if let Some(token_value) = collector.try_collect(&mut self.code_stream) {
-                return Ok(Token::new(token_value, pos));
+                let new_token = Token::new(token_value, pos);
+
+                return Some(Ok(new_token));
             }
         }
 
-        Err(self.unexpected_char(pos))
+        Some(Err(self.unexpected_char(pos)))
     }
 
     fn unexpected_char(&mut self, pos: Pos) -> Error {
         Error::new(ErrorKind::UnexpectedChar(self.code_stream.consume()), pos)
+    }
+}
+
+impl<'code> Iterator for Lexer<'code> {
+    type Item = Result<Token, Error>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next_token()
     }
 }

@@ -1,10 +1,21 @@
-use lexer::Lexer;
+use parser::Parser;
 
-mod error;
-mod lexer;
+pub mod ast;
+pub mod error;
+pub mod lexer;
+pub mod parser;
 
 fn main() {
-    let mut lexer = Lexer::new("aboba");
+    let code = "if a == a { print(228); /* govnovoz */ }";
 
-    println!("{:#?}", lexer.next_token().unwrap());
+    let mut parser = Parser::new(code).unwrap();
+
+    let stmts = match parser.parse() {
+        Ok(stmts) => stmts,
+        Err(error) => return println!("{error:?}"),
+    };
+
+    for stmt in stmts {
+        println!("{stmt:?}")
+    }
 }

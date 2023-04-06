@@ -2,13 +2,13 @@ use derive_more::Constructor;
 
 use super::Pos;
 
-#[derive(Debug, Constructor)]
+#[derive(Clone, Debug, Constructor)]
 pub struct Token {
     pub value: TokenValue,
     pub pos: Pos,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum TokenValue {
     // keywords
     Return,
@@ -43,12 +43,9 @@ pub enum TokenValue {
     // other
     Literal(Literal),
     Id(String),
-
-    #[warn(clippy::upper_case_acronyms)]
-    EOF,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Literal {
     Number(f32),
     Bool(bool),

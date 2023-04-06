@@ -1,0 +1,41 @@
+use crate::{
+    ast::{id::Id, Block, FunctionStatement},
+    error::Error,
+    lexer::token::TokenValue,
+    parser::{collect::Collect, token_stream::TokenStream},
+};
+
+impl Collect for FunctionStatement {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+        token_stream.consume(TokenValue::Fn)?;
+
+        let id = Id::collect(token_stream)?;
+        let args = parse_args(token_stream)?;
+
+        token_stream.in_function = true;
+        let body = Block::collect(token_stream)?;
+        token_stream.in_function = false;
+
+        Ok(FunctionStatement { id, args, body })
+    }
+}
+
+fn parse_args(token_stream: &mut TokenStream) -> Result<Vec<Id>, Error> {
+    let mut args = Vec::new();
+
+    token_stream.consume(TokenValue::LParen)?;
+
+    if token_stream.try_consume(TokenValue::RParen) {
+        return Ok(args);
+    }
+
+    args.push(Id::collect(token_stream)?);
+
+    while token_stream.try_consume(TokenValue::Comma) {
+        args.push(Id::collect(token_stream)?);
+    }
+
+    token_stream.consume(TokenValue::RParen)?;
+
+    Ok(args)
+}
