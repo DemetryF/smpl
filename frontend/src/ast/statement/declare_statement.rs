@@ -1,16 +1,21 @@
 use crate::{
-    ast::{expr::Expr, id::Id, DeclareStatement},
+    ast::{Collect, Expr, Id},
     error::Error,
-    lexer::token::TokenValue,
-    parser::{collect::Collect, token_stream::TokenStream},
+    lexer::TokenValue,
+    TokenStream,
 };
+
+#[derive(Debug, PartialEq)]
+pub struct DeclareStatement {
+    pub id: Id,
+    pub init_expr: Option<Expr>,
+}
 
 impl Collect for DeclareStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
         token_stream.consume(TokenValue::Let)?;
 
         let id = Id::collect(token_stream)?;
-        println!("autobus");
         let init_expr = parse_init_expr(token_stream)?;
 
         token_stream.consume(TokenValue::Semicolon)?;

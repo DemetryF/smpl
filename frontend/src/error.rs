@@ -1,9 +1,6 @@
 use derive_more::Constructor;
 
-use crate::lexer::{
-    pos::Pos,
-    token::{Token, TokenValue},
-};
+use crate::lexer::{Pos, Token, TokenValue};
 
 #[derive(Debug, Constructor)]
 pub struct Error {

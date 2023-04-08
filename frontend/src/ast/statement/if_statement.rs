@@ -1,9 +1,16 @@
 use crate::{
-    ast::{expr::Expr, Block, IfStatement},
+    ast::{Block, Collect, Expr},
     error::Error,
-    lexer::token::TokenValue,
-    parser::{collect::Collect, token_stream::TokenStream},
+    lexer::TokenValue,
+    token_stream::TokenStream,
 };
+
+#[derive(PartialEq, Debug)]
+pub struct IfStatement {
+    pub condition: Expr,
+    pub then_body: Block,
+    pub else_body: Option<Block>,
+}
 
 impl Collect for IfStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {

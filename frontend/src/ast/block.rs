@@ -1,11 +1,11 @@
-use crate::{
-    ast::{Block, Statement},
-    error::Error,
-    lexer::token::TokenValue,
-    parser::token_stream::TokenStream,
-};
+use crate::{ast::Statement, error::Error, lexer::TokenValue, TokenStream};
 
 use super::Collect;
+
+#[derive(PartialEq, Debug)]
+pub struct Block {
+    pub stmts: Vec<Statement>,
+}
 
 impl Collect for Block {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {

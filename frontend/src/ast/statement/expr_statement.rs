@@ -1,9 +1,12 @@
 use crate::{
-    ast::{expr::Expr, ExprStatement},
+    ast::{Collect, Expr},
     error::Error,
-    lexer::token::TokenValue,
-    parser::{collect::Collect, token_stream::TokenStream},
+    lexer::TokenValue,
+    token_stream::TokenStream,
 };
+
+#[derive(PartialEq, Debug)]
+pub struct ExprStatement(pub Expr);
 
 impl Collect for ExprStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {

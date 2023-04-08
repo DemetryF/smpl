@@ -1,15 +1,37 @@
-use crate::{
-    ast::{
-        expr::{Atom, Expr},
-        id::Id,
-        operators::{BinOp, UnOp},
-    },
-    error::Error,
-    lexer::token::TokenValue,
-    parser::token_stream::TokenStream,
+use crate::error::Error;
+use crate::lexer::{Literal, TokenValue};
+
+use crate::ast::{
+    id::Id,
+    operators::{BinOp, UnOp},
+    Collect,
 };
 
-use super::Collect;
+use crate::TokenStream;
+
+#[derive(Debug, PartialEq)]
+pub enum Expr {
+    Prefix {
+        op: UnOp,
+        rhs: Box<Expr>,
+    },
+    Infix {
+        lhs: Box<Expr>,
+        op: BinOp,
+        rhs: Box<Expr>,
+    },
+    Call {
+        id: Id,
+        args: Vec<Expr>,
+    },
+    Atom(Atom),
+}
+
+#[derive(PartialEq, Debug)]
+pub enum Atom {
+    Id(Id),
+    Literal(Literal),
+}
 
 impl Collect for Expr {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
