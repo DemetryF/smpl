@@ -16,15 +16,17 @@ pub struct TokenStream {
 
 impl TokenStream {
     pub fn new(code: &str) -> Result<Self, Vec<Error>> {
-        let lexer = Lexer::new(code);
+        let mut lexer = Lexer::new(code);
 
         let mut tokens = Vec::new();
         let mut errors = Vec::new();
 
-        for result in lexer {
+        for result in lexer.by_ref() {
             match result {
-                Ok(token) => tokens.push(token),
+                Ok(token) if errors.is_empty() => tokens.push(token),
                 Err(error) => errors.push(error),
+
+                _ => {}
             }
         }
 
@@ -32,11 +34,15 @@ impl TokenStream {
             return Err(errors);
         }
 
-        Ok(TokenStream {
+        tokens.push(Token::new(TokenValue::EOF, lexer.get_pos()));
+
+        let token_stream = TokenStream {
             tokens,
             index: 0,
             in_function: false,
-        })
+        };
+
+        Ok(token_stream)
     }
 
     pub fn current(&self) -> &Token {

@@ -1,21 +1,24 @@
+mod code_stream;
+mod comment_handler;
+mod pos;
+mod token;
+mod token_collector;
+
+#[cfg(test)]
+mod tests;
+
+pub use self::{
+    pos::Pos,
+    token::{Literal, Token, TokenValue},
+};
+
 use crate::error::{Error, ErrorKind};
 
 use self::{
     code_stream::CodeStream,
     comment_handler::CommentsHandler,
-    pos::Pos,
-    token::{Literal, Token, TokenValue},
     token_collector::{NumberCollector, SpecialCollector, TokenCollector, WordCollector},
 };
-
-mod code_stream;
-mod comment_handler;
-pub mod pos;
-pub mod token;
-mod token_collector;
-
-#[cfg(test)]
-mod tests;
 
 pub struct Lexer<'code> {
     code_stream: CodeStream<'code>,
@@ -33,6 +36,10 @@ impl<'code> Lexer<'code> {
             ],
         }
     }
+
+    // pub fn get_pos(&self) -> Pos {
+    //     self.code_stream.get_pos()
+    // }
 
     fn next_token(&mut self) -> Option<Result<Token, Error>> {
         CommentsHandler::skip(&mut self.code_stream);

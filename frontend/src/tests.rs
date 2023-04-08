@@ -1,25 +1,15 @@
 use crate::{
     ast::{
-        expr::{Atom, Expr},
-        id::Id,
-        Block, DeclareStatement, ExprStatement, FunctionStatement, IfStatement, ReturnStatement,
-        Statement, WhileStatement,
+        Atom, Block, DeclareStatement, Expr, ExprStatement, FunctionStatement, Id, IfStatement,
+        ReturnStatement, Statement, WhileStatement,
     },
-    lexer::{pos::Pos, token::Literal},
-    parser::{Collect, Parser, TokenStream},
+    lexer::{Literal, Pos},
+    parse, Collect, TokenStream,
 };
 
 macro_rules! parser_test {
     ($code:expr; $stmt:expr) => {
-        assert_eq!(
-            *Parser::new($code)
-                .unwrap()
-                .parse()
-                .unwrap()
-                .first()
-                .unwrap(),
-            $stmt
-        );
+        assert_eq!(*parse($code).unwrap().first().unwrap(), $stmt);
     };
 }
 

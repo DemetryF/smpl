@@ -1,6 +1,6 @@
 use crate::{
     error::Error,
-    lexer::token::{Token, TokenValue},
+    lexer::{Token, TokenValue},
 };
 
 macro_rules! operators {

@@ -2,11 +2,11 @@ use derive_more::Constructor;
 
 use crate::{
     error::Error,
-    lexer::{
-        pos::Pos,
-        token::{Token, TokenValue},
-    },
+    lexer::{Pos, Token, TokenValue},
+    TokenStream,
 };
+
+use super::Collect;
 
 #[derive(Constructor, Debug, PartialEq)]
 pub struct Id {
@@ -37,5 +37,11 @@ impl TryFrom<&Token> for Id {
         let token = token.clone();
 
         Id::try_from(token)
+    }
+}
+
+impl Collect for Id {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+        Id::try_from(token_stream.next())
     }
 }

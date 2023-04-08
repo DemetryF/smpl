@@ -1,9 +1,15 @@
 use crate::{
-    ast::{expr::Expr, Block, WhileStatement},
+    ast::{Block, Collect, Expr},
     error::Error,
-    lexer::token::TokenValue,
-    parser::{collect::Collect, token_stream::TokenStream},
+    lexer::TokenValue,
+    TokenStream,
 };
+
+#[derive(PartialEq, Debug)]
+pub struct WhileStatement {
+    pub condition: Expr,
+    pub body: Block,
+}
 
 impl Collect for WhileStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {

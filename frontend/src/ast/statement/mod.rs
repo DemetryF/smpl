@@ -1,21 +1,29 @@
-use crate::{
-    ast::{
-        DeclareStatement, ExprStatement, FunctionStatement, IfStatement, ReturnStatement,
-        Statement, WhileStatement,
-    },
-    error::Error,
-    lexer::token::TokenValue,
-    parser::token_stream::TokenStream,
+pub mod declare_statement;
+pub mod expr_statement;
+pub mod function_statement;
+pub mod if_statement;
+pub mod return_statement;
+pub mod while_statement;
+
+pub use self::{
+    declare_statement::DeclareStatement, expr_statement::ExprStatement,
+    function_statement::FunctionStatement, if_statement::IfStatement,
+    return_statement::ReturnStatement, while_statement::WhileStatement,
 };
+
+use crate::{error::Error, lexer::TokenValue, TokenStream};
 
 use super::Collect;
 
-mod declare_statement;
-mod expr_statement;
-mod function_statement;
-mod if_statement;
-mod return_statement;
-mod while_statement;
+#[derive(Debug, PartialEq)]
+pub enum Statement {
+    Declare(DeclareStatement),
+    Function(FunctionStatement),
+    If(IfStatement),
+    While(WhileStatement),
+    Expr(ExprStatement),
+    Return(ReturnStatement),
+}
 
 impl Collect for Statement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
