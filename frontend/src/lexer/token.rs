@@ -43,6 +43,8 @@ pub enum TokenValue {
     // other
     Literal(Literal),
     Id(String),
+
+    EOF,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

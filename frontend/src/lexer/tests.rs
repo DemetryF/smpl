@@ -7,7 +7,7 @@ macro_rules! lexer_test {
         let mut lexer = Lexer::new($code);
         $(
             assert_eq!(
-                lexer.next().unwrap().unwrap().value,
+                lexer.next_token().unwrap().value,
                 $value
             );
         )*
