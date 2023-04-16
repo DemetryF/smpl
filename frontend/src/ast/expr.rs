@@ -1,10 +1,10 @@
 use crate::error::Error;
-use crate::lexer::{Literal, TokenValue};
+use crate::lexer::TokenValue;
 
 use crate::ast::{
     id::Id,
     operators::{BinOp, UnOp},
-    Collect,
+    Atom, Collect,
 };
 
 use crate::TokenStream;
@@ -25,12 +25,6 @@ pub enum Expr {
         args: Vec<Expr>,
     },
     Atom(Atom),
-}
-
-#[derive(PartialEq, Debug)]
-pub enum Atom {
-    Id(Id),
-    Literal(Literal),
 }
 
 impl Collect for Expr {
