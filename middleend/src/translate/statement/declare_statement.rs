@@ -1,21 +1,20 @@
 use frontend::ast::DeclareStatement;
 
-use crate::instruction::*;
+use crate::{instruction::*, Error};
 use crate::{translate::Translate, Translator};
 
 impl Translate for DeclareStatement {
-    fn translate(self, translator: &mut Translator) {
+    fn translate(self, translator: &mut Translator) -> Result<(), Error> {
         let value = if let Some(expr) = self.init_expr {
-            expr.translate(translator)
+            expr.translate(translator)?
         } else {
             Atom::Number(0.0)
         };
 
-        let result = match translator.scopes.add_variable(self.id) {
-            Ok(id) => id,
-            Err(error) => return translator.errors.push(error),
-        };
+        let result = translator.scopes.add_variable(self.id)?;
 
-        translator.code.push(Copy { result, value })
+        translator.code.push(Copy { result, value });
+
+        Ok(())
     }
 }

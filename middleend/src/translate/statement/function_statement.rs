@@ -8,7 +8,7 @@ use crate::{
 };
 
 impl Translate for FunctionStatement {
-    fn translate(self, translator: &mut Translator) {
+    fn translate(self, translator: &mut Translator) -> Result<(), Error> {
         let function = Function {
             defined_at: self.id.pos,
             args_count: self.args.len(),
@@ -32,6 +32,8 @@ impl Translate for FunctionStatement {
             })
         }
 
-        self.body.translate(translator);
+        self.body.translate(translator)?;
+
+        Ok(())
     }
 }

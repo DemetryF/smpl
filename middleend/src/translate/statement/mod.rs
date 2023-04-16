@@ -7,12 +7,12 @@ mod while_statement;
 
 use frontend::ast::Statement;
 
-use crate::Translator;
+use crate::{Error, Translator};
 
 use super::Translate;
 
 impl Translate for Statement {
-    fn translate(self, translator: &mut Translator) {
+    fn translate(self, translator: &mut Translator) -> Result<(), Error> {
         match self {
             Statement::Declare(declare_statement) => declare_statement.translate(translator),
             Statement::Function(function_statement) => function_statement.translate(translator),
