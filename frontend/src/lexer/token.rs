@@ -52,3 +52,12 @@ pub enum Literal {
     Number(f32),
     Bool(bool),
 }
+
+impl std::fmt::Display for Literal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Literal::Number(num) => write!(f, "{num}"),
+            Literal::Bool(bool) => write!(f, "{bool}"),
+        }
+    }
+}

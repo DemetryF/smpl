@@ -1,4 +1,6 @@
 [workspace]
 members = [
     "frontend",
+    "middleend",
+    "bin",
 ]
