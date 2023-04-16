@@ -9,12 +9,12 @@ use crate::{
 use super::Translate;
 
 impl Translate<Atom> for Expr {
-    fn translate(self, translator: &mut Translator) -> Atom {
+    fn translate(self, translator: &mut Translator) -> Result<Atom, Error> {
         match self {
             Expr::Prefix { op, rhs } => {
                 let result = translator.create_temp_variable();
 
-                let rhs = rhs.translate(translator);
+                let rhs = rhs.translate(translator)?;
 
                 translator.code.push(Unary {
                     result: result.clone(),
@@ -22,7 +22,7 @@ impl Translate<Atom> for Expr {
                     rhs,
                 });
 
-                Atom::from(result)
+                Ok(Atom::from(result))
             }
 
             Expr::Infix {
@@ -30,33 +30,27 @@ impl Translate<Atom> for Expr {
                 op: BinOp::Assignment,
                 rhs,
             } => {
-                let value = rhs.translate(translator);
+                let value = rhs.translate(translator)?;
 
                 let Expr::Atom(frontend::ast::Atom::Id(result)) = lhs.as_ref() else {
                     unreachable!();
                 };
 
-                let result = match translator.scopes.add_variable(result.clone()) {
-                    Ok(id) => id,
-                    Err(error) => {
-                        translator.errors.push(error);
-                        todo!();
-                    }
-                };
+                let result = translator.scopes.add_variable(result.clone())?;
 
                 translator.code.push(Copy {
                     result: result.clone(),
                     value,
                 });
 
-                Atom::from(result)
+                Ok(Atom::from(result))
             }
 
             Expr::Infix { lhs, op, rhs } => {
                 let result = translator.create_temp_variable();
 
-                let lhs = lhs.translate(translator);
-                let rhs = rhs.translate(translator);
+                let lhs = lhs.translate(translator)?;
+                let rhs = rhs.translate(translator)?;
 
                 translator.code.push(Binary {
                     result: result.clone(),
@@ -65,17 +59,11 @@ impl Translate<Atom> for Expr {
                     rhs,
                 });
 
-                Atom::from(result)
+                Ok(Atom::from(result))
             }
 
             Expr::Call { id, args } => {
-                let function = match translator.scopes.get_function(&id) {
-                    Ok(function) => function,
-                    Err(error) => {
-                        translator.errors.push(error);
-                        todo!();
-                    }
-                };
+                let function = translator.scopes.get_function(&id)?;
 
                 if function.args_count != args.len() {
                     let kind = ErrorKind::InvalidArgumentsCount {
@@ -92,7 +80,7 @@ impl Translate<Atom> for Expr {
                 let result = translator.create_temp_variable();
 
                 for arg in args {
-                    let value = arg.translate(translator);
+                    let value = arg.translate(translator)?;
 
                     translator.code.push(Push { value });
                 }
@@ -104,18 +92,16 @@ impl Translate<Atom> for Expr {
                     id,
                 });
 
-                Atom::from(result)
+                Ok(Atom::from(result))
             }
+
             Expr::Atom(atom) => match atom {
-                frontend::ast::Atom::Id(id) => match translator.scopes.get_variable(id) {
-                    Ok(variable) => Atom::Id(variable.id.0),
-                    Err(error) => {
-                        println!("{}", error.kind);
-                        translator.errors.push(error);
-                        todo!()
-                    }
-                },
-                frontend::ast::Atom::Literal(literal) => Atom::from(literal),
+                frontend::ast::Atom::Id(id) => translator
+                    .scopes
+                    .get_variable(id)
+                    .map(|variable| variable.id.into()),
+
+                frontend::ast::Atom::Literal(literal) => Ok(Atom::from(literal)),
             },
         }
     }

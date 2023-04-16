@@ -5,8 +5,6 @@ use frontend::ast::Statement;
 use instruction::Label;
 use translator::Translator;
 
-use crate::translate::Translate;
-
 mod code;
 mod error;
 mod instruction;
@@ -21,13 +19,13 @@ pub fn translate(stmts: Vec<Statement>) -> Result<Code, Vec<Error>> {
 
     global
         .into_iter()
-        .for_each(|stmt| stmt.translate(&mut translator));
+        .for_each(|stmt| translator.translate(stmt));
 
     translator.code.add_label(Label("main".into()));
 
     local
         .into_iter()
-        .for_each(|stmt| stmt.translate(&mut translator));
+        .for_each(|stmt| translator.translate(stmt));
 
     if translator.errors.is_empty() {
         Ok(translator.code)

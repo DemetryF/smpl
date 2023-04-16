@@ -28,6 +28,6 @@ impl std::fmt::Display for Code {
             writeln!(f, "\t{instruction}")?;
         }
 
-        write!(f, "\n")
+        writeln!(f)
     }
 }
