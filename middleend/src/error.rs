@@ -34,6 +34,9 @@ pub enum ErrorKind {
     NonExistentFunction(String),
 
     DuplicateFunctionArgs(String),
+
+    ExpectedLValue,
+    UnexpectedAssignment,
 }
 
 impl Error {
@@ -72,6 +75,14 @@ impl Error {
 
         Self::new(kind, id.pos)
     }
+
+    pub fn expected_lvalue() -> Self {
+        Self::new(ErrorKind::ExpectedLValue, Pos::default())
+    }
+
+    pub fn unexpected_assignment() -> Self {
+        Self::new(ErrorKind::UnexpectedAssignment, Pos::default())
+    }
 }
 
 impl Display for ErrorKind {
@@ -101,7 +112,10 @@ impl Display for ErrorKind {
 
             ErrorKind::NonExistentVariable(id) => write!(f, "variable \"{id}\" is not defined"),
             ErrorKind::NonExistentFunction(id) => write!(f, "function \"{id}\" is not defined"),
-            ErrorKind::DuplicateFunctionArgs(_) => write!(f, "___")
-        }
+
+            ErrorKind::DuplicateFunctionArgs(_) => write!(f, "___"),
+
+            ErrorKind::ExpectedLValue => write!(f, "expected lvalue"), 
+            ErrorKind::UnexpectedAssignment => write!(f, "unexpected assignment"),        }
     }
 }

@@ -1,4 +1,3 @@
-mod atom;
 mod block;
 mod expr;
 mod id;
@@ -11,9 +10,8 @@ pub use self::statement::{
 };
 
 pub use self::{
-    atom::Atom,
     block::Block,
-    expr::Expr,
+    expr::{Atom, Call, Expr},
     id::Id,
     operators::{BinOp, UnOp},
 };
