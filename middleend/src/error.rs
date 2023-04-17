@@ -113,9 +113,10 @@ impl Display for ErrorKind {
             ErrorKind::NonExistentVariable(id) => write!(f, "variable \"{id}\" is not defined"),
             ErrorKind::NonExistentFunction(id) => write!(f, "function \"{id}\" is not defined"),
 
-            ErrorKind::DuplicateFunctionArgs(_) => write!(f, "___"),
+            ErrorKind::DuplicateFunctionArgs(id) => write!(f, "two arguments with same name: {id}"),
 
             ErrorKind::ExpectedLValue => write!(f, "expected lvalue"), 
-            ErrorKind::UnexpectedAssignment => write!(f, "unexpected assignment"),        }
+            ErrorKind::UnexpectedAssignment => write!(f, "unexpected assignment"),        
+        }
     }
 }
