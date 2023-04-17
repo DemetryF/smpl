@@ -13,6 +13,10 @@ impl Code {
         self.instructions.push(instruction.into())
     }
 
+    pub fn pop(&mut self) -> Instruction {
+        self.instructions.pop().unwrap()
+    }
+
     pub fn add_label(&mut self, label: Label) {
         self.labels.insert(self.instructions.len(), label);
     }

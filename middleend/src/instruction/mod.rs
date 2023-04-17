@@ -65,10 +65,19 @@ pub struct Goto {
     pub label: Label,
 }
 
-#[display("{result} = call {id}")]
 pub struct Call {
-    pub result: Id,
+    pub result: Option<Id>,
     pub id: Id,
+}
+
+impl std::fmt::Display for Call {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if let Some(result) = &self.result {
+            write!(f, "{result} = ")?;
+        }
+
+        write!(f, "call {}", self.id)
+    }
 }
 
 #[display("push {value}")]

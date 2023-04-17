@@ -1,7 +1,7 @@
 use crate::{
     ast::{
-        Atom, Block, DeclareStatement, Expr, ExprStatement, FunctionStatement, Id, IfStatement,
-        ReturnStatement, Statement, WhileStatement,
+        Atom, Block, Call, DeclareStatement, Expr, ExprStatement, FunctionStatement, Id,
+        IfStatement, ReturnStatement, Statement, WhileStatement,
     },
     lexer::{Literal, Pos},
     parse, Collect, TokenStream,
@@ -183,27 +183,27 @@ while a {}
 pub fn expr_call() {
     expr_test!(
         "call();";
-        Expr::Call { id: Id::new("call".into(), Pos::default()), args: vec![] }
+        Expr::Call(Call { id: Id::new("call".into(), Pos::default()), args: vec![] })
     );
 
     expr_test!(
         "call(1);";
-        Expr::Call {
+        Expr::Call(Call {
             id: Id::new("call".into(), Pos::default()),
             args: vec![
                 Expr::Atom(Atom::Literal(Literal::Number(1.0)))
             ],
-        }
+        })
     );
 
     expr_test!(
         "call(1, 2);";
-        Expr::Call {
+        Expr::Call(Call {
             id: Id::new("call".into(), Pos::default()),
             args: vec![
                 Expr::Atom(Atom::Literal(Literal::Number(1.0))),
                 Expr::Atom(Atom::Literal(Literal::Number(2.0)))
             ],
-        }
+        })
     );
 }
