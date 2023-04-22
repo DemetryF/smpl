@@ -1,20 +1,31 @@
 use std::collections::HashMap;
 
-use crate::instruction::{Instruction, Label};
+use crate::{instruction::Label, Id, Instruction};
 
 #[derive(Default)]
 pub struct Code {
+    functions: Vec<CodeFunction>,
+}
+
+pub struct CodeFunction {
+    id: String,
+    args: Vec<Id>,
     instructions: Vec<Instruction>,
     labels: HashMap<usize, Label>,
 }
 
-impl Code {
-    pub fn push(&mut self, instruction: impl Into<Instruction>) {
-        self.instructions.push(instruction.into())
+impl CodeFunction {
+    pub fn new(id: String, args: Vec<Id>) -> Self {
+        Self {
+            id,
+            args,
+            instructions: Vec::new(),
+            labels: HashMap::new(),
+        }
     }
 
-    pub fn pop(&mut self) -> Instruction {
-        self.instructions.pop().unwrap()
+    pub fn push(&mut self, instruction: impl Into<Instruction>) {
+        self.instructions.push(instruction.into());
     }
 
     pub fn add_label(&mut self, label: Label) {
@@ -22,14 +33,40 @@ impl Code {
     }
 }
 
+impl Code {
+    pub fn push(&mut self, instruction: impl Into<Instruction>) {
+        self.functions.last_mut().unwrap().push(instruction);
+    }
+
+    pub fn add_function(&mut self, function: CodeFunction) {
+        self.functions.push(function);
+    }
+
+    pub fn add_label(&mut self, label: Label) {
+        self.functions.last_mut().unwrap().add_label(label);
+    }
+}
+
 impl std::fmt::Display for Code {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for (i, instruction) in self.instructions.iter().enumerate() {
-            if let Some(label) = self.labels.get(&i) {
-                writeln!(f, "\n{label}:")?;
-            }
+        for function in self.functions.iter() {
+            let id = &function.id;
+            let args = function
+                .args
+                .iter()
+                .map(|arg| arg.0.as_str())
+                .collect::<Vec<_>>()
+                .join(", ");
 
-            writeln!(f, "\t{instruction}")?;
+            writeln!(f, "\n{}({}):", id, args)?;
+
+            for (index, instruction) in function.instructions.iter().enumerate() {
+                if let Some(label) = function.labels.get(&index) {
+                    writeln!(f, "\n    {label}:")?;
+                }
+
+                writeln!(f, "        {instruction}")?;
+            }
         }
 
         writeln!(f)

@@ -5,7 +5,7 @@ use frontend::ast::{BinOp, Expr};
 
 use crate::{
     error::Error,
-    instruction::{Atom, Binary, Instruction, Unary},
+    instruction::{Atom, Binary, Unary},
     Translator,
 };
 
@@ -48,22 +48,7 @@ impl Translate<Atom> for Expr {
                 Ok(Atom::from(result))
             }
 
-            Expr::Call(call) => {
-                call.translate(translator)?;
-
-                let result = translator.create_temp_variable();
-
-                let Instruction::Call(mut call) = translator.code.pop() else {
-                    unreachable!();
-                };
-
-                call.result = Some(result.clone());
-
-                translator.code.push(call);
-
-                Ok(Atom::from(result))
-            }
-
+            Expr::Call(call) => call.translate(translator),
             Expr::Atom(atom) => atom.translate(translator),
         }
     }

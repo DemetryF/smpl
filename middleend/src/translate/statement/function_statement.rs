@@ -1,11 +1,6 @@
 use frontend::ast::FunctionStatement;
 
-use crate::{
-    instruction::{Atom, Label, Pop},
-    scopes::Function,
-    translate::Translate,
-    Error, Translator,
-};
+use crate::{code::CodeFunction, scopes::Function, translate::Translate, Error, Translator};
 
 impl Translate for FunctionStatement {
     fn translate(self, translator: &mut Translator) -> Result<(), Error> {
@@ -14,23 +9,29 @@ impl Translate for FunctionStatement {
             args_count: self.args.len(),
         };
 
-        translator.code.add_label(Label(self.id.id.clone()));
+        let mut args = vec![];
 
-        if let Err(error) = translator.scopes.add_function(self.id, function) {
+        if let Err(error) = translator.scopes.add_function(&self.id, function) {
             translator.errors.push(error);
         }
 
         for arg in self.args.into_iter().rev() {
-            if translator.scopes.add_variable(arg.clone()).is_err() {
-                let error = Error::duplicate_function_args(arg.clone());
-
-                translator.errors.push(error)
+            match translator.scopes.add_variable(arg.clone()) {
+                Ok(id) => args.push(id),
+                Err(_) => {
+                    let error = Error::duplicate_function_args(arg);
+                    translator.errors.push(error)
+                }
             };
-
-            translator.code.push(Pop {
-                value: Atom::Id(arg.id),
-            })
         }
+
+        let code_function = {
+            let id = self.id.id.clone();
+
+            CodeFunction::new(id, args)
+        };
+
+        translator.code.add_function(code_function);
 
         self.body.translate(translator)?;
 
