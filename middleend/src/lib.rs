@@ -16,7 +16,9 @@ mod translator;
 pub fn translate(stmts: Vec<Statement>) -> Result<Code, Vec<Error>> {
     let mut translator = Translator::default();
 
-    let (global, local) = split_stmts(stmts);
+    let (global, local): (Vec<Statement>, Vec<Statement>) = stmts
+        .into_iter()
+        .partition(|stmt| matches!(stmt, Statement::Function(_)));
 
     global
         .into_iter()
@@ -35,18 +37,4 @@ pub fn translate(stmts: Vec<Statement>) -> Result<Code, Vec<Error>> {
     } else {
         Err(translator.errors)
     }
-}
-
-fn split_stmts(stmts: Vec<Statement>) -> (Vec<Statement>, Vec<Statement>) {
-    let mut global_stmts = Vec::new();
-    let mut local_stmts = Vec::new();
-
-    for stmt in stmts {
-        match stmt {
-            Statement::Function(_) => global_stmts.push(stmt),
-            stmt => local_stmts.push(stmt),
-        }
-    }
-
-    (global_stmts, local_stmts)
 }
