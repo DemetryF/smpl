@@ -3,8 +3,10 @@ mod display;
 mod id;
 mod label;
 
-use frontend::ast::{BinOp, UnOp};
+use derive_more::Constructor;
 use macros::{display, EnumWrap};
+
+pub use frontend::ast::{BinOp, UnOp};
 
 pub use self::{atom::Atom, id::Id, label::Label};
 
@@ -20,8 +22,7 @@ pub enum Instruction {
     Goto(Goto),
     Call(Call),
 
-    Push(Push),
-    Pop(Pop),
+    Param(Param),
     Return(Return),
 }
 
@@ -81,7 +82,8 @@ impl std::fmt::Display for Call {
 }
 
 #[display("push {value}")]
-pub struct Push {
+#[derive(Constructor)]
+pub struct Param {
     pub value: Atom,
 }
 
@@ -90,7 +92,18 @@ pub struct Pop {
     pub value: Atom,
 }
 
-#[display("return {value}")]
 pub struct Return {
-    pub value: Atom,
+    pub value: Option<Atom>,
+}
+
+impl std::fmt::Display for Return {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "return")?;
+
+        if let Some(value) = &self.value {
+            write!(f, " {value}")?;
+        }
+
+        Ok(())
+    }
 }

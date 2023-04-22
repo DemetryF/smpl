@@ -1,8 +1,9 @@
 pub use code::Code;
+use code::CodeFunction;
 pub use error::Error;
+pub use instruction::*;
 
 use frontend::ast::Statement;
-use instruction::Label;
 use translator::Translator;
 
 mod code;
@@ -21,7 +22,9 @@ pub fn translate(stmts: Vec<Statement>) -> Result<Code, Vec<Error>> {
         .into_iter()
         .for_each(|stmt| translator.translate(stmt));
 
-    translator.code.add_label(Label("main".into()));
+    translator
+        .code
+        .add_function(CodeFunction::new("__start__".into(), vec![]));
 
     local
         .into_iter()

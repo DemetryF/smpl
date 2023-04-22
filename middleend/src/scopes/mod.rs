@@ -85,14 +85,18 @@ impl Scopes {
         }
     }
 
-    pub fn add_function(&mut self, id: frontend::ast::Id, function: Function) -> Result<(), Error> {
-        if self.get_function(&id).is_ok() {
-            let error = Error::non_existent_function(id);
+    pub fn add_function(
+        &mut self,
+        id: &frontend::ast::Id,
+        function: Function,
+    ) -> Result<(), Error> {
+        if self.get_function(id).is_ok() {
+            let error = Error::non_existent_function(id.clone());
 
             return Err(error);
         }
 
-        self.functions.insert(id.id, function);
+        self.functions.insert(id.id.clone(), function);
 
         Ok(())
     }

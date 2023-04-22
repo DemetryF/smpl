@@ -10,8 +10,7 @@ impl std::fmt::Display for Instruction {
             Instruction::Unless(a) => a.fmt(f),
             Instruction::Goto(a) => a.fmt(f),
             Instruction::Call(a) => a.fmt(f),
-            Instruction::Push(a) => a.fmt(f),
-            Instruction::Pop(a) => a.fmt(f),
+            Instruction::Param(a) => a.fmt(f),
             Instruction::Return(a) => a.fmt(f),
         }
     }
