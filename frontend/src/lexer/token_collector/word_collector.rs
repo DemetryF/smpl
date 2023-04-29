@@ -1,22 +1,17 @@
-use crate::{
-    lexer::{CodeStream, TokenCollector},
-    token::{Literal, TokenValue},
-};
+use crate::lexer::{CodeStream, Literal, TokenCollector, TokenValue};
 
 pub struct WordCollector;
 impl TokenCollector for WordCollector {
-    fn try_next(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
+    fn try_collect(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
         if !Self::is_word_char(code_stream) {
             return None;
         }
+        let buffer = Self::word_literal(code_stream);
 
-        let start = code_stream.get_pos().index;
-        let len = Self::lex_word_literal(code_stream);
-
-        Some(match code_stream.slice(start, len) {
-            "let" => TokenValue::Define,
+        Some(match buffer {
+            "let" => TokenValue::Let,
             "else" => TokenValue::Else,
-            "fn" => TokenValue::Function,
+            "fn" => TokenValue::Fn,
             "if" => TokenValue::If,
             "return" => TokenValue::Return,
             "while" => TokenValue::While,
@@ -32,20 +27,21 @@ impl TokenCollector for WordCollector {
 impl WordCollector {
     fn is_word_char(code_stream: &CodeStream) -> bool {
         code_stream.current().is_ascii_alphabetic()
-            || code_stream.check("$")
-            || code_stream.check("_")
+            || code_stream.check('$')
+            || code_stream.check('_')
     }
 
-    fn lex_word_literal(code_stream: &mut CodeStream) -> usize {
-        let mut len = 0;
+    fn word_literal<'code>(code_stream: &'code mut CodeStream) -> &'code str {
+        let start = code_stream.get_index();
 
         while !code_stream.is_eof()
             && (Self::is_word_char(code_stream) || code_stream.current().is_alphanumeric())
         {
-            code_stream.accept();
-            len += 1;
+            code_stream.consume();
         }
 
-        len
+        let end = code_stream.get_index();
+
+        code_stream.slice(start, end)
     }
 }

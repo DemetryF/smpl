@@ -3,13 +3,11 @@ name = "bin"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-enum_dispatch = "0.3.11"
-derive_more = "0.99.17"
-strum_macros = "0.24"
-itertools = "0.10.5"
-parse_int = "0.6.0"
-strum = "0.24"
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[dependencies]
 frontend = { path = "../frontend" }
+middleend = { path = "../middleend" }
 backend = { path = "../backend" }
+
+clap = { version = "4.2.5", features = ["derive"] }

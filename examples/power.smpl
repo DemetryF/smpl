@@ -1,0 +1,21 @@
+fn module(x, d) {
+    let a = 0;
+    while (a < d) {
+        a = a + d;
+    }
+    return x - a + d;
+}
+
+fn power(x, y) {
+    if y == 0 {
+        return 1;
+    }
+
+    if module(y, 2) == 0 {
+        return power(x, y / 2) * power(x, y / 2); 
+    }
+
+    return x * power(x, y - 1);
+}
+
+print(power(2, 3)); // 8
