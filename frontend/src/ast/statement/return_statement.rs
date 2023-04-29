@@ -20,7 +20,7 @@ impl Collect for ReturnStatement {
     }
 }
 
-pub fn return_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, Error> {
+fn return_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, Error> {
     let maybe_expr = if token_stream.check(TokenValue::Semicolon) {
         None
     } else {
@@ -32,7 +32,7 @@ pub fn return_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, Error
     Ok(maybe_expr)
 }
 
-pub fn check_in_function(token_stream: &TokenStream) -> Result<(), Error> {
+fn check_in_function(token_stream: &TokenStream) -> Result<(), Error> {
     if !token_stream.in_function {
         let error = Error::return_outside_function(token_stream.get_pos());
 

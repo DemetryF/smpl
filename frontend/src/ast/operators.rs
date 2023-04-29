@@ -14,7 +14,7 @@ macro_rules! operators {
         ),*
     ) => {
         $(
-            #[derive(Debug, PartialEq)]
+            #[derive(Debug, PartialEq, Clone)]
             pub enum $GroupName {
                 $(
                     $OpName,
@@ -61,6 +61,7 @@ macro_rules! operators {
 }
 
 operators![
+    //  name            char  corresponding token         power
     BinOp {
         Assignment:     "=",  TokenValue::Assignment,     (2, 1);
         Or:             "|",  TokenValue::Or,             (3, 4);

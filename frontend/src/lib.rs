@@ -1,14 +1,15 @@
 pub mod ast;
-pub mod error;
 
+mod error;
 mod lexer;
 mod token_stream;
 
 #[cfg(test)]
 mod tests;
 
+pub use error::Error;
+
 use ast::{Collect, Statement};
-use error::Error;
 use token_stream::TokenStream;
 
 pub fn parse(code: &str) -> Result<Vec<Statement>, Vec<Error>> {
