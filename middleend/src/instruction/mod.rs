@@ -10,7 +10,7 @@ pub use frontend::ast::{BinOp, UnOp};
 
 pub use self::{atom::Atom, id::Id, label::Label};
 
-#[derive(EnumWrap)]
+#[derive(EnumWrap, Clone)]
 
 pub enum Instruction {
     Binary(Binary),
@@ -26,6 +26,7 @@ pub enum Instruction {
     Return(Return),
 }
 
+#[derive(Clone)]
 #[display("{result} = {lhs} {op} {rhs}")]
 pub struct Binary {
     pub result: Id,
@@ -35,6 +36,7 @@ pub struct Binary {
     pub rhs: Atom,
 }
 
+#[derive(Clone)]
 #[display("{result} = {op} {rhs}")]
 pub struct Unary {
     pub result: Id,
@@ -43,29 +45,34 @@ pub struct Unary {
     pub rhs: Atom,
 }
 
+#[derive(Clone)]
 #[display("{result} = {value}")]
 pub struct Copy {
     pub result: Id,
     pub value: Atom,
 }
 
+#[derive(Clone)]
 #[display("if {condition} goto {label}")]
 pub struct If {
     pub condition: Atom,
     pub label: Label,
 }
 
+#[derive(Clone)]
 #[display("unless {condition} goto {label}")]
 pub struct Unless {
     pub condition: Atom,
     pub label: Label,
 }
 
+#[derive(Clone)]
 #[display("goto {label}")]
 pub struct Goto {
     pub label: Label,
 }
 
+#[derive(Clone)]
 pub struct Call {
     pub result: Option<Id>,
     pub id: Id,
@@ -81,17 +88,13 @@ impl std::fmt::Display for Call {
     }
 }
 
+#[derive(Constructor, Clone)]
 #[display("push {value}")]
-#[derive(Constructor)]
 pub struct Param {
     pub value: Atom,
 }
 
-#[display("pop {value}")]
-pub struct Pop {
-    pub value: Atom,
-}
-
+#[derive(Clone)]
 pub struct Return {
     pub value: Option<Atom>,
 }

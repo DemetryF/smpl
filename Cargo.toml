@@ -2,5 +2,6 @@
 members = [
     "frontend",
     "middleend",
+    "backend",
     "bin",
 ]

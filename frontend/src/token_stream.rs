@@ -71,7 +71,7 @@ impl TokenStream {
 
     pub fn try_consume(&mut self, value: TokenValue) -> bool {
         if self.check(value) {
-            self.next();
+            self.index += 1;
 
             return true;
         }

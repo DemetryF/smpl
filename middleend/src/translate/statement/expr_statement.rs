@@ -1,10 +1,6 @@
 use frontend::ast::{BinOp, Expr, ExprStatement};
 
-use crate::{
-    instruction::{Copy, Id},
-    translate::Translate,
-    Error, Translator,
-};
+use crate::{instruction::Copy, translate::Translate, Error, Translator};
 
 impl Translate for ExprStatement {
     fn translate(self, translator: &mut Translator) -> Result<(), Error> {
@@ -18,7 +14,7 @@ impl Translate for ExprStatement {
                     return Err(Error::expected_lvalue());
                 };
 
-                let result = Id::from(id.clone());
+                let result = translator.scopes.get_variable(id.clone())?.id;
                 let value = rhs.translate(translator)?;
 
                 translator.code.push(Copy { result, value });

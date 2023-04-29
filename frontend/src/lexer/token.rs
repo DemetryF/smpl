@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use derive_more::Constructor;
 
 use super::Pos;
@@ -59,5 +61,45 @@ impl std::fmt::Display for Literal {
             Literal::Number(num) => write!(f, "{num}"),
             Literal::Bool(bool) => write!(f, "{bool}"),
         }
+    }
+}
+
+impl Display for TokenValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let value = match self {
+            TokenValue::Return => "return",
+            TokenValue::While => "while",
+            TokenValue::Else => "else",
+            TokenValue::Let => "let",
+            TokenValue::Fn => "fn",
+            TokenValue::If => "if",
+            TokenValue::Semicolon => ";",
+            TokenValue::Comma => ",",
+            TokenValue::LBrace => "{",
+            TokenValue::RBrace => "}",
+            TokenValue::LParen => "(",
+            TokenValue::RParen => ")",
+            TokenValue::Assignment => "=",
+            TokenValue::Or => "|",
+            TokenValue::And => "&",
+            TokenValue::NotEqual => "!=",
+            TokenValue::Equal => "==",
+            TokenValue::GreaterOrEqual => ">=",
+            TokenValue::Greater => ">",
+            TokenValue::LessOrEqual => "<=",
+            TokenValue::Less => "<",
+            TokenValue::Plus => "+",
+            TokenValue::Minus => "-",
+            TokenValue::Star => "*",
+            TokenValue::Slash => "/",
+            TokenValue::Not => "!",
+            TokenValue::Literal(literal) => {
+                return write!(f, "{literal}");
+            }
+            TokenValue::Id(id) => &id,
+            TokenValue::EOF => "\\0",
+        };
+
+        write!(f, "{value}")
     }
 }

@@ -6,5 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-middleend = { path = "../middleend" }
 frontend = { path = "../frontend" }
+middleend = { path = "../middleend" }
+backend = { path = "../backend" }
+
+clap = { version = "4.2.5", features = ["derive"] }

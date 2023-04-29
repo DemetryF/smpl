@@ -2,6 +2,7 @@ use frontend::ast::Literal;
 
 use super::Id;
 
+#[derive(Clone)]
 pub enum Atom {
     Id(String),
     Number(f32),

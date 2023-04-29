@@ -15,6 +15,8 @@ impl Translate for FunctionStatement {
             translator.errors.push(error);
         }
 
+        translator.scopes.fork();
+
         for arg in self.args.into_iter().rev() {
             match translator.scopes.add_variable(arg.clone()) {
                 Ok(id) => args.push(id),

@@ -1,0 +1,9 @@
+fn mul(x, y) {
+    if y == 1 {
+        return x;
+    }
+
+    return x + mul(x, y - 1);
+}
+
+print(mul(5, 4)); // 20

@@ -4,14 +4,14 @@ use crate::{instruction::Label, Id, Instruction};
 
 #[derive(Default)]
 pub struct Code {
-    functions: Vec<CodeFunction>,
+    pub functions: Vec<CodeFunction>,
 }
 
 pub struct CodeFunction {
-    id: String,
-    args: Vec<Id>,
-    instructions: Vec<Instruction>,
-    labels: HashMap<usize, Label>,
+    pub id: String,
+    pub args: Vec<Id>,
+    pub instructions: Vec<Instruction>,
+    pub labels: HashMap<usize, Label>,
 }
 
 impl CodeFunction {

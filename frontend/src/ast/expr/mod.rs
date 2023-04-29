@@ -65,7 +65,7 @@ fn expr_bp(token_stream: &mut TokenStream, min_bp: usize) -> Result<Expr, Error>
 fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, Error> {
     let fact = match token_stream.current().value {
         TokenValue::Id(_) => {
-            let id = Id::try_from(token_stream.next()).unwrap();
+            let id = Id::collect(token_stream)?;
 
             if token_stream.check(TokenValue::LParen) {
                 Call::collect(token_stream, id)?
@@ -90,6 +90,8 @@ fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, Error> {
 
         _ => {
             if let Ok(op) = UnOp::try_from(token_stream.current()) {
+                token_stream.next();
+
                 let (_, r_bp) = op.power();
 
                 let rhs = expr_bp(token_stream, r_bp)?;

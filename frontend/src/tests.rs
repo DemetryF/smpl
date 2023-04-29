@@ -9,7 +9,6 @@ use crate::{
 
 macro_rules! parser_test {
     ($code:expr; $stmt:expr) => {
-        println!("\"{}\"", $code);
         assert_eq!(parse($code).unwrap()[0], $stmt);
     };
 }
