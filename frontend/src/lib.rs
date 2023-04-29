@@ -1,5 +1,28 @@
 pub mod ast;
-pub mod error;
-pub mod lexer;
-pub mod parser;
-pub mod token;
+
+mod error;
+mod lexer;
+mod token_stream;
+
+#[cfg(test)]
+mod tests;
+
+pub use error::Error;
+
+use ast::{Collect, Statement};
+use token_stream::TokenStream;
+
+pub fn parse(code: &str) -> Result<Vec<Statement>, Vec<Error>> {
+    let mut token_stream = TokenStream::new(code)?;
+    let mut stmts = Vec::new();
+
+    while !token_stream.is_end() {
+        let maybe_stmt = Statement::collect(&mut token_stream);
+
+        let stmt = maybe_stmt.map_err(|err| vec![err])?;
+
+        stmts.push(stmt);
+    }
+
+    Ok(stmts)
+}

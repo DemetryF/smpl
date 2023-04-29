@@ -1,17 +1,25 @@
-use derive_more::Constructor;
+mod block;
+mod expr;
+mod id;
+mod operators;
+mod statement;
 
-use crate::token::Pos;
+pub use self::statement::{
+    DeclareStatement, ExprStatement, FunctionStatement, IfStatement, ReturnStatement, Statement,
+    WhileStatement,
+};
 
-pub use self::expr::*;
-pub use self::statements::*;
+pub use self::{
+    block::Block,
+    expr::{Atom, Call, Expr},
+    id::Id,
+    operators::{BinOp, UnOp},
+};
 
-pub mod expr;
-pub mod statements;
+pub use super::lexer::{Literal, Pos};
 
-#[derive(Constructor, Clone, Debug)]
-pub struct Id {
-    pub value: String,
-    pub pos: Pos,
+use crate::{Error, TokenStream};
+
+pub trait Collect: Sized {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error>;
 }
-
-pub struct Block(pub Vec<Statement>);

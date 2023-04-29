@@ -1,16 +1,15 @@
-use crate::token::Pos;
+use super::Pos;
 
-#[derive(Debug)]
 pub struct CodeStream<'code> {
-    pos: Pos,
     code: &'code str,
+    pos: Pos,
 }
 
 impl<'code> CodeStream<'code> {
     pub fn new(code: &'code str) -> Self {
         Self {
             code,
-            pos: Pos::empty(),
+            pos: Pos::default(),
         }
     }
 
@@ -18,44 +17,57 @@ impl<'code> CodeStream<'code> {
         self.code[self.pos.index..].chars().next().unwrap()
     }
 
-    pub fn check(&self, str: &str) -> bool {
-        let start = self.pos.index;
-
-        if start + str.len() > self.code.len() {
-            return false;
-        }
-
-        self.slice(start, str.len()) == str
-    }
-
-    pub fn slice(&self, start: usize, len: usize) -> &str {
-        &self.code[start..start + len]
-    }
-
-    pub fn slice_from_current(&self, len: usize) -> &str {
-        &self.code[self.pos.index..self.pos.index + len]
-    }
-
-    pub fn skip(&mut self, count: usize) -> &str {
-        for _ in 0..count {
-            self.accept();
-        }
-
-        &self.code[self.pos.index - count..self.pos.index]
-    }
-
-    pub fn accept(&mut self) -> char {
+    pub fn consume(&mut self) -> char {
         let ch = self.current();
-        self.pos.change(ch);
+        self.pos.update(ch);
 
         ch
     }
 
-    pub fn is_eof(&self) -> bool {
-        self.pos.index >= self.code.len()
+    pub fn check(&self, char: char) -> bool {
+        if self.get_index() + 1 > self.code.len() {
+            return false;
+        }
+
+        self.current() == char
+    }
+
+    pub fn check_seq(&self, str: &str) -> bool {
+        let start = self.get_index();
+        let end = self.get_index() + str.len();
+
+        if end > self.code.len() {
+            return false;
+        }
+
+        self.slice(start, end) == str
+    }
+
+    pub fn slice(&self, start: usize, end: usize) -> &str {
+        self.code.get(start..end).unwrap_or_default()
+    }
+
+    pub fn slice_from_current(&self, len: usize) -> &str {
+        self.slice(self.pos.index, self.pos.index + len)
     }
 
     pub fn get_pos(&self) -> Pos {
         self.pos
+    }
+
+    pub fn skip(&mut self, count: usize) -> &str {
+        for _ in 0..count {
+            self.consume();
+        }
+
+        self.slice(self.pos.index - count, self.pos.index)
+    }
+
+    pub fn get_index(&self) -> usize {
+        self.pos.index
+    }
+
+    pub fn is_eof(&self) -> bool {
+        self.pos.index >= self.code.len()
     }
 }

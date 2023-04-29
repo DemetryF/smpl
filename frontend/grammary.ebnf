@@ -1,71 +1,61 @@
-stmt = if | while | function | declare | return | expr ';';
+stmt ::= if | while | function | declare | return | exprstmt
 
-(* main statements *)
+// statements
+declare  ::= 'let' id ('=' expr)? ';'
+function ::= 'fn' id '(' fargs? ')' block
+if       ::= 'if' expr block ('else' block)?
+while    ::= 'while' expr block
+return   ::= 'return' expr ';'
+exprstmt ::= assignment ';'
 
-declare  = 'let' id [ '=' expr ] ';';
-function = 'fn' id '(' fargs ')' block;
-if       = 'if' expr block [ 'else' block ];
-while    = 'while' expr block;
+// block
+block ::= '{' bstmt* '}'
+bstmt ::= if | while | declare | exprstmt
 
-return   = 'return' expr ';';
-expr     = assignment;
+// expressions 
+expr ::= or
 
-(* blocks *)
-
-block  = '{' { bstmt } '}';
-bstmt  = if | while | declare | expr ';';
-
-(* expressions *)
-
-assignment = 
-      id '+=' or
-    | id '-=' or
-    | id '*=' or
-    | id '/=' or
+assignment ::= 
+      id '=' or
     | or;
 
-or  = or '|' and
-    | and;
+or ::= or '|' and
+     | and
 
-and = and '&' eq
-    | eq;
+and ::= and '&' eq
+      | eq
 
-eq  = eq '!=' comp
-    | eq '==' comp
-    | comp;
+eq ::= eq '!=' comp
+     | eq '==' comp
+     | comp
 
-comp =
+comp ::=
       comp '>=' add
     | comp '>'  add
     | comp '<=' add
     | comp '<'  add
-    | add;
+    | add
 
-add = add '+' mul
-    | add '-' mul
-    | mul;
+add ::= add '+' mul
+      | add '-' mul
+      | mul
 
-mul = mul '*'  exp
-    | mul '/'  exp
-    | mul '%'  exp
-    | mul '\\' exp
-    | exp;
+mul ::= 
+      mul '*'  unary
+    | mul '/'  unary
+    | unary
 
-exp = unary '^' exp
-    | unary;
-
-unary = 
+unary ::= 
       '!' fact
-    | '+' fact
     | '-' fact
-    | fact;
+    | fact
 
-fact = num | id | parenthesis | call;
+fact ::= num | id | parenthesis | call
 
-parenthesis = '(' expr ')';
-call = id '(' cargs ')';
+parenthesis ::= '(' expr ')'
+call ::= id '(' cargs? ')'
 
-(* arguments *)
+// arguments
 
-fargs = [ id { ',' id } ];
-cargs = [ expr { ',' expr }];
+fargs ::= id (',' id)*
+cargs ::= expr (',' expr)*

@@ -1,63 +1,78 @@
 use parse_int::parse;
 
-use crate::{
-    lexer::{CodeStream, TokenCollector},
-    token::{Literal, TokenValue},
-};
+use crate::lexer::{CodeStream, Literal, TokenValue};
+
+use super::TokenCollector;
+
+const RADIX_PREFIX_LENGTH: usize = 2;
 
 pub struct NumberCollector;
 impl TokenCollector for NumberCollector {
-    fn try_next(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
+    fn try_collect(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
         if !Self::is_digit(code_stream, 10) {
             return None;
         }
+        let start = code_stream.get_index();
 
-        let buffer = match code_stream.slice_from_current(2) {
-            "0b" => Self::from_rad(code_stream, 2),
-            "0o" => Self::from_rad(code_stream, 8),
-            "0x" => Self::from_rad(code_stream, 16),
-            _ => Self::decimal(code_stream),
+        match code_stream.slice_from_current(RADIX_PREFIX_LENGTH) {
+            "0b" => Self::prefixed(code_stream, 2),
+            "0o" => Self::prefixed(code_stream, 8),
+            "0x" => Self::prefixed(code_stream, 16),
+            _ => Self::common_number(code_stream),
         };
 
-        let number = parse::<f64>(buffer.as_str()).unwrap();
+        let end = code_stream.get_index();
+
+        let buffer = code_stream.slice(start, end);
+
+        let number = parse(buffer).unwrap();
 
         Some(TokenValue::Literal(Literal::Number(number)))
     }
 }
 
 impl NumberCollector {
-    fn is_digit(code_stream: &CodeStream, rad: u32) -> bool {
-        code_stream.current().is_digit(rad)
+    pub fn is_digit(code_stream: &CodeStream, radix: u32) -> bool {
+        code_stream.current().is_digit(radix)
     }
 
-    fn from_rad(code_stream: &mut CodeStream, rad: u32) -> String {
-        let mut buffer = String::new();
-
-        buffer += code_stream.skip(2); // skip prefix
-        buffer += Self::num_literal(code_stream, rad).as_str();
-
-        buffer
+    pub fn prefixed(code_stream: &mut CodeStream, radix: u32) {
+        code_stream.skip(RADIX_PREFIX_LENGTH);
+        Self::number_literal(code_stream, radix);
     }
 
-    fn decimal(code_stream: &mut CodeStream) -> String {
-        let mut buffer = Self::num_literal(code_stream, 10);
+    pub fn common_number(code_stream: &mut CodeStream) {
+        Self::number_literal(code_stream, 10);
 
-        if code_stream.check(".") {
-            buffer.push(code_stream.accept());
-            buffer += Self::num_literal(code_stream, 10).as_str();
+        Self::fraction(code_stream);
+        Self::exponential_part(code_stream);
+    }
+
+    pub fn fraction(code_stream: &mut CodeStream) {
+        if code_stream.check('.') {
+            code_stream.consume();
+
+            Self::number_literal(code_stream, 10);
         }
-
-        buffer
     }
 
-    fn num_literal(code_stream: &mut CodeStream, rad: u32) -> String {
-        let mut buffer = String::new();
+    pub fn exponential_part(code_stream: &mut CodeStream) {
+        if code_stream.check('e') || code_stream.check('E') {
+            code_stream.consume();
 
-        while !code_stream.is_eof() && (Self::is_digit(code_stream, rad) || code_stream.check("_"))
+            if code_stream.check('-') || code_stream.check('+') {
+                code_stream.consume();
+            }
+
+            Self::number_literal(code_stream, 10);
+        }
+    }
+
+    fn number_literal(code_stream: &mut CodeStream, radix: u32) {
+        while !code_stream.is_eof()
+            && (Self::is_digit(code_stream, radix) || code_stream.check('_'))
         {
-            buffer.push(code_stream.accept());
+            code_stream.consume();
         }
-
-        buffer
     }
 }

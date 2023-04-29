@@ -1,0 +1,11 @@
+fn collision(aMinX, aMaxX, aMinY, aMaxY, bMinX, bMaxX, bMinY, bMaxY) {
+    if aMaxX < bMinX | aMinX > bMaxX {
+        return false;
+    }
+
+    if aMaxY < bMinY | aMinY > bMaxY {
+        return false;
+    }
+
+    return true;
+}
