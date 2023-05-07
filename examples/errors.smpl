@@ -1,0 +1,16 @@
+// Error: variable "aboba" is not defined
+// Error: function "print" takes 1, but received 2
+print(aboba, 2);
+
+// Error: function "print_empty" is not defined
+print_empty();
+
+let aboba;
+// Error: variable "aboba" is already declared
+let aboba;
+
+// Error: two arguments with same name
+fn aboba(a, a) {}
+
+// Error: function "aboba" is already declared
+fn aboba() {}
