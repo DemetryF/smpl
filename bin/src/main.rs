@@ -1,12 +1,14 @@
+mod errors;
+
 use std::{fs, process::Command};
 
 use backend::compile;
+use errors::Error;
 use frontend::parse;
 use middleend::translate;
 
 use clap::Parser;
 
-/// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -24,8 +26,15 @@ fn main() {
         let stmts = match parse(&program) {
             Ok(stmts) => stmts,
             Err(errors) => {
-                for frontend::Error { kind, .. } in errors {
-                    println!("{}", kind);
+                for frontend::Error { kind, pos } in errors {
+                    let error = Error {
+                        filename: &filename,
+                        code: &program,
+                        pos,
+                        kind,
+                    };
+
+                    println!("{error}")
                 }
 
                 return;
@@ -35,9 +44,17 @@ fn main() {
         let intermediate_code = match translate(stmts) {
             Ok(code) => code,
             Err(errors) => {
-                for middleend::Error { kind, .. } in errors {
-                    println!("{}", kind);
+                for middleend::Error { kind, pos } in errors {
+                    let error = Error {
+                        filename: &filename,
+                        code: &program,
+                        pos,
+                        kind,
+                    };
+
+                    println!("{error}")
                 }
+
                 return;
             }
         };

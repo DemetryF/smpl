@@ -11,3 +11,4 @@ middleend = { path = "../middleend" }
 backend = { path = "../backend" }
 
 clap = { version = "4.2.5", features = ["derive"] }
+colored = "2.0.0"
