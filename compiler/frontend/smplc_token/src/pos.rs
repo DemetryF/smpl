@@ -21,6 +21,17 @@ impl Pos {
     pub fn index(self) -> usize {
         self.line_start() + self.column() - 1
     }
+
+    #[cfg(feature = "pos_update")]
+    pub fn update(&mut self, char: char) {
+        if char == '\n' {
+            self.line += 1;
+            self.column = 1;
+            self.line_start = self.index();
+        } else {
+            self.column += 1;
+        }
+    }
 }
 
 impl Default for Pos {
