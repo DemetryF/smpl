@@ -1,4 +1,5 @@
 [workspace]
 members = [ 
-    "compiler/frontend/smplc_token"
+    "compiler/frontend/smplc_token",
+    "compiler/frontend/smplc_lexer",
 ]
