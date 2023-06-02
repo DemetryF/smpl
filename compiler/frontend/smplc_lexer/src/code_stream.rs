@@ -46,6 +46,18 @@ impl<'source> CodeStream<'source> {
         self.current() == char
     }
 
+    /// check if the substring starting at the current position is equal to seq
+    pub fn check_seq(&self, seq: &str) -> bool {
+        let start = self.index();
+        let end = self.index() + seq.len();
+
+        if end > self.source.len() {
+            return false;
+        }
+
+        self.slice(start, end) == seq
+    }
+
     /// returns a slice of the source at position start and ending at position end
     pub fn slice(&self, start: usize, end: usize) -> &str {
         self.source.get(start..end).unwrap_or_default()

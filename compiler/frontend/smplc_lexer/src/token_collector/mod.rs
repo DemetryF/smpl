@@ -6,6 +6,11 @@ use smplc_token::TokenValue;
 
 use crate::code_stream::CodeStream;
 
+pub use self::{
+    number_collector::NumberCollector, special_collector::SpecialCollector,
+    word_collector::WordCollector,
+};
+
 pub trait TokenCollector {
     fn try_collect(&self, code_stream: &mut CodeStream) -> Option<TokenValue>;
 }
