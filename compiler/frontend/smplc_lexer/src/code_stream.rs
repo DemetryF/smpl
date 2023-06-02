@@ -27,6 +27,16 @@ impl<'source> CodeStream<'source> {
         char
     }
 
+    pub fn try_consume(&mut self, char: char) -> bool {
+        if self.check(char) {
+            self.next();
+
+            true
+        } else {
+            false
+        }
+    }
+
     /// checks if the current character is equal to char
     pub fn check(&self, char: char) -> bool {
         if self.is_eof() {
@@ -34,18 +44,6 @@ impl<'source> CodeStream<'source> {
         }
 
         self.current() == char
-    }
-
-    /// check if the substring starting at the current position is equal to seq
-    pub fn check_seq(&self, seq: &str) -> bool {
-        let start = self.index();
-        let end = self.index() + seq.len();
-
-        if end > self.source.len() {
-            return false;
-        }
-
-        self.slice(start, end) == seq
     }
 
     /// returns a slice of the source at position start and ending at position end
