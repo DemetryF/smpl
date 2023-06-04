@@ -15,6 +15,11 @@ impl SpecialCollector {
     pub fn double(code_stream: &mut CodeStream) -> Option<TokenValue> {
         let value = {
             match code_stream.slice_from_current(2) {
+                "+=" => TokenValue::AddAssign,
+                "-=" => TokenValue::SubAssign,
+                "*=" => TokenValue::MulAssign,
+                "/=" => TokenValue::DivAssign,
+
                 ">=" => TokenValue::Ge,
                 "<=" => TokenValue::Le,
                 "!=" => TokenValue::Ne,

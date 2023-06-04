@@ -10,10 +10,17 @@ pub enum TokenValue {
     Return,
     While,
 
-    /// ';'
-    Semicolon,
     /// '='
     Assign,
+    /// '+='
+    AddAssign,
+    /// '-='
+    SubAssign,
+    /// '*='
+    MulAssign,
+    /// '/='
+    DivAssign,
+
     /// '('
     LParen,
     /// ')'
@@ -22,6 +29,9 @@ pub enum TokenValue {
     LBrace,
     /// '}'
     RBrace,
+
+    /// ';'
+    Semicolon,
     /// ','
     Comma,
 
