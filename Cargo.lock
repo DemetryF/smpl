@@ -29,6 +29,10 @@ dependencies = [
 [[package]]
 name = "smplc_ast"
 version = "0.1.0"
+dependencies = [
+ "smplc_lexer",
+ "smplc_token",
+]
 
 [[package]]
 name = "smplc_lexer"
