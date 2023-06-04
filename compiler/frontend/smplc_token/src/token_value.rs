@@ -1,3 +1,4 @@
+#[derive(Clone, PartialEq)]
 pub enum TokenValue {
     /// keywords:
     Break,
@@ -61,6 +62,7 @@ pub enum TokenValue {
     EOF,
 }
 
+#[derive(Clone, Copy, PartialEq)]
 pub enum Literal {
     Bool(bool),
     Num(f32),
