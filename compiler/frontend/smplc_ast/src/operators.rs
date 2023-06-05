@@ -1,5 +1,6 @@
 use smplc_token::TokenValue;
 
+#[derive(Clone, Copy)]
 pub enum AssignOp {
     Assign,
     AddAssign,
@@ -24,6 +25,7 @@ impl TryFrom<TokenValue<'_>> for AssignOp {
     }
 }
 
+#[derive(Clone, Copy)]
 pub enum BinOp {
     Add,
     Sub,
@@ -83,9 +85,18 @@ impl TryFrom<TokenValue<'_>> for BinOp {
     }
 }
 
+#[derive(Clone, Copy)]
 pub enum UnOp {
     Neg,
     Not,
+}
+
+impl UnOp {
+    pub fn get_bp(self) -> u8 {
+        match self {
+            UnOp::Neg | UnOp::Not => 15,
+        }
+    }
 }
 
 impl TryFrom<TokenValue<'_>> for UnOp {
