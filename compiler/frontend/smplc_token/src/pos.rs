@@ -62,7 +62,7 @@ impl<T: Clone> Clone for Posed<T> {
     fn clone(&self) -> Self {
         Self {
             value: self.value.clone(),
-            pos: self.pos.clone(),
+            pos: self.pos,
         }
     }
 }

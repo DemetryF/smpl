@@ -37,7 +37,7 @@ impl<'source> TokenCollector<'source> for NumberCollector {
 
 impl NumberCollector {
     pub fn is_number_start(code_stream: &mut CodeStream) -> bool {
-        code_stream.current().is_digit(10)
+        code_stream.current().is_ascii_digit()
     }
 
     /// eats prefixed number like '0b101' or '0x42F'
