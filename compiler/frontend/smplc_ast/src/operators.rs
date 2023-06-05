@@ -1,11 +1,5 @@
 use smplc_token::TokenValue;
 
-pub trait Op: TryFrom<TokenValue> {
-    type Power;
-
-    fn get_bp(self) -> Self::Power;
-}
-
 pub enum AssignOp {
     Assign,
     AddAssign,
@@ -14,15 +8,7 @@ pub enum AssignOp {
     DivAssign,
 }
 
-impl Op for AssignOp {
-    type Power = (u8, u8);
-
-    fn get_bp(self) -> Self::Power {
-        (2, 1)
-    }
-}
-
-impl TryFrom<TokenValue> for AssignOp {
+impl TryFrom<TokenValue<'_>> for AssignOp {
     type Error = ();
 
     fn try_from(value: TokenValue) -> Result<Self, Self::Error> {
@@ -55,10 +41,8 @@ pub enum BinOp {
     Le,
 }
 
-impl Op for BinOp {
-    type Power = (u8, u8);
-
-    fn get_bp(self) -> Self::Power {
+impl BinOp {
+    fn get_bp(self) -> (u8, u8) {
         use BinOp::*;
 
         match self {
@@ -74,7 +58,7 @@ impl Op for BinOp {
     }
 }
 
-impl TryFrom<TokenValue> for BinOp {
+impl TryFrom<TokenValue<'_>> for BinOp {
     type Error = ();
 
     fn try_from(value: TokenValue) -> Result<Self, Self::Error> {
@@ -104,19 +88,7 @@ pub enum UnOp {
     Not,
 }
 
-impl Op for UnOp {
-    type Power = ((), u8);
-
-    fn get_bp(self) -> Self::Power {
-        use UnOp::*;
-
-        match self {
-            Neg | Not => ((), 15),
-        }
-    }
-}
-
-impl TryFrom<TokenValue> for UnOp {
+impl TryFrom<TokenValue<'_>> for UnOp {
     type Error = ();
 
     fn try_from(value: TokenValue) -> Result<Self, Self::Error> {
@@ -124,7 +96,7 @@ impl TryFrom<TokenValue> for UnOp {
             TokenValue::Minus => Ok(Self::Neg),
             TokenValue::Not => Ok(Self::Not),
 
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
