@@ -5,8 +5,10 @@ declare  ::= 'let' id ('=' expr)? ';'
 function ::= 'fn' id '(' fargs? ')' block
 if       ::= 'if' expr block ('else' block)?
 while    ::= 'while' expr block
-return   ::= 'return' expr ';'
 exprstmt ::= assignment ';'
+return   ::= 'return' expr ';'
+break    ::= 'break' ';'
+continue ::= 'continue' ';'
 
 // block
 block ::= '{' bstmt* '}'
