@@ -12,7 +12,7 @@ use token_collector::{NumberCollector, SpecialCollector, TokenCollector, WordCol
 
 pub struct Lexer<'source> {
     code_stream: CodeStream<'source>,
-    collectors: Vec<Box<dyn TokenCollector>>,
+    collectors: Vec<Box<dyn TokenCollector<'source>>>,
 }
 
 impl<'source> Lexer<'source> {

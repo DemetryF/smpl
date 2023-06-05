@@ -5,8 +5,9 @@ use crate::code_stream::CodeStream;
 use super::TokenCollector;
 
 pub struct WordCollector;
-impl TokenCollector for WordCollector {
-    fn try_collect(&self, code_stream: &mut CodeStream) -> Option<TokenValue> {
+
+impl<'source> TokenCollector<'source> for WordCollector {
+    fn try_collect(&self, code_stream: &mut CodeStream<'source>) -> Option<TokenValue<'source>> {
         if !Self::is_word_start(code_stream) {
             return None;
         }
@@ -24,7 +25,7 @@ impl TokenCollector for WordCollector {
             "true" => TokenValue::Literal(Literal::Bool(true)),
             "false" => TokenValue::Literal(Literal::Bool(false)),
 
-            id => TokenValue::Ident(String::from(id)),
+            id => TokenValue::Ident(id),
         })
     }
 }
@@ -41,7 +42,7 @@ impl WordCollector {
             && (Self::is_word_start(code_stream) || code_stream.current().is_alphanumeric())
     }
 
-    fn word_literal<'source>(code_stream: &'source mut CodeStream) -> &'source str {
+    fn word_literal<'source>(code_stream: &mut CodeStream<'source>) -> &'source str {
         let start = code_stream.index();
 
         while Self::is_word_char(code_stream) {

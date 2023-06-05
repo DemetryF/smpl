@@ -59,7 +59,7 @@ impl<'source> CodeStream<'source> {
     }
 
     /// returns a slice of the source at position start and ending at position end
-    pub fn slice(&self, start: usize, end: usize) -> &str {
+    pub fn slice(&self, start: usize, end: usize) -> &'source str {
         self.source.get(start..end).unwrap_or_default()
     }
 

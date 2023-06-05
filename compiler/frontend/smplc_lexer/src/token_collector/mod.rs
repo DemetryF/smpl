@@ -11,6 +11,6 @@ pub use self::{
     word_collector::WordCollector,
 };
 
-pub trait TokenCollector {
-    fn try_collect(&self, code_stream: &mut CodeStream) -> Option<TokenValue>;
+pub trait TokenCollector<'source> {
+    fn try_collect(&self, code_stream: &mut CodeStream<'source>) -> Option<TokenValue<'source>>;
 }

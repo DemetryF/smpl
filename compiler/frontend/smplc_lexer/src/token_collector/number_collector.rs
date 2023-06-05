@@ -9,8 +9,9 @@ use super::TokenCollector;
 const RADIX_PREFIX_LEN: usize = 2;
 
 pub struct NumberCollector;
-impl TokenCollector for NumberCollector {
-    fn try_collect(&self, code_stream: &mut CodeStream) -> Option<TokenValue> {
+
+impl<'source> TokenCollector<'source> for NumberCollector {
+    fn try_collect(&self, code_stream: &mut CodeStream<'source>) -> Option<TokenValue<'source>> {
         if !Self::is_number_start(code_stream) {
             return None;
         }

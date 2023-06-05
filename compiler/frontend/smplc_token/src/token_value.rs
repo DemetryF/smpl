@@ -1,5 +1,5 @@
-#[derive(Clone, PartialEq)]
-pub enum TokenValue {
+#[derive(Clone, Copy, PartialEq)]
+pub enum TokenValue<'source> {
     /// keywords:
     Break,
     Continue,
@@ -66,7 +66,7 @@ pub enum TokenValue {
     /// 'false', '0.42_e2'
     Literal(Literal),
     /// '_foo42'
-    Ident(String),
+    Ident(&'source str),
 
     /// end of input
     EOF,
