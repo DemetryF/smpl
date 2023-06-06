@@ -1,9 +1,11 @@
 use smplc_token::TokenValue;
 
 use crate::{
-    error::ParseResult, operators::AssignOp, token_stream::TokenStream, Atom, Block,
-    BreakStatement, ContinueStatement, DeclareStatement, Expr, ExprStatement, FunctionStatement,
-    Ident, IfStatement, ReturnStatement, Statement, WhileStatement,
+    error::{ParseError, ParseResult},
+    operators::AssignOp,
+    token_stream::TokenStream,
+    Atom, Block, BreakStatement, ContinueStatement, DeclareStatement, Expr, ExprStatement,
+    FunctionStatement, Ident, IfStatement, ReturnStatement, Statement, WhileStatement,
 };
 
 pub trait Parse<'source>: Sized {
@@ -30,8 +32,13 @@ impl<'source> Parse<'source> for Statement<'source> {
 
 impl<'source> Parse<'source> for BreakStatement {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
-        token_stream.consume(TokenValue::Break)?;
+        let break_pos = token_stream.consume(TokenValue::Break)?.pos;
+
         token_stream.consume(TokenValue::Semicolon)?;
+
+        if !token_stream.in_cycle {
+            return Err(ParseError::break_outside_cycle(break_pos));
+        }
 
         Ok(BreakStatement)
     }
@@ -39,8 +46,13 @@ impl<'source> Parse<'source> for BreakStatement {
 
 impl<'source> Parse<'source> for ContinueStatement {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
-        token_stream.consume(TokenValue::Continue)?;
+        let continue_pos = token_stream.consume(TokenValue::Continue)?.pos;
+
         token_stream.consume(TokenValue::Break)?;
+
+        if !token_stream.in_cycle {
+            return Err(ParseError::continue_outside_cycle(continue_pos));
+        }
 
         Ok(ContinueStatement)
     }
@@ -139,11 +151,15 @@ impl<'source> Parse<'source> for IfStatement<'source> {
 
 impl<'source> Parse<'source> for ReturnStatement<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
-        token_stream.consume(TokenValue::Return)?;
+        let return_pos = token_stream.consume(TokenValue::Return)?.pos;
 
         let expr = (!token_stream.check(TokenValue::Semicolon))
             .then(|| Expr::parse(token_stream))
             .transpose()?;
+
+        if !token_stream.in_function {
+            return Err(ParseError::return_outside_function(return_pos));
+        }
 
         Ok(ReturnStatement { expr })
     }

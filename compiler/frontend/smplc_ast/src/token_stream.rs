@@ -6,12 +6,18 @@ use crate::error::{ParseError, ParseResult};
 
 pub struct TokenStream<'source> {
     tokens: Peekable<IntoIter<Token<'source>>>,
+
+    pub in_function: bool,
+    pub in_cycle: bool,
 }
 
 impl<'source> TokenStream<'source> {
     pub fn new(tokens: IntoIter<Token<'source>>) -> Self {
         Self {
             tokens: tokens.peekable(),
+
+            in_function: false,
+            in_cycle: false,
         }
     }
 
