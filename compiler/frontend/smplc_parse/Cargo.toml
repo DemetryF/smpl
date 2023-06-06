@@ -1,0 +1,10 @@
+[package]
+name = "smplc_parse"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+smplc_token = { path = "../smplc_token" }
+smplc_ast = { path = "../smplc_ast" }

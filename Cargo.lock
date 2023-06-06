@@ -43,5 +43,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "smplc_parse"
+version = "0.1.0"
+dependencies = [
+ "smplc_ast",
+ "smplc_token",
+]
+
+[[package]]
 name = "smplc_token"
 version = "0.1.0"

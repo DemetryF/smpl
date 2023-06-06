@@ -1,24 +1,60 @@
-pub mod error;
+pub use smplc_token::{Literal, Pos};
+
+pub use expr::{Atom, Expr, Ident};
+use operators::AssignOp;
+
+mod expr;
 pub mod operators;
 
-mod ast;
-mod expr;
-mod parse;
-mod token_stream;
+pub enum Statement<'source> {
+    Break(BreakStatement),
+    Continue(ContinueStatement),
+    Declare(DeclareStatement<'source>),
+    Expr(ExprStatement<'source>),
+    Function(FunctionStatement<'source>),
+    If(IfStatement<'source>),
+    Return(ReturnStatement<'source>),
+    While(WhileStatement<'source>),
+}
 
-pub use ast::*;
-use error::ParseResult;
-use parse::Parse;
-use token_stream::TokenStream;
+pub struct BreakStatement;
+pub struct ContinueStatement;
 
-pub fn parse<'source>(
-    mut token_stream: TokenStream<'source>,
-) -> ParseResult<'source, Vec<Statement>> {
-    let mut statements = Vec::new();
+pub struct DeclareStatement<'source> {
+    pub id: Ident<'source>,
+    pub expr: Option<Expr<'source>>,
+}
 
-    while token_stream.is_end() {
-        statements.push(Statement::parse(&mut token_stream)?)
-    }
+pub enum ExprStatement<'source> {
+    Assign {
+        lhs: Ident<'source>,
+        op: AssignOp,
+        rhs: Expr<'source>,
+    },
+    Expr(Expr<'source>),
+}
 
-    Ok(statements)
+pub struct FunctionStatement<'source> {
+    pub id: Ident<'source>,
+    pub args: Vec<Ident<'source>>,
+    pub body: Block<'source>,
+}
+
+pub struct IfStatement<'source> {
+    pub cond: Expr<'source>,
+    pub then_branch: Block<'source>,
+    pub else_branch: Option<Block<'source>>,
+}
+
+pub struct ReturnStatement<'source> {
+    pub expr: Option<Expr<'source>>,
+}
+
+pub struct WhileStatement<'source> {
+    pub cond: Expr<'source>,
+    pub body: Block<'source>,
+}
+
+pub struct Block<'source> {
+    pub statements: Vec<Statement<'source>>,
 }

@@ -2,5 +2,6 @@
 members = [ 
     "compiler/frontend/smplc_token",
     "compiler/frontend/smplc_lexer",
+    "compiler/frontend/smplc_parse",
     "compiler/frontend/smplc_ast",
 ]
