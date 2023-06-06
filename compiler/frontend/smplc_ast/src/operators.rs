@@ -44,7 +44,7 @@ pub enum BinOp {
 }
 
 impl BinOp {
-    fn get_bp(self) -> (u8, u8) {
+    pub fn get_bp(self) -> (u8, u8) {
         use BinOp::*;
 
         match self {

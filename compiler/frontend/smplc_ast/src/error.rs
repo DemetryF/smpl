@@ -1,18 +1,18 @@
 use smplc_token::{Pos, Token, TokenValue};
 
-pub type ParseResult<T> = Result<T, ParseError>;
+pub type ParseResult<'source, T> = Result<T, ParseError<'source>>;
 
-pub struct ParseError {
-    pub kind: ParseErrorKind,
+pub struct ParseError<'source> {
+    pub kind: ParseErrorKind<'source>,
     pub pos: Pos,
 }
 
-pub enum ParseErrorKind {
-    UnexpectedToken(TokenValue),
+pub enum ParseErrorKind<'source> {
+    UnexpectedToken(TokenValue<'source>),
 }
 
-impl ParseError {
-    pub fn unexpected_token(token: Token) -> Self {
+impl<'source> ParseError<'source> {
+    pub fn unexpected_token(token: Token<'source>) -> Self {
         let kind = ParseErrorKind::UnexpectedToken(token.value);
         let pos = token.pos;
 
