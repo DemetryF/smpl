@@ -1,7 +1,11 @@
 use smplc_ast::{
-    operators::AssignOp, Atom, Block, BreakStatement, ContinueStatement, DeclareStatement, Expr,
-    ExprStatement, FunctionStatement, Ident, IfStatement, ReturnStatement, Statement,
-    WhileStatement,
+    expr::{Atom, Ident},
+    operators::AssignOp,
+    statement::{
+        BreakStatement, ContinueStatement, DeclareStatement, ExprStatement, FunctionStatement,
+        IfStatement, ReturnStatement, WhileStatement,
+    },
+    Block, Expr, Statement,
 };
 
 use smplc_token::TokenValue;

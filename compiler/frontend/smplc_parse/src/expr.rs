@@ -1,7 +1,9 @@
 use smplc_ast::{
+    expr::Atom,
     operators::{BinOp, UnOp},
-    Atom, Expr,
+    Expr,
 };
+
 use smplc_token::{Posed, TokenValue};
 
 use crate::{error::ParseResult, parse::Parse, token_stream::TokenStream};
