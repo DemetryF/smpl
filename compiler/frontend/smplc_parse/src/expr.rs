@@ -4,7 +4,7 @@ use smplc_ast::{
     Expr,
 };
 
-use smplc_token::{Posed, TokenValue};
+use smplc_lexer::token::{Posed, TokenValue};
 
 use crate::{error::ParseResult, parse::Parse, token_stream::TokenStream};
 

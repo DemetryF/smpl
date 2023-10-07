@@ -1,4 +1,4 @@
-use smplc_token::{Literal, Posed};
+use smplc_lexer::token::{Literal, Posed};
 
 use crate::operators::{BinOp, UnOp};
 

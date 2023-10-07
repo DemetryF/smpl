@@ -1,6 +1,6 @@
 use std::fmt;
 
-use smplc_token::Pos;
+use crate::token::Pos;
 
 pub struct LexError {
     pub pos: Pos,

@@ -1,4 +1,4 @@
-use smplc_token::{Pos, Token, TokenValue};
+use smplc_lexer::token::{Pos, Token, TokenValue};
 
 pub type ParseResult<'source, T> = Result<T, ParseError<'source>>;
 

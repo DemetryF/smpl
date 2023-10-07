@@ -1,11 +1,13 @@
 mod code_stream;
 mod comments_handler;
-mod lex_error;
 mod token_collector;
+
+pub mod lex_error;
+pub mod token;
 
 use comments_handler::CommentsHandler;
 use lex_error::LexError;
-use smplc_token::{Pos, Token, TokenValue};
+use token::{Pos, Token, TokenValue};
 
 use code_stream::CodeStream;
 use token_collector::{NumberCollector, SpecialCollector, TokenCollector, WordCollector};

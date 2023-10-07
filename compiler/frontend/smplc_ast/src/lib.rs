@@ -1,4 +1,4 @@
-pub use smplc_token::{Literal, Pos};
+pub use smplc_lexer::token::{Literal, Pos};
 
 pub mod expr;
 pub mod operators;

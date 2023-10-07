@@ -2,7 +2,7 @@ mod number_collector;
 mod special_collector;
 mod word_collector;
 
-use smplc_token::TokenValue;
+use crate::token::TokenValue;
 
 use crate::code_stream::CodeStream;
 

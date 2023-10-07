@@ -1,4 +1,4 @@
-pub use smplc_token::Pos;
+pub use crate::token::Pos;
 
 pub struct CodeStream<'source> {
     pos: Pos,

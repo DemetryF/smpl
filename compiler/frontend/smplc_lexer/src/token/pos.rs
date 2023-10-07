@@ -22,8 +22,7 @@ impl Pos {
         self.line_start() + self.column() - 1
     }
 
-    #[cfg(feature = "pos_update")]
-    pub fn update(&mut self, char: char) {
+    pub(crate) fn update(&mut self, char: char) {
         if char == '\n' {
             self.line += 1;
             self.column = 1;

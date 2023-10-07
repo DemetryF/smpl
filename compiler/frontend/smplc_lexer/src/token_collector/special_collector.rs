@@ -1,4 +1,4 @@
-use smplc_token::TokenValue;
+use crate::token::TokenValue;
 
 use crate::code_stream::CodeStream;
 

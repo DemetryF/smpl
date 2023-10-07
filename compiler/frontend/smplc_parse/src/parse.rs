@@ -8,7 +8,7 @@ use smplc_ast::{
     Block, Expr, Statement,
 };
 
-use smplc_token::TokenValue;
+use smplc_lexer::token::TokenValue;
 
 use crate::{
     error::{ParseError, ParseResult},

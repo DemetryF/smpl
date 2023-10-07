@@ -1,4 +1,4 @@
-use smplc_token::TokenValue;
+use smplc_lexer::token::TokenValue;
 
 #[derive(Clone, Copy)]
 pub enum AssignOp {

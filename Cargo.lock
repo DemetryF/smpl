@@ -10,9 +10,9 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
 name = "num-traits"
-version = "0.2.15"
+version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "578ede34cf02f8924ab9447f50c28075b4d3e5b269972345e7e0372b38c6cdcd"
+checksum = "f30b0abd723be7e2ffca1272140fac1a2f084c77ec3e123c192b66af1ee9e6c2"
 dependencies = [
  "autocfg",
 ]
@@ -31,7 +31,6 @@ name = "smplc_ast"
 version = "0.1.0"
 dependencies = [
  "smplc_lexer",
- "smplc_token",
 ]
 
 [[package]]
@@ -39,7 +38,6 @@ name = "smplc_lexer"
 version = "0.1.0"
 dependencies = [
  "parse_int",
- "smplc_token",
 ]
 
 [[package]]
@@ -47,9 +45,5 @@ name = "smplc_parse"
 version = "0.1.0"
 dependencies = [
  "smplc_ast",
- "smplc_token",
+ "smplc_lexer",
 ]
-
-[[package]]
-name = "smplc_token"
-version = "0.1.0"

@@ -1,6 +1,6 @@
 use std::{iter::Peekable, vec::IntoIter};
 
-use smplc_token::{Token, TokenValue};
+use smplc_lexer::token::{Token, TokenValue};
 
 use crate::error::{ParseError, ParseResult};
 
