@@ -20,6 +20,9 @@ impl<'source> TokenCollector<'source> for WordCollector {
             "return" => TokenValue::Return,
             "while" => TokenValue::While,
 
+            "break" => TokenValue::Break,
+            "continue" => TokenValue::Continue,
+
             "true" => TokenValue::Literal(Literal::Bool(true)),
             "false" => TokenValue::Literal(Literal::Bool(false)),
 

@@ -2,6 +2,7 @@ use std::fmt;
 
 use crate::token::Pos;
 
+#[derive(Debug)]
 pub struct LexError {
     pub pos: Pos,
     pub char: char,

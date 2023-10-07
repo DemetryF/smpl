@@ -2,6 +2,9 @@ mod code_stream;
 mod comments_handler;
 mod token_collector;
 
+#[cfg(test)]
+mod tests;
+
 pub mod lex_error;
 pub mod token;
 

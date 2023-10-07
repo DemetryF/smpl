@@ -1,4 +1,4 @@
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Pos {
     line: usize,
     column: usize,
@@ -23,12 +23,12 @@ impl Pos {
     }
 
     pub(crate) fn update(&mut self, char: char) {
+        self.column += 1;
+
         if char == '\n' {
             self.line += 1;
-            self.column = 1;
             self.line_start = self.index();
-        } else {
-            self.column += 1;
+            self.column = 1;
         }
     }
 }
