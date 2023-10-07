@@ -1,12 +1,11 @@
-use smplc_ast::{
-    expr::{Atom, Ident},
-    operators::{BinOp, UnOp},
-    Expr,
-};
-
+use smplc_ast::expr::{Atom, Ident};
+use smplc_ast::operators::{BinOp, UnOp};
+use smplc_ast::Expr;
 use smplc_lexer::token::TokenValue;
 
-use crate::{error::ParseResult, parse::Parse, token_stream::TokenStream};
+use crate::error::ParseResult;
+use crate::parse::Parse;
+use crate::token_stream::TokenStream;
 
 impl<'source> Parse<'source> for Expr<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {

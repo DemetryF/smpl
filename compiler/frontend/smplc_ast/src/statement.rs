@@ -1,8 +1,6 @@
-use crate::{
-    expr::{Expr, Ident},
-    operators::AssignOp,
-    Block,
-};
+use crate::expr::{Expr, Ident};
+use crate::operators::AssignOp;
+use crate::Block;
 
 pub enum Statement<'source> {
     Break(BreakStatement),

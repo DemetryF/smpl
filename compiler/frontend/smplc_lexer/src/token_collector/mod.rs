@@ -2,9 +2,8 @@ mod number_collector;
 mod special_collector;
 mod word_collector;
 
-use crate::token::TokenValue;
-
 use crate::code_stream::CodeStream;
+use crate::token::TokenValue;
 
 pub use self::{
     number_collector::NumberCollector, special_collector::SpecialCollector,

@@ -1,19 +1,11 @@
-use smplc_ast::{
-    expr::{Atom, Ident},
-    operators::AssignOp,
-    statement::{
-        BreakStatement, ContinueStatement, DeclareStatement, ExprStatement, FunctionStatement,
-        IfStatement, ReturnStatement, WhileStatement,
-    },
-    Block, Expr, Statement,
-};
-
+use smplc_ast::expr::{Atom, Ident};
+use smplc_ast::operators::AssignOp;
+use smplc_ast::statement::*;
+use smplc_ast::{Block, Expr, Statement};
 use smplc_lexer::token::TokenValue;
 
-use crate::{
-    error::{ParseError, ParseResult},
-    token_stream::TokenStream,
-};
+use crate::error::{ParseError, ParseResult};
+use crate::token_stream::TokenStream;
 
 pub trait Parse<'source>: Sized {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self>;

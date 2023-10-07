@@ -5,12 +5,11 @@ mod token_collector;
 pub mod lex_error;
 pub mod token;
 
+use code_stream::CodeStream;
 use comments_handler::CommentsHandler;
 use lex_error::LexError;
 use token::{Pos, Token, TokenValue};
-
-use code_stream::CodeStream;
-use token_collector::{NumberCollector, SpecialCollector, TokenCollector, WordCollector};
+use token_collector::*;
 
 pub struct Lexer<'source> {
     code_stream: CodeStream<'source>,

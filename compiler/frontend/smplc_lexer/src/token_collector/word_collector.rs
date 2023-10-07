@@ -1,8 +1,6 @@
-use crate::token::{Literal, TokenValue};
-
 use crate::code_stream::CodeStream;
-
-use super::TokenCollector;
+use crate::token::{Literal, TokenValue};
+use crate::TokenCollector;
 
 pub struct WordCollector;
 

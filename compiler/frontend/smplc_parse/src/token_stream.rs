@@ -1,4 +1,5 @@
-use std::{iter::Peekable, vec::IntoIter};
+use std::iter::Peekable;
+use std::vec::IntoIter;
 
 use smplc_lexer::token::{Token, TokenValue};
 

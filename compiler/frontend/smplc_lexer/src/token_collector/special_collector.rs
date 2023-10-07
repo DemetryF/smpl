@@ -1,8 +1,6 @@
-use crate::token::TokenValue;
-
 use crate::code_stream::CodeStream;
-
-use super::TokenCollector;
+use crate::token::TokenValue;
+use crate::TokenCollector;
 
 pub struct SpecialCollector;
 impl<'source> TokenCollector<'source> for SpecialCollector {
