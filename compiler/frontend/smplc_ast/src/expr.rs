@@ -1,4 +1,4 @@
-use smplc_lexer::token::{Literal, Posed};
+use smplc_lexer::token::{Literal, Pos};
 
 use crate::operators::{BinOp, UnOp};
 
@@ -24,4 +24,8 @@ pub enum Atom<'source> {
     Literal(Literal),
 }
 
-pub type Ident<'source> = Posed<&'source str>;
+#[derive(Clone, Copy)]
+pub struct Ident<'source> {
+    pub value: &'source str,
+    pub pos: Pos,
+}

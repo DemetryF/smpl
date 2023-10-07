@@ -202,7 +202,10 @@ impl<'source> Parse<'source> for Block<'source> {
 impl<'source> Parse<'source> for Ident<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         match token_stream.current().value {
-            TokenValue::Ident(value) => Ok(token_stream.next().map(value)),
+            TokenValue::Ident(value) => Ok(Ident {
+                value,
+                pos: token_stream.next().pos,
+            }),
 
             _ => Err(token_stream.unexpected_token()),
         }

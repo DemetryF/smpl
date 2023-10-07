@@ -1,7 +1,11 @@
-pub use pos::{Pos, Posed};
+pub use pos::Pos;
 pub use token_value::{Literal, TokenValue};
 
 mod pos;
 mod token_value;
 
-pub type Token<'source> = Posed<TokenValue<'source>>;
+#[derive(Clone, Copy)]
+pub struct Token<'source> {
+    pub value: TokenValue<'source>,
+    pub pos: Pos,
+}

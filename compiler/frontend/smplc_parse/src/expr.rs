@@ -1,10 +1,10 @@
 use smplc_ast::{
-    expr::Atom,
+    expr::{Atom, Ident},
     operators::{BinOp, UnOp},
     Expr,
 };
 
-use smplc_lexer::token::{Posed, TokenValue};
+use smplc_lexer::token::TokenValue;
 
 use crate::{error::ParseResult, parse::Parse, token_stream::TokenStream};
 
@@ -61,7 +61,7 @@ fn fact<'source>(token_stream: &mut TokenStream<'source>) -> ParseResult<'source
         TokenValue::Ident(id) => {
             let pos = token_stream.next().pos;
 
-            let id = Posed { value: id, pos };
+            let id = Ident { value: id, pos };
 
             if token_stream.check(TokenValue::LParen) {
                 pub fn parse_call_args<'source>(

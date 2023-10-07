@@ -42,28 +42,3 @@ impl Default for Pos {
         }
     }
 }
-
-pub struct Posed<T> {
-    pub value: T,
-    pub pos: Pos,
-}
-
-impl<T> Posed<T> {
-    pub fn map<U>(self, value: U) -> Posed<U> {
-        Posed::<U> {
-            value,
-            pos: self.pos,
-        }
-    }
-}
-
-impl<T: Clone> Clone for Posed<T> {
-    fn clone(&self) -> Self {
-        Self {
-            value: self.value.clone(),
-            pos: self.pos,
-        }
-    }
-}
-
-impl<T: Copy> Copy for Posed<T> {}
