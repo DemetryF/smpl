@@ -1,6 +1,6 @@
 use smplc_lexer::token::TokenValue;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum AssignOp {
     Assign,
     AddAssign,
@@ -25,7 +25,7 @@ impl TryFrom<TokenValue<'_>> for AssignOp {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum BinOp {
     Add,
     Sub,
@@ -85,7 +85,7 @@ impl TryFrom<TokenValue<'_>> for BinOp {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum UnOp {
     Neg,
     Not,

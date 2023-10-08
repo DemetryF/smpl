@@ -10,7 +10,7 @@ pub mod token;
 
 use code_stream::CodeStream;
 use comments_handler::CommentsHandler;
-use lex_error::LexError;
+use lex_error::{LexError, LexResult};
 use token::{Pos, Token, TokenValue};
 use token_collector::*;
 
@@ -31,7 +31,7 @@ impl<'source> Lexer<'source> {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token, LexError> {
+    pub fn next_token(&mut self) -> Result<Token<'source>, LexError> {
         CommentsHandler::skip(&mut self.code_stream);
 
         let pos = self.code_stream.pos();
@@ -60,6 +60,21 @@ impl<'source> Lexer<'source> {
         LexError {
             char: self.code_stream.next(),
             pos,
+        }
+    }
+}
+
+impl<'source> Iterator for Lexer<'source> {
+    type Item = Result<Token<'source>, LexError>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.next_token() {
+            Ok(Token {
+                value: TokenValue::EOF,
+                ..
+            }) => None,
+
+            maybe_token => Some(maybe_token),
         }
     }
 }

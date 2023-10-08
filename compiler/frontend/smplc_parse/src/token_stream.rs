@@ -1,19 +1,24 @@
 use std::iter::Peekable;
-use std::vec::IntoIter;
 
 use smplc_lexer::token::{Token, TokenValue};
 
 use crate::error::{ParseError, ParseResult};
 
-pub struct TokenStream<'source> {
-    tokens: Peekable<IntoIter<Token<'source>>>,
+pub struct TokenStream<'source, I>
+where
+    I: Iterator<Item = Token<'source>>,
+{
+    tokens: Peekable<I>,
 
     pub in_function: bool,
     pub in_cycle: bool,
 }
 
-impl<'source> TokenStream<'source> {
-    pub fn new(tokens: IntoIter<Token<'source>>) -> Self {
+impl<'source, I> TokenStream<'source, I>
+where
+    I: Iterator<Item = Token<'source>>,
+{
+    pub fn new(tokens: I) -> Self {
         Self {
             tokens: tokens.peekable(),
 
@@ -26,12 +31,12 @@ impl<'source> TokenStream<'source> {
         self.tokens.peek().unwrap()
     }
 
-    pub fn check(&mut self, value: TokenValue) -> bool {
-        self.current().value == value
-    }
-
     pub fn next(&mut self) -> Token<'source> {
         self.tokens.next().unwrap()
+    }
+
+    pub fn check(&mut self, value: TokenValue) -> bool {
+        self.current().value == value
     }
 
     pub fn consume(&mut self, value: TokenValue) -> ParseResult<'source, Token<'source>> {
@@ -42,7 +47,7 @@ impl<'source> TokenStream<'source> {
         }
     }
 
-    pub fn try_consume(&mut self, value: TokenValue<'source>) -> bool {
+    pub fn try_consume(&mut self, value: TokenValue) -> bool {
         if self.check(value) {
             self.next();
 

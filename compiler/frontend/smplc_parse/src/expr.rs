@@ -1,22 +1,28 @@
 use smplc_ast::expr::{Atom, Ident};
 use smplc_ast::operators::{BinOp, UnOp};
 use smplc_ast::Expr;
-use smplc_lexer::token::TokenValue;
+use smplc_lexer::token::{Token, TokenValue};
 
 use crate::error::ParseResult;
 use crate::parse::Parse;
 use crate::token_stream::TokenStream;
 
 impl<'source> Parse<'source> for Expr<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         expr_bp(token_stream, 0)
     }
 }
 
-fn expr_bp<'source>(
-    token_stream: &mut TokenStream<'source>,
+fn expr_bp<'source, I>(
+    token_stream: &mut TokenStream<'source, I>,
     min_bp: u8,
-) -> ParseResult<'source, Expr<'source>> {
+) -> ParseResult<'source, Expr<'source>>
+where
+    I: Iterator<Item = Token<'source>>,
+{
     let mut lhs = fact(token_stream)?;
 
     while let Ok(op) = BinOp::try_from(token_stream.current().value) {
@@ -41,17 +47,12 @@ fn expr_bp<'source>(
     Ok(lhs)
 }
 
-fn fact<'source>(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Expr<'source>> {
-    fn parenthesis<'source>(
-        token_stream: &mut TokenStream<'source>,
-    ) -> ParseResult<'source, Expr<'source>> {
-        token_stream.consume(TokenValue::LParen)?;
-        let expr = Expr::parse(token_stream)?;
-        token_stream.consume(TokenValue::RParen)?;
-
-        Ok(expr)
-    }
-
+fn fact<'source, I>(
+    token_stream: &mut TokenStream<'source, I>,
+) -> ParseResult<'source, Expr<'source>>
+where
+    I: Iterator<Item = Token<'source>>,
+{
     let value = token_stream.current().value;
 
     match value {
@@ -63,26 +64,6 @@ fn fact<'source>(token_stream: &mut TokenStream<'source>) -> ParseResult<'source
             let id = Ident { value: id, pos };
 
             if token_stream.check(TokenValue::LParen) {
-                pub fn parse_call_args<'source>(
-                    token_stream: &mut TokenStream<'source>,
-                ) -> ParseResult<'source, Vec<Expr<'source>>> {
-                    token_stream.consume(TokenValue::LParen)?;
-
-                    let mut args = Vec::new();
-
-                    if token_stream.try_consume(TokenValue::RParen) {
-                        return Ok(args);
-                    }
-
-                    args.push(Expr::parse(token_stream)?);
-
-                    while token_stream.try_consume(TokenValue::Comma) {
-                        args.push(Expr::parse(token_stream)?);
-                    }
-
-                    Ok(args)
-                }
-
                 let args = parse_call_args(token_stream)?;
 
                 token_stream.consume(TokenValue::RParen)?;
@@ -116,4 +97,40 @@ fn fact<'source>(token_stream: &mut TokenStream<'source>) -> ParseResult<'source
             }
         }
     }
+}
+
+fn parenthesis<'source, I>(
+    token_stream: &mut TokenStream<'source, I>,
+) -> ParseResult<'source, Expr<'source>>
+where
+    I: Iterator<Item = Token<'source>>,
+{
+    token_stream.consume(TokenValue::LParen)?;
+    let expr = Expr::parse(token_stream)?;
+    token_stream.consume(TokenValue::RParen)?;
+
+    Ok(expr)
+}
+
+pub fn parse_call_args<'source, I>(
+    token_stream: &mut TokenStream<'source, I>,
+) -> ParseResult<'source, Vec<Expr<'source>>>
+where
+    I: Iterator<Item = Token<'source>>,
+{
+    token_stream.consume(TokenValue::LParen)?;
+
+    let mut args = Vec::new();
+
+    if token_stream.try_consume(TokenValue::RParen) {
+        return Ok(args);
+    }
+
+    args.push(Expr::parse(token_stream)?);
+
+    while token_stream.try_consume(TokenValue::Comma) {
+        args.push(Expr::parse(token_stream)?);
+    }
+
+    Ok(args)
 }

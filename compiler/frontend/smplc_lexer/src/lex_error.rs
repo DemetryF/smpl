@@ -2,6 +2,8 @@ use std::fmt;
 
 use crate::token::Pos;
 
+pub type LexResult<T> = Result<T, LexError>;
+
 #[derive(Debug)]
 pub struct LexError {
     pub pos: Pos,

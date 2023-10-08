@@ -2,17 +2,22 @@ use smplc_ast::expr::{Atom, Ident};
 use smplc_ast::operators::AssignOp;
 use smplc_ast::statement::*;
 use smplc_ast::{Block, Expr, Statement};
-use smplc_lexer::token::TokenValue;
+use smplc_lexer::token::{Token, TokenValue};
 
 use crate::error::{ParseError, ParseResult};
 use crate::token_stream::TokenStream;
 
 pub trait Parse<'source>: Sized {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self>;
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>;
 }
 
 impl<'source> Parse<'source> for Statement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         Ok({
             match token_stream.current().value {
                 TokenValue::Break => Self::Break(BreakStatement::parse(token_stream)?),
@@ -30,7 +35,10 @@ impl<'source> Parse<'source> for Statement<'source> {
 }
 
 impl<'source> Parse<'source> for BreakStatement {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         let break_pos = token_stream.consume(TokenValue::Break)?.pos;
 
         token_stream.consume(TokenValue::Semicolon)?;
@@ -44,10 +52,13 @@ impl<'source> Parse<'source> for BreakStatement {
 }
 
 impl<'source> Parse<'source> for ContinueStatement {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         let continue_pos = token_stream.consume(TokenValue::Continue)?.pos;
 
-        token_stream.consume(TokenValue::Break)?;
+        token_stream.consume(TokenValue::Semicolon)?;
 
         if !token_stream.in_cycle {
             return Err(ParseError::continue_outside_cycle(continue_pos));
@@ -58,7 +69,10 @@ impl<'source> Parse<'source> for ContinueStatement {
 }
 
 impl<'source> Parse<'source> for DeclareStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         token_stream.consume(TokenValue::Let)?;
 
         let id = Ident::parse(token_stream)?;
@@ -78,7 +92,10 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
 }
 
 impl<'source> Parse<'source> for ExprStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         let expr = Expr::parse(token_stream)?;
 
         let result = {
@@ -102,7 +119,10 @@ impl<'source> Parse<'source> for ExprStatement<'source> {
 }
 
 impl<'source> Parse<'source> for FunctionStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         token_stream.consume(TokenValue::Fn)?;
 
         let id = Ident::parse(token_stream)?;
@@ -114,21 +134,28 @@ impl<'source> Parse<'source> for FunctionStatement<'source> {
         while let Ok(id) = Ident::parse(token_stream) {
             args.push(id);
 
-            if token_stream.try_consume(TokenValue::RParen) {
+            if token_stream.check(TokenValue::RParen) {
                 break;
             }
 
             token_stream.consume(TokenValue::Comma)?;
         }
 
+        token_stream.consume(TokenValue::RParen)?;
+
+        token_stream.in_function = true;
         let body = Block::parse(token_stream)?;
+        token_stream.in_function = false;
 
         Ok(FunctionStatement { id, args, body })
     }
 }
 
 impl<'source> Parse<'source> for IfStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         token_stream.consume(TokenValue::If)?;
 
         let cond = Expr::parse(token_stream)?;
@@ -149,12 +176,17 @@ impl<'source> Parse<'source> for IfStatement<'source> {
 }
 
 impl<'source> Parse<'source> for ReturnStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         let return_pos = token_stream.consume(TokenValue::Return)?.pos;
 
         let expr = (!token_stream.check(TokenValue::Semicolon))
             .then(|| Expr::parse(token_stream))
             .transpose()?;
+
+        token_stream.consume(TokenValue::Semicolon)?;
 
         if !token_stream.in_function {
             return Err(ParseError::return_outside_function(return_pos));
@@ -165,23 +197,33 @@ impl<'source> Parse<'source> for ReturnStatement<'source> {
 }
 
 impl<'source> Parse<'source> for WhileStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         token_stream.consume(TokenValue::While)?;
 
         let cond = Expr::parse(token_stream)?;
+
+        token_stream.in_cycle = true;
         let body = Block::parse(token_stream)?;
+        token_stream.in_cycle = false;
 
         Ok(WhileStatement { cond, body })
     }
 }
 
 impl<'source> Parse<'source> for Block<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         token_stream.consume(TokenValue::LBrace)?;
 
         let mut statements = Vec::new();
 
         while let Ok(statement) = Statement::parse(token_stream) {
+            println!("1");
             statements.push(statement);
         }
 
@@ -192,7 +234,10 @@ impl<'source> Parse<'source> for Block<'source> {
 }
 
 impl<'source> Parse<'source> for Ident<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<I>(token_stream: &mut TokenStream<'source, I>) -> ParseResult<'source, Self>
+    where
+        I: Iterator<Item = Token<'source>>,
+    {
         match token_stream.current().value {
             TokenValue::Ident(value) => Ok(Ident {
                 value,

@@ -42,3 +42,9 @@ impl Default for Pos {
         }
     }
 }
+
+impl PartialEq for Pos {
+    fn eq(&self, other: &Self) -> bool {
+        self.line == other.line && self.column == other.column
+    }
+}

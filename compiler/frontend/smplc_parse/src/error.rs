@@ -2,11 +2,13 @@ use smplc_lexer::token::{Pos, Token, TokenValue};
 
 pub type ParseResult<'source, T> = Result<T, ParseError<'source>>;
 
+#[derive(Debug)]
 pub struct ParseError<'source> {
     pub kind: ParseErrorKind<'source>,
     pub pos: Pos,
 }
 
+#[derive(Debug)]
 pub enum ParseErrorKind<'source> {
     UnexpectedToken(TokenValue<'source>),
 

@@ -1,7 +1,10 @@
-use smplc_lexer::token::{Literal, Pos};
+use smplc_lexer::token::Pos;
 
 use crate::operators::{BinOp, UnOp};
 
+pub use smplc_lexer::token::Literal;
+
+#[derive(PartialEq, Debug)]
 pub enum Expr<'source> {
     Binary {
         lhs: Box<Self>,
@@ -19,13 +22,20 @@ pub enum Expr<'source> {
     Atom(Atom<'source>),
 }
 
+#[derive(PartialEq, Debug)]
 pub enum Atom<'source> {
     Ident(Ident<'source>),
     Literal(Literal),
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Ident<'source> {
     pub value: &'source str,
     pub pos: Pos,
+}
+
+impl PartialEq for Ident<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value
+    }
 }
