@@ -10,7 +10,7 @@ pub mod token;
 
 use code_stream::CodeStream;
 use comments_handler::CommentsHandler;
-use lex_error::{LexError, LexResult};
+use lex_error::LexError;
 use token::{Pos, Token, TokenValue};
 use token_collector::*;
 

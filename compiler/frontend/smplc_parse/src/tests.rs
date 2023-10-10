@@ -1,5 +1,4 @@
 use smplc_ast::expr::{Atom, Ident, Literal};
-use smplc_ast::operators::*;
 use smplc_ast::statement::*;
 use smplc_ast::{Block, Expr, Statement};
 use smplc_lexer::token::Pos;

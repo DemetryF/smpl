@@ -223,7 +223,6 @@ impl<'source> Parse<'source> for Block<'source> {
         let mut statements = Vec::new();
 
         while let Ok(statement) = Statement::parse(token_stream) {
-            println!("1");
             statements.push(statement);
         }
 
