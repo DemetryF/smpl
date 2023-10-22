@@ -1,5 +1,6 @@
 use smplc_ast::expr::{Atom, Ident, Literal};
-use smplc_ast::statement::*;
+use smplc_ast::operators::{BinOp, UnOp};
+use smplc_ast::statements::*;
 use smplc_ast::{Block, Expr, Statement};
 use smplc_lexer::token::Pos;
 use smplc_lexer::token::{Token, TokenValue};
@@ -37,6 +38,22 @@ macro_rules! un {
         Expr::Unary {
             op: UnOp::$Op,
             rhs: Box::new($rhs),
+        }
+    };
+}
+
+macro_rules! call {
+    ($ident:literal ( $( $expr:expr ),* )) => {
+        Expr::Call {
+            id: Ident {
+                value: $ident,
+                pos: Pos::default(),
+            },
+            args: vec![
+                $(
+                    $expr,
+                )*
+            ]
         }
     };
 }
@@ -304,6 +321,63 @@ pub fn return_statement() {
             fn "a"() {
                 stmt![return num!(1.0)]
             }
+        ]
+    }
+}
+
+#[test]
+pub fn expressions() {
+    parser_test! {
+        "1 + -2;";
+
+        stmt![
+            expr bin!(num!(1.0), Add, un!(Neg, num!(2.0)))
+        ]
+    }
+}
+
+#[test]
+pub fn parenthesis() {
+    parser_test! {
+        "1 * (2 + 3);";
+
+        stmt![
+            expr bin!(
+                num!(1.0),
+                Mul,
+                bin!(
+                    num!(2.0),
+                    Add,
+                    num!(3.0)
+                )
+            )
+        ]
+    }
+}
+
+#[test]
+pub fn functions_calls() {
+    parser_test! {
+        "function();";
+
+        stmt![
+            expr call!("function"())
+        ]
+    }
+
+    parser_test! {
+        "function(1);";
+
+        stmt![
+            expr call!("function"(num!(1.0)))
+        ]
+    }
+
+    parser_test! {
+        "function(1, 2);";
+
+        stmt![
+            expr call!("function"(num!(1.0), num!(2.0)))
         ]
     }
 }

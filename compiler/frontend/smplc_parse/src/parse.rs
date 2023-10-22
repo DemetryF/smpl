@@ -1,6 +1,6 @@
 use smplc_ast::expr::{Atom, Ident};
 use smplc_ast::operators::AssignOp;
-use smplc_ast::statement::*;
+use smplc_ast::statements::*;
 use smplc_ast::{Block, Expr, Statement};
 use smplc_lexer::token::{Token, TokenValue};
 

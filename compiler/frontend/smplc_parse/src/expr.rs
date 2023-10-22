@@ -66,8 +66,6 @@ where
             if token_stream.check(TokenValue::LParen) {
                 let args = parse_call_args(token_stream)?;
 
-                token_stream.consume(TokenValue::RParen)?;
-
                 let expr: Expr = Expr::Call { id, args };
 
                 Ok(expr)
@@ -131,6 +129,8 @@ where
     while token_stream.try_consume(TokenValue::Comma) {
         args.push(Expr::parse(token_stream)?);
     }
+
+    token_stream.consume(TokenValue::RParen)?;
 
     Ok(args)
 }
