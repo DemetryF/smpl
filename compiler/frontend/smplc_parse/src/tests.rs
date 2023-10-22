@@ -14,15 +14,6 @@ macro_rules! num {
     };
 }
 
-macro_rules! ident {
-    ($str:literal) => {
-        Expr::Atom(Atom::Ident(Ident {
-            value: $str,
-            pos: Pos::default(),
-        }))
-    };
-}
-
 macro_rules! bin {
     ($lhs:expr, $Op:ident, $rhs:expr) => {
         Expr::Binary {
