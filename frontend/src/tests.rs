@@ -4,7 +4,7 @@ use crate::{
         IfStatement, ReturnStatement, Statement, WhileStatement,
     },
     lexer::{Literal, Pos},
-    parse, Collect, TokenStream,
+    parse, Collect, Lexer, TokenStream,
 };
 
 macro_rules! parser_test {
@@ -15,7 +15,8 @@ macro_rules! parser_test {
 
 macro_rules! expr_test {
     ($code:expr; $expr:expr) => {{
-        let mut token_stream = TokenStream::new($code).unwrap();
+        let mut token_stream =
+            TokenStream::new(Lexer::new($code).collect::<Result<Vec<_>, _>>().unwrap());
         assert_eq!(Expr::collect(&mut token_stream).unwrap(), $expr);
     }};
 }
