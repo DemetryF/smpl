@@ -23,6 +23,7 @@ use self::{
 pub struct Lexer<'code> {
     code_stream: CodeStream<'code>,
     collectors: Vec<Box<dyn TokenCollector>>,
+    ended: bool,
 }
 
 impl<'code> Lexer<'code> {
@@ -34,6 +35,7 @@ impl<'code> Lexer<'code> {
                 Box::new(SpecialCollector),
                 Box::new(WordCollector),
             ],
+            ended: false,
         }
     }
 
@@ -64,5 +66,17 @@ impl<'code> Lexer<'code> {
 
     fn unexpected_char(&mut self, pos: Pos) -> Error {
         Error::new(ErrorKind::UnexpectedChar(self.code_stream.consume()), pos)
+    }
+}
+
+impl Iterator for Lexer<'_> {
+    type Item = Result<Token, Error>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.ended {
+            return None;
+        }
+
+        Some(self.next_token())
     }
 }
