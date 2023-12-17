@@ -1,6 +1,6 @@
 use crate::{
     error::Error,
-    lexer::{Lexer, Pos, Token, TokenValue},
+    lexer::{Pos, Token, TokenValue},
 };
 
 pub struct TokenStream {
@@ -11,44 +11,12 @@ pub struct TokenStream {
 }
 
 impl TokenStream {
-    pub fn new(code: &str) -> Result<Self, Vec<Error>> {
-        let mut lexer = Lexer::new(code);
-
-        let mut tokens = Vec::new();
-        let mut errors = Vec::new();
-
-        loop {
-            let token = lexer.next_token();
-
-            match token {
-                Ok(
-                    token @ Token {
-                        value: TokenValue::EOF,
-                        ..
-                    },
-                ) => {
-                    tokens.push(token);
-                    break;
-                }
-
-                Ok(_) if !errors.is_empty() => {}
-
-                Ok(token) => {
-                    tokens.push(token);
-                }
-                Err(error) => errors.push(error),
-            }
-        }
-
-        if !errors.is_empty() {
-            return Err(errors);
-        }
-
-        Ok(Self {
+    pub fn new(tokens: Vec<Token>) -> Self {
+        Self {
             tokens,
             index: 0,
             in_function: false,
-        })
+        }
     }
 
     pub fn current(&self) -> &Token {
