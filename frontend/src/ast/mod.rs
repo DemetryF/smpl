@@ -16,7 +16,7 @@ pub use self::{
     operators::{BinOp, UnOp},
 };
 
-pub use super::lexer::{Literal, Pos};
+pub use smplc_lexer::{Literal, Pos};
 
 use crate::{ParseError, TokenStream};
 

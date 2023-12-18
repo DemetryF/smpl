@@ -1,4 +1,4 @@
-use crate::lexer::{CodeStream, TokenValue};
+use crate::{CodeStream, TokenValue};
 
 use super::TokenCollector;
 

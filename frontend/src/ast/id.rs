@@ -1,10 +1,7 @@
 use derive_more::Constructor;
 
-use crate::{
-    error::ParseError,
-    lexer::{Pos, Token, TokenValue},
-    TokenStream,
-};
+use crate::{error::ParseError, TokenStream};
+use smplc_lexer::{Pos, Token, TokenValue};
 
 use super::Collect;
 

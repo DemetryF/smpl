@@ -1,4 +1,4 @@
-use crate::lexer::CodeStream;
+use crate::CodeStream;
 
 use self::comment_type::CommentType;
 

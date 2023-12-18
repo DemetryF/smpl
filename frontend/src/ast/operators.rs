@@ -1,7 +1,6 @@
-use crate::{
-    error::ParseError,
-    lexer::{Token, TokenValue},
-};
+use smplc_lexer::{Token, TokenValue};
+
+use crate::error::ParseError;
 
 macro_rules! operators {
     (

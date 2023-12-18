@@ -1,7 +1,6 @@
-use crate::{
-    error::ParseError,
-    lexer::{Pos, Token, TokenValue},
-};
+use smplc_lexer::{Pos, Token, TokenValue};
+
+use crate::error::ParseError;
 
 pub struct TokenStream {
     tokens: Vec<Token>,

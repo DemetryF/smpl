@@ -3,17 +3,15 @@ use crate::{
         Atom, Block, Call, DeclareStatement, Expr, ExprStatement, FunctionStatement, Id,
         IfStatement, ReturnStatement, Statement, WhileStatement,
     },
-    lexer::{Lexer, Literal, Pos},
     parse, Collect, TokenStream,
 };
+
+use smplc_lexer::{lex, Literal, Pos};
 
 macro_rules! parser_test {
     ($code:expr; $stmt:expr) => {
         assert_eq!(
-            parse(TokenStream::new(
-                Lexer::new($code).collect::<Result<Vec<_>, _>>().unwrap()
-            ))
-            .unwrap()[0],
+            parse(TokenStream::new(lex($code).unwrap())).unwrap()[0],
             $stmt
         );
     };
@@ -21,8 +19,7 @@ macro_rules! parser_test {
 
 macro_rules! expr_test {
     ($code:expr; $expr:expr) => {{
-        let mut token_stream =
-            TokenStream::new(Lexer::new($code).collect::<Result<Vec<_>, _>>().unwrap());
+        let mut token_stream = TokenStream::new(lex($code).unwrap());
         assert_eq!(Expr::collect(&mut token_stream).unwrap(), $expr);
     }};
 }

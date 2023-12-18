@@ -1,7 +1,8 @@
+use smplc_lexer::TokenValue;
+
 use crate::{
     ast::{Block, Collect, Expr},
     error::ParseError,
-    lexer::TokenValue,
     TokenStream,
 };
 
