@@ -25,17 +25,16 @@ fn main() {
     if let Ok(program) = fs::read_to_string(filename.as_str()) {
         let stmts = match parse(&program) {
             Ok(stmts) => stmts,
-            Err(errors) => {
-                for frontend::Error { kind, pos } in errors {
-                    let error = Error {
-                        filename: &filename,
-                        code: &program,
-                        pos,
-                        kind,
-                    };
+            Err(error) => {
+                let frontend::Error { kind, pos } = error;
+                let error = Error {
+                    filename: &filename,
+                    code: &program,
+                    pos,
+                    kind,
+                };
 
-                    println!("{error}")
-                }
+                println!("{error}");
 
                 return;
             }
