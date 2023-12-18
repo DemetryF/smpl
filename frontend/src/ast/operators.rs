@@ -1,5 +1,5 @@
 use crate::{
-    error::Error,
+    error::ParseError,
     lexer::{Token, TokenValue},
 };
 
@@ -22,7 +22,7 @@ macro_rules! operators {
             }
 
             impl TryFrom<&Token> for $GroupName {
-                type Error = Error;
+                type Error = ParseError;
 
                 fn try_from(token: &Token) -> Result<Self, Self::Error> {
                     let op = match token.value {
@@ -30,7 +30,7 @@ macro_rules! operators {
                             $token_alt => Self::$OpName,
                         )*
 
-                        _ => return Err(Error::unexpected_token(token.clone())),
+                        _ => return Err(ParseError::unexpected_token(token.clone())),
                     };
 
                     Ok(op)

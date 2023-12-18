@@ -1,5 +1,5 @@
 use crate::{
-    error::Error,
+    error::ParseError,
     lexer::{Pos, Token, TokenValue},
 };
 
@@ -27,7 +27,7 @@ impl TokenStream {
         !self.is_end() && self.current().value == value
     }
 
-    pub fn consume(&mut self, value: TokenValue) -> Result<(), Error> {
+    pub fn consume(&mut self, value: TokenValue) -> Result<(), ParseError> {
         if self.check(value) {
             self.next();
 
@@ -55,8 +55,8 @@ impl TokenStream {
         token
     }
 
-    pub fn unexpected_token(&self) -> Error {
-        Error::unexpected_token(self.current().clone())
+    pub fn unexpected_token(&self) -> ParseError {
+        ParseError::unexpected_token(self.current().clone())
     }
 
     pub fn get_pos(&self) -> Pos {

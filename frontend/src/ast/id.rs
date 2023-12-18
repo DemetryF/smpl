@@ -1,7 +1,7 @@
 use derive_more::Constructor;
 
 use crate::{
-    error::Error,
+    error::ParseError,
     lexer::{Pos, Token, TokenValue},
     TokenStream,
 };
@@ -15,7 +15,7 @@ pub struct Id {
 }
 
 impl TryFrom<Token> for Id {
-    type Error = Error;
+    type Error = ParseError;
 
     fn try_from(token: Token) -> Result<Self, Self::Error> {
         match token.value {
@@ -25,13 +25,13 @@ impl TryFrom<Token> for Id {
                 Ok(id)
             }
 
-            _ => Err(Error::unexpected_token(token)),
+            _ => Err(ParseError::unexpected_token(token)),
         }
     }
 }
 
 impl TryFrom<&Token> for Id {
-    type Error = Error;
+    type Error = ParseError;
 
     fn try_from(token: &Token) -> Result<Self, Self::Error> {
         let token = token.clone();
@@ -41,7 +41,7 @@ impl TryFrom<&Token> for Id {
 }
 
 impl Collect for Id {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         Id::try_from(token_stream.next())
     }
 }

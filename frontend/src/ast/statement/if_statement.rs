@@ -1,6 +1,6 @@
 use crate::{
     ast::{Block, Collect, Expr},
-    error::Error,
+    error::ParseError,
     lexer::TokenValue,
     token_stream::TokenStream,
 };
@@ -13,7 +13,7 @@ pub struct IfStatement {
 }
 
 impl Collect for IfStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         token_stream.consume(TokenValue::If)?;
 
         let condition = Expr::collect(token_stream)?;
@@ -28,7 +28,7 @@ impl Collect for IfStatement {
     }
 }
 
-fn parse_else_body(token_stream: &mut TokenStream) -> Result<Option<Block>, Error> {
+fn parse_else_body(token_stream: &mut TokenStream) -> Result<Option<Block>, ParseError> {
     let else_body = if token_stream.try_consume(TokenValue::Else) {
         let block = Block::collect(token_stream)?;
 

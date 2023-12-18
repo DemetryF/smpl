@@ -32,7 +32,7 @@ fn main() {
             filename: &filename,
             code: &program,
             pos: err.pos,
-            kind: err.kind,
+            kind: err,
         };
 
         eprintln!("{error}");

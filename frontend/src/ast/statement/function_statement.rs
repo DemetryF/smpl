@@ -1,6 +1,6 @@
 use crate::{
     ast::{Block, Collect, Id},
-    error::Error,
+    error::ParseError,
     lexer::TokenValue,
     token_stream::TokenStream,
 };
@@ -13,7 +13,7 @@ pub struct FunctionStatement {
 }
 
 impl Collect for FunctionStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         token_stream.consume(TokenValue::Fn)?;
 
         let id = Id::collect(token_stream)?;
@@ -27,7 +27,7 @@ impl Collect for FunctionStatement {
     }
 }
 
-fn parse_args(token_stream: &mut TokenStream) -> Result<Vec<Id>, Error> {
+fn parse_args(token_stream: &mut TokenStream) -> Result<Vec<Id>, ParseError> {
     let mut args = Vec::new();
 
     token_stream.consume(TokenValue::LParen)?;
