@@ -1,7 +1,7 @@
 mod atom;
 mod call;
 
-use crate::error::Error;
+use crate::error::ParseError;
 use crate::lexer::TokenValue;
 
 use crate::ast::{
@@ -30,12 +30,12 @@ pub enum Expr {
 }
 
 impl Collect for Expr {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         expr_bp(token_stream, 0)
     }
 }
 
-fn expr_bp(token_stream: &mut TokenStream, min_bp: usize) -> Result<Expr, Error> {
+fn expr_bp(token_stream: &mut TokenStream, min_bp: usize) -> Result<Expr, ParseError> {
     let mut lhs = parse_fact(token_stream)?;
 
     while let Ok(op) = BinOp::try_from(token_stream.current()) {
@@ -62,7 +62,7 @@ fn expr_bp(token_stream: &mut TokenStream, min_bp: usize) -> Result<Expr, Error>
     Ok(lhs)
 }
 
-fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, Error> {
+fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, ParseError> {
     let fact = match token_stream.current().value {
         TokenValue::Id(_) => {
             let id = Id::collect(token_stream)?;

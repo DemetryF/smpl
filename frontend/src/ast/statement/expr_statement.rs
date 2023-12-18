@@ -1,6 +1,6 @@
 use crate::{
     ast::{Collect, Expr},
-    error::Error,
+    error::ParseError,
     lexer::TokenValue,
     token_stream::TokenStream,
 };
@@ -9,7 +9,7 @@ use crate::{
 pub struct ExprStatement(pub Expr);
 
 impl Collect for ExprStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         let expr = Expr::collect(token_stream)?;
         token_stream.consume(TokenValue::Semicolon)?;
 

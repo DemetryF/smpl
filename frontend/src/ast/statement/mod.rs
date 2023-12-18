@@ -11,7 +11,7 @@ pub use self::{
     return_statement::ReturnStatement, while_statement::WhileStatement,
 };
 
-use crate::{error::Error, lexer::TokenValue, TokenStream};
+use crate::{error::ParseError, lexer::TokenValue, TokenStream};
 
 use super::Collect;
 
@@ -26,7 +26,7 @@ pub enum Statement {
 }
 
 impl Collect for Statement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         let stmt = match token_stream.current().value {
             TokenValue::Let => Self::Declare(DeclareStatement::collect(token_stream)?),
             TokenValue::Fn => Self::Function(FunctionStatement::collect(token_stream)?),

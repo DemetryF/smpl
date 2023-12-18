@@ -18,8 +18,8 @@ pub use self::{
 
 pub use super::lexer::{Literal, Pos};
 
-use crate::{Error, TokenStream};
+use crate::{ParseError, TokenStream};
 
 pub trait Collect: Sized {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error>;
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError>;
 }

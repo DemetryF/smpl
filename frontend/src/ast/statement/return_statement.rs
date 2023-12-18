@@ -1,6 +1,6 @@
 use crate::{
     ast::{Collect, Expr},
-    error::Error,
+    error::ParseError,
     lexer::TokenValue,
     token_stream::TokenStream,
 };
@@ -9,7 +9,7 @@ use crate::{
 pub struct ReturnStatement(pub Option<Expr>);
 
 impl Collect for ReturnStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         check_in_function(token_stream)?;
 
         token_stream.consume(TokenValue::Return)?;
@@ -20,7 +20,7 @@ impl Collect for ReturnStatement {
     }
 }
 
-fn return_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, Error> {
+fn return_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, ParseError> {
     let maybe_expr = if token_stream.check(TokenValue::Semicolon) {
         None
     } else {
@@ -32,9 +32,9 @@ fn return_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, Error> {
     Ok(maybe_expr)
 }
 
-fn check_in_function(token_stream: &TokenStream) -> Result<(), Error> {
+fn check_in_function(token_stream: &TokenStream) -> Result<(), ParseError> {
     if !token_stream.in_function {
-        let error = Error::return_outside_function(token_stream.get_pos());
+        let error = ParseError::return_outside_function(token_stream.get_pos());
 
         return Err(error);
     }

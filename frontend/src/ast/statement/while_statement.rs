@@ -1,6 +1,6 @@
 use crate::{
     ast::{Block, Collect, Expr},
-    error::Error,
+    error::ParseError,
     lexer::TokenValue,
     TokenStream,
 };
@@ -12,7 +12,7 @@ pub struct WhileStatement {
 }
 
 impl Collect for WhileStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         token_stream.consume(TokenValue::While)?;
 
         let condition = Expr::collect(token_stream)?;

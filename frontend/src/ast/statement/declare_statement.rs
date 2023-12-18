@@ -1,6 +1,6 @@
 use crate::{
     ast::{Collect, Expr, Id},
-    error::Error,
+    error::ParseError,
     lexer::TokenValue,
     TokenStream,
 };
@@ -12,7 +12,7 @@ pub struct DeclareStatement {
 }
 
 impl Collect for DeclareStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         token_stream.consume(TokenValue::Let)?;
 
         let id = Id::collect(token_stream)?;
@@ -24,7 +24,7 @@ impl Collect for DeclareStatement {
     }
 }
 
-fn parse_init_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, Error> {
+fn parse_init_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, ParseError> {
     if token_stream.try_consume(TokenValue::Assignment) {
         let expr = Expr::collect(token_stream)?;
 

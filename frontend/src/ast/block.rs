@@ -1,4 +1,4 @@
-use crate::{ast::Statement, error::Error, lexer::TokenValue, TokenStream};
+use crate::{ast::Statement, error::ParseError, lexer::TokenValue, TokenStream};
 
 use super::Collect;
 
@@ -8,7 +8,7 @@ pub struct Block {
 }
 
 impl Collect for Block {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, Error> {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         let mut stmts = Vec::new();
 
         token_stream.consume(TokenValue::LBrace)?;
@@ -16,7 +16,7 @@ impl Collect for Block {
             let next_stmt = Statement::collect(token_stream)?;
 
             if matches!(next_stmt, Statement::Function(_)) {
-                let error = Error::function_in_block(token_stream.get_pos());
+                let error = ParseError::function_in_block(token_stream.get_pos());
 
                 return Err(error);
             }

@@ -4,15 +4,15 @@ mod pos;
 mod token;
 mod token_collector;
 
+mod error;
 #[cfg(test)]
 mod tests;
 
 pub use self::{
+    error::LexError,
     pos::Pos,
     token::{Literal, Token, TokenValue},
 };
-
-use crate::error::{Error, ErrorKind};
 
 use self::{
     code_stream::CodeStream,
@@ -39,7 +39,7 @@ impl<'code> Lexer<'code> {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token, Error> {
+    pub fn next_token(&mut self) -> Result<Token, LexError> {
         CommentsHandler::skip(&mut self.code_stream);
 
         let pos = self.code_stream.get_pos();
@@ -66,13 +66,16 @@ impl<'code> Lexer<'code> {
         Err(self.unexpected_char(pos))
     }
 
-    fn unexpected_char(&mut self, pos: Pos) -> Error {
-        Error::new(ErrorKind::UnexpectedChar(self.code_stream.consume()), pos)
+    fn unexpected_char(&mut self, pos: Pos) -> LexError {
+        LexError {
+            char: self.code_stream.consume(),
+            pos,
+        }
     }
 }
 
 impl Iterator for Lexer<'_> {
-    type Item = Result<Token, Error>;
+    type Item = Result<Token, LexError>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.ended {

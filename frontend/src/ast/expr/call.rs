@@ -1,6 +1,6 @@
 use crate::{
     ast::{Collect, Expr, Id},
-    error::Error,
+    error::ParseError,
     lexer::TokenValue,
     token_stream::TokenStream,
 };
@@ -12,13 +12,13 @@ pub struct Call {
 }
 
 impl Call {
-    pub fn collect(token_stream: &mut TokenStream, id: Id) -> Result<Expr, Error> {
+    pub fn collect(token_stream: &mut TokenStream, id: Id) -> Result<Expr, ParseError> {
         let args = Self::collect_args(token_stream)?;
 
         Ok(Expr::Call(Call { id, args }))
     }
 
-    fn collect_args(token_stream: &mut TokenStream) -> Result<Vec<Expr>, Error> {
+    fn collect_args(token_stream: &mut TokenStream) -> Result<Vec<Expr>, ParseError> {
         let mut args = Vec::new();
 
         token_stream.consume(TokenValue::LParen)?;
