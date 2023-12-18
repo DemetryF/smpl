@@ -1,4 +1,4 @@
-use crate::lexer::CodeStream;
+use crate::CodeStream;
 
 pub struct CommentType {
     pub begin: &'static str,

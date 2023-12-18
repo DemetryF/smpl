@@ -1,10 +1,8 @@
 use std::fmt::Display;
 
-use derive_more::Constructor;
-
 use super::Pos;
 
-#[derive(Clone, Debug, Constructor)]
+#[derive(Clone, Debug)]
 pub struct Token {
     pub value: TokenValue,
     pub pos: Pos,

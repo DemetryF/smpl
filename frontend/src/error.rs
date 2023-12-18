@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use derive_more::Constructor;
 
-use crate::lexer::{Pos, Token, TokenValue};
+use smplc_lexer::{Pos, Token, TokenValue};
 
 #[derive(Debug, Constructor)]
 pub struct ParseError {

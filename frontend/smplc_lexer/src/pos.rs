@@ -1,6 +1,4 @@
-use derive_more::Constructor;
-
-#[derive(Constructor, Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Pos {
     pub line: usize,
     pub column: usize,
@@ -10,6 +8,15 @@ pub struct Pos {
 }
 
 impl Pos {
+    pub fn new(line: usize, column: usize, line_start: usize, index: usize) -> Self {
+        Self {
+            line,
+            column,
+            line_start,
+            index,
+        }
+    }
+
     pub fn update(&mut self, char: char) {
         match char {
             '\n' => self.new_line(),

@@ -1,8 +1,9 @@
 mod atom;
 mod call;
 
+use smplc_lexer::TokenValue;
+
 use crate::error::ParseError;
-use crate::lexer::TokenValue;
 
 use crate::ast::{
     id::Id,

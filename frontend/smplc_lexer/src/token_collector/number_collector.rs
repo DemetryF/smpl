@@ -1,6 +1,6 @@
 use parse_int::parse;
 
-use crate::lexer::{CodeStream, Literal, TokenValue};
+use crate::{CodeStream, Literal, TokenValue};
 
 use super::TokenCollector;
 

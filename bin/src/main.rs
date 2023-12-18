@@ -2,12 +2,14 @@ mod errors;
 
 use std::{fs, process::Command};
 
-use backend::compile;
-use errors::Error;
-use frontend::{lex, parse};
-use middleend::translate;
-
 use clap::Parser;
+
+use backend::compile;
+use frontend::{parse, token_stream::TokenStream};
+use middleend::translate;
+use smplc_lexer::lex;
+
+use errors::Error;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -27,7 +29,7 @@ fn main() {
         return;
     };
 
-    let Ok(token_stream) = lex(&program).map_err(|err| {
+    let Ok(tokens) = lex(&program).map_err(|err| {
         let error = Error {
             filename: &filename,
             code: &program,
@@ -39,6 +41,8 @@ fn main() {
     }) else {
         return;
     };
+
+    let token_stream = TokenStream::new(tokens);
 
     let Ok(stmts) = parse(token_stream).map_err(|error| {
         let error = Error {

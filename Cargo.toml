@@ -1,7 +1,2 @@
 [workspace]
-members = [
-    "frontend",
-    "middleend",
-    "backend",
-    "bin",
-]
+members = ["frontend", "frontend/smplc_lexer", "middleend", "backend", "bin"]

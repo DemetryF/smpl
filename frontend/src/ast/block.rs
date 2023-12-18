@@ -1,4 +1,6 @@
-use crate::{ast::Statement, error::ParseError, lexer::TokenValue, TokenStream};
+use smplc_lexer::TokenValue;
+
+use crate::{ast::Statement, error::ParseError, TokenStream};
 
 use super::Collect;
 
