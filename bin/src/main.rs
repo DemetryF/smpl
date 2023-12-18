@@ -9,7 +9,7 @@ use frontend::{parse, token_stream::TokenStream};
 use middleend::translate;
 use smplc_lexer::lex;
 
-use errors::Error;
+use errors::output_error;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -29,44 +29,23 @@ fn main() {
         return;
     };
 
-    let Ok(tokens) = lex(&program).map_err(|err| {
-        let error = Error {
-            filename: &filename,
-            code: &program,
-            pos: err.pos,
-            kind: err,
-        };
-
-        eprintln!("{error}");
-    }) else {
+    let Ok(tokens) =
+        lex(&program).map_err(|err| output_error(&filename, &program, err.pos, err.char))
+    else {
         return;
     };
 
     let token_stream = TokenStream::new(tokens);
 
-    let Ok(stmts) = parse(token_stream).map_err(|error| {
-        let error = Error {
-            filename: &filename,
-            code: &program,
-            pos: error.pos,
-            kind: error.kind,
-        };
-
-        eprintln!("{error}");
-    }) else {
+    let Ok(stmts) =
+        parse(token_stream).map_err(|err| output_error(&filename, &program, err.pos, err.kind))
+    else {
         return;
     };
 
     let Ok(intermediate_code) = translate(stmts).map_err(|errors| {
         for middleend::Error { kind, pos } in errors {
-            let error = Error {
-                filename: &filename,
-                code: &program,
-                pos,
-                kind,
-            };
-
-            eprintln!("{error}")
+            output_error(&filename, &program, pos, kind)
         }
     }) else {
         return;

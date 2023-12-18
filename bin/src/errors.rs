@@ -3,12 +3,29 @@ use std::fmt;
 use colored::Colorize;
 use frontend::ast::Pos;
 
-pub struct Error<'source, K: fmt::Display> {
+struct Error<'source, K: fmt::Display> {
     pub filename: &'source str,
     pub code: &'source str,
 
     pub pos: Pos,
     pub kind: K,
+}
+
+pub fn output_error<'source>(
+    filename: &'source str,
+    code: &'source str,
+    pos: Pos,
+    kind: impl fmt::Display,
+) {
+    eprintln!(
+        "{}",
+        Error {
+            filename,
+            code,
+            pos,
+            kind,
+        }
+    );
 }
 
 impl<'source, K: fmt::Display> fmt::Display for Error<'source, K> {
@@ -32,7 +49,7 @@ impl<'source, K: fmt::Display> fmt::Display for Error<'source, K> {
 }
 
 impl<'source, K: fmt::Display> Error<'source, K> {
-    pub fn get_line(&self) -> &str {
+    pub fn get_line(&self) -> &'source str {
         let line = &self.code[self.pos.line_start..];
 
         if let Some((line, _)) = line.split_once('\n') {
