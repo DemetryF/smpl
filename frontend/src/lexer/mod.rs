@@ -50,6 +50,8 @@ impl<'code> Lexer<'code> {
                 pos,
             };
 
+            self.ended = true;
+
             return Ok(eof_token);
         }
 
