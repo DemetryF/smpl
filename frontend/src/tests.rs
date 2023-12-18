@@ -3,13 +3,19 @@ use crate::{
         Atom, Block, Call, DeclareStatement, Expr, ExprStatement, FunctionStatement, Id,
         IfStatement, ReturnStatement, Statement, WhileStatement,
     },
-    lexer::{Literal, Pos},
-    parse, Collect, Lexer, TokenStream,
+    lexer::{Lexer, Literal, Pos},
+    parse, Collect, TokenStream,
 };
 
 macro_rules! parser_test {
     ($code:expr; $stmt:expr) => {
-        assert_eq!(parse($code).unwrap()[0], $stmt);
+        assert_eq!(
+            parse(TokenStream::new(
+                Lexer::new($code).collect::<Result<Vec<_>, _>>().unwrap()
+            ))
+            .unwrap()[0],
+            $stmt
+        );
     };
 }
 

@@ -13,10 +13,15 @@ use ast::{Collect, Statement};
 use lexer::Lexer;
 use token_stream::TokenStream;
 
-pub fn parse(code: &str) -> Result<Vec<Statement>, Error> {
-    let tokens = Lexer::new(code).collect::<Result<Vec<_>, _>>()?;
+pub fn lex(code: &str) -> Result<TokenStream, Error> {
+    let lexer = Lexer::new(code);
+    let tokens = lexer.collect::<Result<Vec<_>, _>>()?;
+    let token_stream = TokenStream::new(tokens);
 
-    let mut token_stream = TokenStream::new(tokens);
+    Ok(token_stream)
+}
+
+pub fn parse(mut token_stream: TokenStream) -> Result<Vec<Statement>, Error> {
     let mut stmts = Vec::new();
 
     while !token_stream.is_end() {
