@@ -4,7 +4,7 @@ use std::{fs, process::Command};
 
 use backend::compile;
 use errors::Error;
-use frontend::parse;
+use frontend::{lex, parse};
 use middleend::translate;
 
 use clap::Parser;
@@ -22,66 +22,73 @@ struct Args {
 fn main() {
     let Args { filename, output } = Args::parse();
 
-    if let Ok(program) = fs::read_to_string(filename.as_str()) {
-        let stmts = match parse(&program) {
-            Ok(stmts) => stmts,
-            Err(error) => {
-                let frontend::Error { kind, pos } = error;
-                let error = Error {
-                    filename: &filename,
-                    code: &program,
-                    pos,
-                    kind,
-                };
+    let Ok(program) = fs::read_to_string(filename.as_str()) else {
+        eprintln!("faield to open \"{filename}\"");
+        return;
+    };
 
-                println!("{error}");
-
-                return;
-            }
+    let Ok(token_stream) = lex(&program).map_err(|err| {
+        let error = Error {
+            filename: &filename,
+            code: &program,
+            pos: err.pos,
+            kind: err.kind,
         };
 
-        let intermediate_code = match translate(stmts) {
-            Ok(code) => code,
-            Err(errors) => {
-                for middleend::Error { kind, pos } in errors {
-                    let error = Error {
-                        filename: &filename,
-                        code: &program,
-                        pos,
-                        kind,
-                    };
+        eprintln!("{error}");
+    }) else {
+        return;
+    };
 
-                    println!("{error}")
-                }
-
-                return;
-            }
+    let Ok(stmts) = parse(token_stream).map_err(|error| {
+        let error = Error {
+            filename: &filename,
+            code: &program,
+            pos: error.pos,
+            kind: error.kind,
         };
 
-        let assembly = compile(intermediate_code).unwrap();
+        eprintln!("{error}");
+    }) else {
+        return;
+    };
 
-        fs::write("./temp.asm", assembly).unwrap();
+    let Ok(intermediate_code) = translate(stmts).map_err(|errors| {
+        for middleend::Error { kind, pos } in errors {
+            let error = Error {
+                filename: &filename,
+                code: &program,
+                pos,
+                kind,
+            };
 
-        Command::new("nasm")
-            .arg("-f elf64")
-            .arg("./temp.asm")
-            .arg("-o temp.o")
-            .output()
-            .unwrap();
+            eprintln!("{error}")
+        }
+    }) else {
+        return;
+    };
 
-        Command::new("gcc")
-            .arg("-no-pie")
-            .arg("temp.o")
-            .arg(format!("-o{output}"))
-            .output()
-            .unwrap();
+    let assembly = compile(intermediate_code).unwrap();
 
-        Command::new("rm")
-            .arg("./temp.asm")
-            .arg("temp.o")
-            .output()
-            .unwrap();
-    } else {
-        println!("no such file \"{filename}\"");
-    }
+    fs::write("./temp.asm", assembly).unwrap();
+
+    Command::new("nasm")
+        .arg("-f elf64")
+        .arg("./temp.asm")
+        .arg("-o temp.o")
+        .output()
+        .unwrap();
+
+    Command::new("gcc")
+        .arg("-no-pie")
+        .arg("temp.o")
+        .arg(format!("-o{output}"))
+        .output()
+        .unwrap();
+
+    Command::new("rm")
+        .arg("./temp.asm")
+        .arg("temp.o")
+        .output()
+        .unwrap();
 }
