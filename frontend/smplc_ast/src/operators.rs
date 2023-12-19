@@ -62,26 +62,6 @@ impl BinOp {
     }
 }
 
-impl std::fmt::Display for BinOp {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            Self::Assignment => write!(f, "="),
-            Self::Or => write!(f, "|"),
-            Self::And => write!(f, "&"),
-            Self::NotEqual => write!(f, "!="),
-            Self::Equal => write!(f, "=="),
-            Self::GreaterOrEqual => write!(f, ">="),
-            Self::Greater => write!(f, ">"),
-            Self::LessOrEqual => write!(f, "<="),
-            Self::Less => write!(f, "<"),
-            Self::Addition => write!(f, "+"),
-            Self::Subtraction => write!(f, "-"),
-            Self::Multiplication => write!(f, "*"),
-            Self::Division => write!(f, "/"),
-        }
-    }
-}
-
 #[derive(Debug, PartialEq, Clone)]
 pub enum UnOp {
     Not,
@@ -105,15 +85,6 @@ impl UnOp {
         match self {
             Self::Not => (0, 15),
             Self::Neg => (0, 15),
-        }
-    }
-}
-
-impl std::fmt::Display for UnOp {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            Self::Not => write!(f, "!"),
-            Self::Neg => write!(f, "-"),
         }
     }
 }
