@@ -35,7 +35,7 @@ impl Parse for DeclareStatement {
 }
 
 fn parse_init_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, ParseError> {
-    if token_stream.try_consume(TokenValue::Assignment) {
+    if token_stream.try_consume(TokenValue::Assign) {
         let expr = Expr::parse(token_stream)?;
 
         return Ok(Some(expr));

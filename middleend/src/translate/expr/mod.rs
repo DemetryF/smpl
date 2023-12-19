@@ -29,7 +29,7 @@ impl Translate<Atom> for Expr {
             }
 
             Expr::Infix { lhs, op, rhs } => {
-                if op == BinOp::Assignment {
+                if op == BinOp::Assign {
                     return Err(Error::unexpected_assignment());
                 }
 

@@ -12,10 +12,10 @@ impl TokenCollector for SpecialCollector {
 impl SpecialCollector {
     pub fn double(code_stream: &mut CodeStream) -> Option<TokenValue> {
         let value = match code_stream.slice_from_current(2) {
-            ">=" => TokenValue::GreaterOrEqual,
-            "<=" => TokenValue::LessOrEqual,
-            "!=" => TokenValue::NotEqual,
-            "==" => TokenValue::Equal,
+            ">=" => TokenValue::Ge,
+            "<=" => TokenValue::Le,
+            "!=" => TokenValue::Ne,
+            "==" => TokenValue::Eq,
 
             _ => return None,
         };
@@ -33,11 +33,11 @@ impl SpecialCollector {
             '}' => TokenValue::RBrace,
             '(' => TokenValue::LParen,
             ')' => TokenValue::RParen,
-            '=' => TokenValue::Assignment,
+            '=' => TokenValue::Assign,
             '|' => TokenValue::Or,
             '&' => TokenValue::And,
-            '>' => TokenValue::Greater,
-            '<' => TokenValue::Less,
+            '>' => TokenValue::Gt,
+            '<' => TokenValue::Lt,
             '+' => TokenValue::Plus,
             '-' => TokenValue::Minus,
             '*' => TokenValue::Star,

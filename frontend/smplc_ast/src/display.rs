@@ -20,19 +20,19 @@ impl fmt::Display for Id {
 impl fmt::Display for BinOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Assignment => write!(f, "="),
+            Self::Assign => write!(f, "="),
             Self::Or => write!(f, "|"),
             Self::And => write!(f, "&"),
-            Self::NotEqual => write!(f, "!="),
-            Self::Equal => write!(f, "=="),
-            Self::GreaterOrEqual => write!(f, ">="),
-            Self::Greater => write!(f, ">"),
-            Self::LessOrEqual => write!(f, "<="),
-            Self::Less => write!(f, "<"),
-            Self::Addition => write!(f, "+"),
-            Self::Subtraction => write!(f, "-"),
-            Self::Multiplication => write!(f, "*"),
-            Self::Division => write!(f, "/"),
+            Self::Ne => write!(f, "!="),
+            Self::Eq => write!(f, "=="),
+            Self::Ge => write!(f, ">="),
+            Self::Gt => write!(f, ">"),
+            Self::Le => write!(f, "<="),
+            Self::Lt => write!(f, "<"),
+            Self::Add => write!(f, "+"),
+            Self::Sub => write!(f, "-"),
+            Self::Mul => write!(f, "*"),
+            Self::Div => write!(f, "/"),
         }
     }
 }

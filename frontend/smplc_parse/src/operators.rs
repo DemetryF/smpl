@@ -6,19 +6,19 @@ use crate::{TokenStream, TryParse};
 impl TryParse for BinOp {
     fn try_parse(token_stream: &mut TokenStream) -> Option<Self> {
         let op = match token_stream.current().value {
-            TokenValue::Assignment => Self::Assignment,
+            TokenValue::Assign => Self::Assign,
             TokenValue::Or => Self::Or,
             TokenValue::And => Self::And,
-            TokenValue::NotEqual => Self::NotEqual,
-            TokenValue::Equal => Self::Equal,
-            TokenValue::GreaterOrEqual => Self::GreaterOrEqual,
-            TokenValue::Greater => Self::Greater,
-            TokenValue::LessOrEqual => Self::LessOrEqual,
-            TokenValue::Less => Self::Less,
-            TokenValue::Plus => Self::Addition,
-            TokenValue::Minus => Self::Subtraction,
-            TokenValue::Star => Self::Multiplication,
-            TokenValue::Slash => Self::Division,
+            TokenValue::Ne => Self::Ne,
+            TokenValue::Eq => Self::Eq,
+            TokenValue::Ge => Self::Ge,
+            TokenValue::Gt => Self::Gt,
+            TokenValue::Le => Self::Le,
+            TokenValue::Lt => Self::Lt,
+            TokenValue::Plus => Self::Add,
+            TokenValue::Minus => Self::Sub,
+            TokenValue::Star => Self::Mul,
+            TokenValue::Slash => Self::Div,
 
             _ => return None,
         };
