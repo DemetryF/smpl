@@ -1,13 +1,7 @@
+use smplc_ast::{Expr, ExprStatement};
 use smplc_lexer::TokenValue;
 
-use crate::{
-    ast::{Collect, Expr},
-    error::ParseError,
-    token_stream::TokenStream,
-};
-
-#[derive(PartialEq, Debug)]
-pub struct ExprStatement(pub Expr);
+use crate::{ast::Collect, error::ParseError, token_stream::TokenStream};
 
 impl Collect for ExprStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {

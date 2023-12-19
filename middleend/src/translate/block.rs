@@ -1,4 +1,4 @@
-use frontend::ast::Block;
+use smplc_ast::Block;
 
 use crate::{Error, Translator};
 

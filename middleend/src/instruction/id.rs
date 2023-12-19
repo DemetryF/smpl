@@ -9,8 +9,8 @@ impl std::fmt::Display for Id {
     }
 }
 
-impl From<frontend::ast::Id> for Id {
-    fn from(value: frontend::ast::Id) -> Self {
+impl From<smplc_ast::Id> for Id {
+    fn from(value: smplc_ast::Id) -> Self {
         Self(value.id)
     }
 }

@@ -1,4 +1,4 @@
-use frontend::ast::ReturnStatement;
+use smplc_ast::ReturnStatement;
 
 use crate::{instruction::Return, translate::Translate, Error, Translator};
 

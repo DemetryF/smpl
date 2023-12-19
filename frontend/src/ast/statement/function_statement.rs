@@ -1,17 +1,7 @@
+use smplc_ast::{Block, FunctionStatement, Id};
 use smplc_lexer::TokenValue;
 
-use crate::{
-    ast::{Block, Collect, Id},
-    error::ParseError,
-    token_stream::TokenStream,
-};
-
-#[derive(PartialEq, Debug)]
-pub struct FunctionStatement {
-    pub id: Id,
-    pub args: Vec<Id>,
-    pub body: Block,
-}
+use crate::{ast::Collect, error::ParseError, token_stream::TokenStream};
 
 impl Collect for FunctionStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {

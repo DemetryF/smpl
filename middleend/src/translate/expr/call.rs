@@ -7,7 +7,7 @@ use crate::{
 };
 
 fn translate_call(
-    call: frontend::ast::Call,
+    call: smplc_ast::Call,
     translator: &mut Translator,
     result: Option<Id>,
 ) -> Result<(), Error> {
@@ -39,13 +39,13 @@ fn translate_call(
     Ok(())
 }
 
-impl Translate for frontend::ast::Call {
+impl Translate for smplc_ast::Call {
     fn translate(self, translator: &mut Translator) -> Result<(), Error> {
         translate_call(self, translator, None)
     }
 }
 
-impl Translate<Atom> for frontend::ast::Call {
+impl Translate<Atom> for smplc_ast::Call {
     fn translate(self, translator: &mut Translator) -> Result<Atom, Error> {
         let result = translator.create_temp_variable();
 

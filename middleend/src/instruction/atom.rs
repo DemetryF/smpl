@@ -1,4 +1,4 @@
-use frontend::ast::Literal;
+use smplc_ast::Literal;
 
 use super::Id;
 

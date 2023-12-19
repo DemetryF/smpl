@@ -1,34 +1,9 @@
-mod atom;
-mod call;
+use smplc_ast::{Atom, BinOp, Call, Expr, Id, UnOp};
+use smplc_lexer::{Token, TokenValue};
 
-use smplc_lexer::TokenValue;
-
+use super::Collect;
 use crate::error::ParseError;
-
-use crate::ast::{
-    id::Id,
-    operators::{BinOp, UnOp},
-    Collect,
-};
-
 use crate::TokenStream;
-
-pub use self::{atom::Atom, call::Call};
-
-#[derive(Debug, PartialEq)]
-pub enum Expr {
-    Prefix {
-        op: UnOp,
-        rhs: Box<Expr>,
-    },
-    Infix {
-        lhs: Box<Expr>,
-        op: BinOp,
-        rhs: Box<Expr>,
-    },
-    Call(Call),
-    Atom(Atom),
-}
 
 impl Collect for Expr {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
@@ -69,7 +44,7 @@ fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, ParseError> {
             let id = Id::collect(token_stream)?;
 
             if token_stream.check(TokenValue::LParen) {
-                Call::collect(token_stream, id)?
+                collect_call(token_stream, id)?
             } else {
                 Expr::Atom(Atom::Id(id))
             }
@@ -107,4 +82,46 @@ fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, ParseError> {
     };
 
     Ok(fact)
+}
+
+pub fn collect_call(token_stream: &mut TokenStream, id: Id) -> Result<Expr, ParseError> {
+    let args = collect_call_args(token_stream)?;
+
+    Ok(Expr::Call(Call { id, args }))
+}
+
+fn collect_call_args(token_stream: &mut TokenStream) -> Result<Vec<Expr>, ParseError> {
+    let mut args = Vec::new();
+
+    token_stream.consume(TokenValue::LParen)?;
+
+    if token_stream.try_consume(TokenValue::RParen) {
+        return Ok(args);
+    }
+
+    args.push(Expr::collect(token_stream)?);
+    while token_stream.try_consume(TokenValue::Comma) {
+        args.push(Expr::collect(token_stream)?);
+    }
+
+    token_stream.consume(TokenValue::RParen)?;
+
+    Ok(args)
+}
+
+impl Collect for Id {
+    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+        match &token_stream.current().value {
+            TokenValue::Id(_) => {
+                let Token { value, pos } = token_stream.next();
+                let TokenValue::Id(id) = value else {
+                    panic!("kaput");
+                };
+
+                Ok(Self::new(id, pos))
+            }
+
+            _ => Err(token_stream.unexpected_token()),
+        }
+    }
 }

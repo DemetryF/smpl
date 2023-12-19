@@ -1,4 +1,4 @@
-use frontend::ast::FunctionStatement;
+use smplc_ast::FunctionStatement;
 
 use crate::{code::CodeFunction, scopes::Function, translate::Translate, Error, Translator};
 

@@ -2,8 +2,8 @@ pub use code::{Code, CodeFunction};
 pub use error::Error;
 pub use instruction::*;
 
-use frontend::ast::{Pos, Statement};
 use scopes::Function;
+use smplc_ast::{Pos, Statement};
 use translator::Translator;
 
 mod code;
@@ -16,7 +16,7 @@ mod translator;
 pub fn translate(stmts: Vec<Statement>) -> Result<Code, Vec<Error>> {
     let mut translator = Translator::default();
 
-    let print_id = frontend::ast::Id::new("print".into(), Pos::default());
+    let print_id = smplc_ast::Id::new("print".into(), Pos::default());
 
     translator
         .scopes

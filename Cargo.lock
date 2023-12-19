@@ -84,6 +84,7 @@ dependencies = [
  "colored",
  "frontend",
  "middleend",
+ "smplc_ast",
  "smplc_lexer",
 ]
 
@@ -203,6 +204,7 @@ name = "frontend"
 version = "0.1.0"
 dependencies = [
  "derive_more",
+ "smplc_ast",
  "smplc_lexer",
 ]
 
@@ -284,6 +286,7 @@ dependencies = [
  "derive_more",
  "frontend",
  "macros",
+ "smplc_ast",
 ]
 
 [[package]]
@@ -356,6 +359,13 @@ name = "semver"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
+
+[[package]]
+name = "smplc_ast"
+version = "0.1.0"
+dependencies = [
+ "smplc_lexer",
+]
 
 [[package]]
 name = "smplc_lexer"

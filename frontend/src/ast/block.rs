@@ -1,13 +1,9 @@
+use smplc_ast::{Block, Statement};
 use smplc_lexer::TokenValue;
 
-use crate::{ast::Statement, error::ParseError, TokenStream};
+use crate::{error::ParseError, TokenStream};
 
 use super::Collect;
-
-#[derive(PartialEq, Debug)]
-pub struct Block {
-    pub stmts: Vec<Statement>,
-}
 
 impl Collect for Block {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {

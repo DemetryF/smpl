@@ -1,4 +1,4 @@
-use frontend::ast::Pos;
+use smplc_ast::Pos;
 
 use crate::instruction::Id;
 
