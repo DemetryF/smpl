@@ -1,5 +1,5 @@
 use smplc_ast::*;
-use smplc_lexer::{lex, Literal, Pos};
+use smplc_lexer::lex;
 
 use crate::{parse, Parse, TokenStream};
 

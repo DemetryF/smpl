@@ -353,15 +353,13 @@ checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
 [[package]]
 name = "smplc_ast"
 version = "0.1.0"
-dependencies = [
- "smplc_lexer",
-]
 
 [[package]]
 name = "smplc_lexer"
 version = "0.1.0"
 dependencies = [
  "parse_int",
+ "smplc_ast",
 ]
 
 [[package]]

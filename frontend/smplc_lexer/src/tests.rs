@@ -1,4 +1,6 @@
-use super::{Lexer, Literal, TokenValue};
+use smplc_ast::Literal;
+
+use super::{Lexer, TokenValue};
 
 macro_rules! lexer_test {
     (

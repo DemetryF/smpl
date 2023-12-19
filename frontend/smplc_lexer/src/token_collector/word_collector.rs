@@ -1,4 +1,6 @@
-use crate::{CodeStream, Literal, TokenValue};
+use smplc_ast::Literal;
+
+use crate::{CodeStream, TokenValue};
 
 use super::TokenCollector;
 

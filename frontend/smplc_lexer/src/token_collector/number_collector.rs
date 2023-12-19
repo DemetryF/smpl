@@ -1,6 +1,7 @@
 use parse_int::parse;
+use smplc_ast::Literal;
 
-use crate::{CodeStream, Literal, TokenValue};
+use crate::{CodeStream, TokenValue};
 
 use super::TokenCollector;
 

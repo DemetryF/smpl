@@ -1,4 +1,4 @@
-use super::Pos;
+use smplc_ast::Pos;
 
 pub struct CodeStream<'code> {
     code: &'code str,

@@ -2,7 +2,8 @@ use std::fmt::Display;
 
 use derive_more::Constructor;
 
-use smplc_lexer::{Pos, Token, TokenValue};
+use smplc_ast::Pos;
+use smplc_lexer::{Token, TokenValue};
 
 #[derive(Debug, Constructor)]
 pub struct ParseError {
