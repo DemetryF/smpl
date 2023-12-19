@@ -1,5 +1,3 @@
-use smplc_lexer::{Token, TokenValue};
-
 #[derive(Debug, PartialEq, Clone)]
 pub enum BinOp {
     Assignment,
@@ -15,31 +13,6 @@ pub enum BinOp {
     Subtraction,
     Multiplication,
     Division,
-}
-
-impl TryFrom<&Token> for BinOp {
-    type Error = ();
-    fn try_from(token: &Token) -> Result<Self, Self::Error> {
-        let op = match token.value {
-            TokenValue::Assignment => Self::Assignment,
-            TokenValue::Or => Self::Or,
-            TokenValue::And => Self::And,
-            TokenValue::NotEqual => Self::NotEqual,
-            TokenValue::Equal => Self::Equal,
-            TokenValue::GreaterOrEqual => Self::GreaterOrEqual,
-            TokenValue::Greater => Self::Greater,
-            TokenValue::LessOrEqual => Self::LessOrEqual,
-            TokenValue::Less => Self::Less,
-            TokenValue::Plus => Self::Addition,
-            TokenValue::Minus => Self::Subtraction,
-            TokenValue::Star => Self::Multiplication,
-            TokenValue::Slash => Self::Division,
-
-            _ => return Err(()),
-        };
-
-        Ok(op)
-    }
 }
 
 impl BinOp {
@@ -66,18 +39,6 @@ impl BinOp {
 pub enum UnOp {
     Not,
     Neg,
-}
-
-impl TryFrom<&Token> for UnOp {
-    type Error = ();
-    fn try_from(token: &Token) -> Result<Self, Self::Error> {
-        let op = match token.value {
-            TokenValue::Not => Self::Not,
-            TokenValue::Minus => Self::Neg,
-            _ => return Err(()),
-        };
-        Ok(op)
-    }
 }
 
 impl UnOp {

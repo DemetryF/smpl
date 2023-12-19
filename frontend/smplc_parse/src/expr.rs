@@ -3,7 +3,7 @@ use smplc_lexer::{Token, TokenValue};
 
 use super::Parse;
 use crate::error::ParseError;
-use crate::TokenStream;
+use crate::{TokenStream, TryParse};
 
 impl Parse for Expr {
     fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
@@ -14,7 +14,7 @@ impl Parse for Expr {
 fn expr_bp(token_stream: &mut TokenStream, min_bp: usize) -> Result<Expr, ParseError> {
     let mut lhs = parse_fact(token_stream)?;
 
-    while let Ok(op) = BinOp::try_from(token_stream.current()) {
+    while let Some(op) = BinOp::try_parse(token_stream) {
         let (l_bp, r_bp) = op.power();
 
         if l_bp < min_bp {
@@ -65,7 +65,7 @@ fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, ParseError> {
         }
 
         _ => {
-            if let Ok(op) = UnOp::try_from(token_stream.current()) {
+            if let Some(op) = UnOp::try_parse(token_stream) {
                 token_stream.next();
 
                 let (_, r_bp) = op.power();
