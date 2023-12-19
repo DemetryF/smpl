@@ -12,26 +12,26 @@ impl Compile for Binary {
         let result_ptr = env.add(&self.result.0);
 
         let instruction = match self.op {
-            BinOp::Addition => "addss",
-            BinOp::Subtraction => "subss",
-            BinOp::Multiplication => "mulss",
-            BinOp::Division => "divss",
+            BinOp::Add => "addss",
+            BinOp::Sub => "subss",
+            BinOp::Mul => "mulss",
+            BinOp::Div => "divss",
 
             BinOp::And => "and",
             BinOp::Or => "or",
 
-            BinOp::Equal => "sete",
-            BinOp::NotEqual => "setne",
-            BinOp::GreaterOrEqual => "setae",
-            BinOp::Greater => "seta",
-            BinOp::LessOrEqual => "setbe",
-            BinOp::Less => "setb",
+            BinOp::Eq => "sete",
+            BinOp::Ne => "setne",
+            BinOp::Ge => "setae",
+            BinOp::Gt => "seta",
+            BinOp::Le => "setbe",
+            BinOp::Lt => "setb",
 
             _ => unreachable!(),
         };
 
         match self.op {
-            BinOp::Addition | BinOp::Division | BinOp::Multiplication | BinOp::Subtraction => {
+            BinOp::Add | BinOp::Div | BinOp::Mul | BinOp::Sub => {
                 let (lhs, rhs) = match (self.lhs, self.rhs) {
                     (Atom::Id(lhs), Atom::Id(rhs)) => {
                         let lhs = env.get(&lhs);
@@ -56,10 +56,10 @@ impl Compile for Binary {
 
                     (Atom::Number(lhs), Atom::Number(rhs)) => {
                         let result = match self.op {
-                            BinOp::Addition => lhs + rhs,
-                            BinOp::Subtraction => lhs - rhs,
-                            BinOp::Multiplication => lhs * rhs,
-                            BinOp::Division => lhs / rhs,
+                            BinOp::Add => lhs + rhs,
+                            BinOp::Sub => lhs - rhs,
+                            BinOp::Mul => lhs * rhs,
+                            BinOp::Div => lhs / rhs,
 
                             _ => unreachable!(),
                         };
@@ -153,12 +153,7 @@ impl Compile for Binary {
                 }
             }
 
-            BinOp::NotEqual
-            | BinOp::Equal
-            | BinOp::GreaterOrEqual
-            | BinOp::Greater
-            | BinOp::LessOrEqual
-            | BinOp::Less => {
+            BinOp::Ne | BinOp::Eq | BinOp::Ge | BinOp::Gt | BinOp::Le | BinOp::Lt => {
                 let lhs = match self.lhs {
                     Atom::Id(id) => env.get(&id),
                     Atom::Number(num) => builder.float(num),
@@ -179,7 +174,7 @@ impl Compile for Binary {
                 writeln!(builder, "movss {result_ptr}, xmm0")
             }
 
-            BinOp::Assignment => unreachable!(),
+            BinOp::Assign => unreachable!(),
         }
     }
 }

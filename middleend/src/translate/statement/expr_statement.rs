@@ -7,7 +7,7 @@ impl Translate for ExprStatement {
         match self.0 {
             smplc_ast::Expr::Infix {
                 lhs,
-                op: BinOp::Assignment,
+                op: BinOp::Assign,
                 rhs,
             } => {
                 let Expr::Atom(smplc_ast::Atom::Id(id)) = lhs.as_ref() else {
