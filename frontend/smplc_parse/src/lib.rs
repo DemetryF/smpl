@@ -3,6 +3,7 @@ pub mod token_stream;
 mod block;
 mod error;
 mod expr;
+mod operators;
 mod statement;
 #[cfg(test)]
 mod tests;
@@ -15,6 +16,10 @@ pub use token_stream::TokenStream;
 
 pub trait Parse: Sized {
     fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError>;
+}
+
+pub trait TryParse: Sized {
+    fn try_parse(token_stream: &mut TokenStream) -> Option<Self>;
 }
 
 pub fn parse(mut token_stream: TokenStream) -> Result<Vec<Statement>, ParseError> {
