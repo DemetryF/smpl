@@ -82,10 +82,10 @@ dependencies = [
  "backend",
  "clap",
  "colored",
- "frontend",
  "middleend",
  "smplc_ast",
  "smplc_lexer",
+ "smplc_parse",
 ]
 
 [[package]]
@@ -200,15 +200,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "frontend"
-version = "0.1.0"
-dependencies = [
- "derive_more",
- "smplc_ast",
- "smplc_lexer",
-]
-
-[[package]]
 name = "heck"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -284,7 +275,6 @@ name = "middleend"
 version = "0.1.0"
 dependencies = [
  "derive_more",
- "frontend",
  "macros",
  "smplc_ast",
 ]
@@ -372,6 +362,15 @@ name = "smplc_lexer"
 version = "0.1.0"
 dependencies = [
  "parse_int",
+]
+
+[[package]]
+name = "smplc_parse"
+version = "0.1.0"
+dependencies = [
+ "derive_more",
+ "smplc_ast",
+ "smplc_lexer",
 ]
 
 [[package]]

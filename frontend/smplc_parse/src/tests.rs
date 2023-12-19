@@ -1,7 +1,7 @@
 use smplc_ast::*;
 use smplc_lexer::{lex, Literal, Pos};
 
-use crate::{ast::Collect, parse, TokenStream};
+use crate::{parse, Collect, TokenStream};
 
 macro_rules! parser_test {
     ($code:expr; $stmt:expr) => {
