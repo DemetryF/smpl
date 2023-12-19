@@ -42,7 +42,7 @@ impl Display for ParseErrorKind {
         match self {
             ParseErrorKind::UnexpectedToken(token) => write!(f, "unexpected token \"{token}\""),
             ParseErrorKind::ReturnOutsideFunction => write!(f, "using return outside the function"),
-            ParseErrorKind::FunctionInBlock => todo!(),
+            ParseErrorKind::FunctionInBlock => write!(f, "functions are not allowed in blocks"),
         }
     }
 }
