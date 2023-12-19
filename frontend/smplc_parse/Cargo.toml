@@ -1,5 +1,5 @@
 [package]
-name = "frontend"
+name = "smplc_parse"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 derive_more = "0.99.17"
 
-smplc_lexer = { path = "./smplc_lexer" }
-smplc_ast = { path = "./smplc_ast" }
+smplc_lexer = { path = "../smplc_lexer" }
+smplc_ast = { path = "../smplc_ast" }

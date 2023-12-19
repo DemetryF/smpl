@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-frontend = { path = "../frontend" }
+smplc_parse = { path = "../frontend/smplc_parse" }
 smplc_lexer = { path = "../frontend/smplc_lexer" }
 smplc_ast = { path = "../frontend/smplc_ast" }
 middleend = { path = "../middleend" }

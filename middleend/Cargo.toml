@@ -6,6 +6,5 @@ edition = "2021"
 [dependencies]
 derive_more = "0.99.17"
 
-frontend = { path = "../frontend" }
-macros = { path = "./macros" }
 smplc_ast = { path = "../frontend/smplc_ast" }
+macros = { path = "./macros" }

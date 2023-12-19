@@ -5,9 +5,9 @@ use std::{fs, process::Command};
 use clap::Parser;
 
 use backend::compile;
-use frontend::{parse, token_stream::TokenStream};
 use middleend::translate;
 use smplc_lexer::lex;
+use smplc_parse::{parse, TokenStream};
 
 use errors::output_error;
 
