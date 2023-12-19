@@ -1,12 +1,12 @@
 use smplc_ast::{Atom, BinOp, Call, Expr, Id, UnOp};
 use smplc_lexer::{Token, TokenValue};
 
-use super::Collect;
+use super::Parse;
 use crate::error::ParseError;
 use crate::TokenStream;
 
-impl Collect for Expr {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl Parse for Expr {
+    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         expr_bp(token_stream, 0)
     }
 }
@@ -41,10 +41,10 @@ fn expr_bp(token_stream: &mut TokenStream, min_bp: usize) -> Result<Expr, ParseE
 fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, ParseError> {
     let fact = match token_stream.current().value {
         TokenValue::Id(_) => {
-            let id = Id::collect(token_stream)?;
+            let id = Id::parse(token_stream)?;
 
             if token_stream.check(TokenValue::LParen) {
-                collect_call(token_stream, id)?
+                parse_call(token_stream, id)?
             } else {
                 Expr::Atom(Atom::Id(id))
             }
@@ -52,7 +52,7 @@ fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, ParseError> {
 
         TokenValue::LParen => {
             token_stream.consume(TokenValue::LParen)?;
-            let expr = Expr::collect(token_stream)?;
+            let expr = Expr::parse(token_stream)?;
             token_stream.consume(TokenValue::RParen)?;
 
             expr
@@ -84,13 +84,13 @@ fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, ParseError> {
     Ok(fact)
 }
 
-pub fn collect_call(token_stream: &mut TokenStream, id: Id) -> Result<Expr, ParseError> {
-    let args = collect_call_args(token_stream)?;
+pub fn parse_call(token_stream: &mut TokenStream, id: Id) -> Result<Expr, ParseError> {
+    let args = parse_call_args(token_stream)?;
 
     Ok(Expr::Call(Call { id, args }))
 }
 
-fn collect_call_args(token_stream: &mut TokenStream) -> Result<Vec<Expr>, ParseError> {
+fn parse_call_args(token_stream: &mut TokenStream) -> Result<Vec<Expr>, ParseError> {
     let mut args = Vec::new();
 
     token_stream.consume(TokenValue::LParen)?;
@@ -99,9 +99,9 @@ fn collect_call_args(token_stream: &mut TokenStream) -> Result<Vec<Expr>, ParseE
         return Ok(args);
     }
 
-    args.push(Expr::collect(token_stream)?);
+    args.push(Expr::parse(token_stream)?);
     while token_stream.try_consume(TokenValue::Comma) {
-        args.push(Expr::collect(token_stream)?);
+        args.push(Expr::parse(token_stream)?);
     }
 
     token_stream.consume(TokenValue::RParen)?;
@@ -109,8 +109,8 @@ fn collect_call_args(token_stream: &mut TokenStream) -> Result<Vec<Expr>, ParseE
     Ok(args)
 }
 
-impl Collect for Id {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl Parse for Id {
+    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         match &token_stream.current().value {
             TokenValue::Id(_) => {
                 let Token { value, pos } = token_stream.next();

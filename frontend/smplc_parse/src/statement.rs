@@ -3,29 +3,29 @@ use smplc_lexer::TokenValue;
 
 use crate::{error::ParseError, TokenStream};
 
-use super::Collect;
+use super::Parse;
 
-impl Collect for Statement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl Parse for Statement {
+    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         let stmt = match token_stream.current().value {
-            TokenValue::Let => Self::Declare(DeclareStatement::collect(token_stream)?),
-            TokenValue::Fn => Self::Function(FunctionStatement::collect(token_stream)?),
-            TokenValue::If => Self::If(IfStatement::collect(token_stream)?),
-            TokenValue::Return => Self::Return(ReturnStatement::collect(token_stream)?),
-            TokenValue::While => Self::While(WhileStatement::collect(token_stream)?),
+            TokenValue::Let => Self::Declare(DeclareStatement::parse(token_stream)?),
+            TokenValue::Fn => Self::Function(FunctionStatement::parse(token_stream)?),
+            TokenValue::If => Self::If(IfStatement::parse(token_stream)?),
+            TokenValue::Return => Self::Return(ReturnStatement::parse(token_stream)?),
+            TokenValue::While => Self::While(WhileStatement::parse(token_stream)?),
 
-            _ => Self::Expr(ExprStatement::collect(token_stream)?),
+            _ => Self::Expr(ExprStatement::parse(token_stream)?),
         };
 
         Ok(stmt)
     }
 }
 
-impl Collect for DeclareStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl Parse for DeclareStatement {
+    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         token_stream.consume(TokenValue::Let)?;
 
-        let id = Id::collect(token_stream)?;
+        let id = Id::parse(token_stream)?;
         let init_expr = parse_init_expr(token_stream)?;
 
         token_stream.consume(TokenValue::Semicolon)?;
@@ -36,7 +36,7 @@ impl Collect for DeclareStatement {
 
 fn parse_init_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, ParseError> {
     if token_stream.try_consume(TokenValue::Assignment) {
-        let expr = Expr::collect(token_stream)?;
+        let expr = Expr::parse(token_stream)?;
 
         return Ok(Some(expr));
     }
@@ -44,24 +44,24 @@ fn parse_init_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, Parse
     Ok(None)
 }
 
-impl Collect for ExprStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
-        let expr = Expr::collect(token_stream)?;
+impl Parse for ExprStatement {
+    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+        let expr = Expr::parse(token_stream)?;
         token_stream.consume(TokenValue::Semicolon)?;
 
         Ok(ExprStatement(expr))
     }
 }
 
-impl Collect for FunctionStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl Parse for FunctionStatement {
+    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         token_stream.consume(TokenValue::Fn)?;
 
-        let id = Id::collect(token_stream)?;
+        let id = Id::parse(token_stream)?;
         let args = parse_args(token_stream)?;
 
         token_stream.in_function = true;
-        let body = Block::collect(token_stream)?;
+        let body = Block::parse(token_stream)?;
         token_stream.in_function = false;
 
         Ok(FunctionStatement { id, args, body })
@@ -77,10 +77,10 @@ fn parse_args(token_stream: &mut TokenStream) -> Result<Vec<Id>, ParseError> {
         return Ok(args);
     }
 
-    args.push(Id::collect(token_stream)?);
+    args.push(Id::parse(token_stream)?);
 
     while token_stream.try_consume(TokenValue::Comma) {
-        args.push(Id::collect(token_stream)?);
+        args.push(Id::parse(token_stream)?);
     }
 
     token_stream.consume(TokenValue::RParen)?;
@@ -88,12 +88,12 @@ fn parse_args(token_stream: &mut TokenStream) -> Result<Vec<Id>, ParseError> {
     Ok(args)
 }
 
-impl Collect for IfStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl Parse for IfStatement {
+    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         token_stream.consume(TokenValue::If)?;
 
-        let condition = Expr::collect(token_stream)?;
-        let then_body = Block::collect(token_stream)?;
+        let condition = Expr::parse(token_stream)?;
+        let then_body = Block::parse(token_stream)?;
         let else_body = parse_else_body(token_stream)?;
 
         Ok(IfStatement {
@@ -106,7 +106,7 @@ impl Collect for IfStatement {
 
 fn parse_else_body(token_stream: &mut TokenStream) -> Result<Option<Block>, ParseError> {
     let else_body = if token_stream.try_consume(TokenValue::Else) {
-        let block = Block::collect(token_stream)?;
+        let block = Block::parse(token_stream)?;
 
         Some(block)
     } else {
@@ -116,8 +116,8 @@ fn parse_else_body(token_stream: &mut TokenStream) -> Result<Option<Block>, Pars
     Ok(else_body)
 }
 
-impl Collect for ReturnStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl Parse for ReturnStatement {
+    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         check_in_function(token_stream)?;
 
         token_stream.consume(TokenValue::Return)?;
@@ -132,7 +132,7 @@ fn return_expr(token_stream: &mut TokenStream) -> Result<Option<Expr>, ParseErro
     let maybe_expr = if token_stream.check(TokenValue::Semicolon) {
         None
     } else {
-        let expr = Expr::collect(token_stream)?;
+        let expr = Expr::parse(token_stream)?;
 
         Some(expr)
     };
@@ -150,12 +150,12 @@ fn check_in_function(token_stream: &TokenStream) -> Result<(), ParseError> {
     Ok(())
 }
 
-impl Collect for WhileStatement {
-    fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl Parse for WhileStatement {
+    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
         token_stream.consume(TokenValue::While)?;
 
-        let condition = Expr::collect(token_stream)?;
-        let body = Block::collect(token_stream)?;
+        let condition = Expr::parse(token_stream)?;
+        let body = Block::parse(token_stream)?;
 
         Ok(WhileStatement { condition, body })
     }
