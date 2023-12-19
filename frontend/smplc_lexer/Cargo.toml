@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 parse_int = "0.6.0"
+
+smplc_ast = { path = "../smplc_ast" }

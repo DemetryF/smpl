@@ -1,6 +1,4 @@
-use smplc_lexer::{Literal, Pos};
-
-use crate::{BinOp, UnOp};
+use crate::{BinOp, Pos, UnOp};
 
 #[derive(Debug, PartialEq)]
 pub enum Expr {
@@ -39,4 +37,10 @@ impl Id {
     pub fn new(id: String, pos: Pos) -> Self {
         Self { id, pos }
     }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Literal {
+    Number(f32),
+    Bool(bool),
 }

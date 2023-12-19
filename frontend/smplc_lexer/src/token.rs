@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use super::Pos;
+use smplc_ast::{Literal, Pos};
 
 #[derive(Clone, Debug)]
 pub struct Token {
@@ -45,21 +45,6 @@ pub enum TokenValue {
     Id(String),
 
     EOF,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Literal {
-    Number(f32),
-    Bool(bool),
-}
-
-impl std::fmt::Display for Literal {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Literal::Number(num) => write!(f, "{num}"),
-            Literal::Bool(bool) => write!(f, "{bool}"),
-        }
-    }
 }
 
 impl Display for TokenValue {

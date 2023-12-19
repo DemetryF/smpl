@@ -1,6 +1,6 @@
 use std::fmt;
 
-use super::Pos;
+use smplc_ast::Pos;
 
 #[derive(Debug)]
 pub struct LexError {

@@ -1,6 +1,5 @@
 mod code_stream;
 mod comment_handler;
-mod pos;
 mod token;
 mod token_collector;
 
@@ -13,8 +12,7 @@ use lexer::Lexer;
 
 pub use self::{
     error::LexError,
-    pos::Pos,
-    token::{Literal, Token, TokenValue},
+    token::{Token, TokenValue},
 };
 
 use self::code_stream::CodeStream;

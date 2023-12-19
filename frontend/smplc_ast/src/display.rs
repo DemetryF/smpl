@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{Atom, BinOp, Id, UnOp};
+use crate::{Atom, BinOp, Id, Literal, UnOp};
 
 impl fmt::Display for Atom {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -42,6 +42,15 @@ impl fmt::Display for UnOp {
         match self {
             Self::Not => write!(f, "!"),
             Self::Neg => write!(f, "-"),
+        }
+    }
+}
+
+impl std::fmt::Display for Literal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Literal::Number(num) => write!(f, "{num}"),
+            Literal::Bool(bool) => write!(f, "{bool}"),
         }
     }
 }

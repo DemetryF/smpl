@@ -1,8 +1,10 @@
+use smplc_ast::Pos;
+
 use crate::{
     code_stream::CodeStream,
     comment_handler::CommentsHandler,
     token_collector::{NumberCollector, SpecialCollector, TokenCollector, WordCollector},
-    LexError, Pos, Token, TokenValue,
+    LexError, Token, TokenValue,
 };
 
 pub struct Lexer<'code> {

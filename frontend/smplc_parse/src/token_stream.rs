@@ -1,4 +1,5 @@
-use smplc_lexer::{Pos, Token, TokenValue};
+use smplc_ast::Pos;
+use smplc_lexer::{Token, TokenValue};
 
 use crate::error::ParseError;
 
