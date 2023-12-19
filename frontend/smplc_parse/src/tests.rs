@@ -1,7 +1,7 @@
 use smplc_ast::*;
 use smplc_lexer::{lex, Literal, Pos};
 
-use crate::{parse, Collect, TokenStream};
+use crate::{parse, Parse, TokenStream};
 
 macro_rules! parser_test {
     ($code:expr; $stmt:expr) => {
@@ -15,7 +15,7 @@ macro_rules! parser_test {
 macro_rules! expr_test {
     ($code:expr; $expr:expr) => {{
         let mut token_stream = TokenStream::new(lex($code).unwrap());
-        assert_eq!(Expr::collect(&mut token_stream).unwrap(), $expr);
+        assert_eq!(Expr::parse(&mut token_stream).unwrap(), $expr);
     }};
 }
 
