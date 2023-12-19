@@ -1,4 +1,4 @@
-use frontend::ast::WhileStatement;
+use smplc_ast::WhileStatement;
 
 use crate::{
     instruction::{Goto, Label, Unless},

@@ -2,7 +2,7 @@ use std::fmt::Display;
 
 use derive_more::Constructor;
 
-use frontend::ast::{Id, Pos};
+use smplc_ast::{Id, Pos};
 
 use crate::scopes::{Function, Variable};
 

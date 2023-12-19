@@ -1,16 +1,7 @@
+use smplc_ast::{DeclareStatement, Expr, Id};
 use smplc_lexer::TokenValue;
 
-use crate::{
-    ast::{Collect, Expr, Id},
-    error::ParseError,
-    TokenStream,
-};
-
-#[derive(Debug, PartialEq)]
-pub struct DeclareStatement {
-    pub id: Id,
-    pub init_expr: Option<Expr>,
-}
+use crate::{ast::Collect, error::ParseError, TokenStream};
 
 impl Collect for DeclareStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {

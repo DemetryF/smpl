@@ -5,7 +5,7 @@ mod if_statement;
 mod return_statement;
 mod while_statement;
 
-use frontend::ast::Statement;
+use smplc_ast::Statement;
 
 use crate::{Error, Translator};
 

@@ -1,7 +1,7 @@
 use std::fmt;
 
 use colored::Colorize;
-use frontend::ast::Pos;
+use smplc_ast::Pos;
 
 struct Error<'source, K: fmt::Display> {
     pub filename: &'source str,

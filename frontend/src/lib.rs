@@ -5,10 +5,12 @@ mod error;
 #[cfg(test)]
 mod tests;
 
+use ast::Collect;
+use smplc_ast::Statement;
+
 pub use error::ParseError;
 pub use smplc_lexer::LexError;
 
-use ast::{Collect, Statement};
 use token_stream::TokenStream;
 
 pub fn parse(mut token_stream: TokenStream) -> Result<Vec<Statement>, ParseError> {

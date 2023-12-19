@@ -1,12 +1,7 @@
-use crate::{
-    ast::{
-        Atom, Block, Call, DeclareStatement, Expr, ExprStatement, FunctionStatement, Id,
-        IfStatement, ReturnStatement, Statement, WhileStatement,
-    },
-    parse, Collect, TokenStream,
-};
-
+use smplc_ast::*;
 use smplc_lexer::{lex, Literal, Pos};
+
+use crate::{ast::Collect, parse, TokenStream};
 
 macro_rules! parser_test {
     ($code:expr; $stmt:expr) => {

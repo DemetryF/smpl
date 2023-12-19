@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 frontend = { path = "../frontend" }
 smplc_lexer = { path = "../frontend/smplc_lexer" }
+smplc_ast = { path = "../frontend/smplc_ast" }
 middleend = { path = "../middleend" }
 backend = { path = "../backend" }
 

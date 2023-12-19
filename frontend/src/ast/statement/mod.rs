@@ -5,27 +5,15 @@ pub mod if_statement;
 pub mod return_statement;
 pub mod while_statement;
 
-use smplc_lexer::TokenValue;
-
-pub use self::{
-    declare_statement::DeclareStatement, expr_statement::ExprStatement,
-    function_statement::FunctionStatement, if_statement::IfStatement,
-    return_statement::ReturnStatement, while_statement::WhileStatement,
+use smplc_ast::{
+    DeclareStatement, ExprStatement, FunctionStatement, IfStatement, ReturnStatement, Statement,
+    WhileStatement,
 };
+use smplc_lexer::TokenValue;
 
 use crate::{error::ParseError, TokenStream};
 
 use super::Collect;
-
-#[derive(Debug, PartialEq)]
-pub enum Statement {
-    Declare(DeclareStatement),
-    Function(FunctionStatement),
-    If(IfStatement),
-    While(WhileStatement),
-    Expr(ExprStatement),
-    Return(ReturnStatement),
-}
 
 impl Collect for Statement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {

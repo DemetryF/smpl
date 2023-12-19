@@ -1,7 +1,7 @@
 mod atom;
 mod call;
 
-use frontend::ast::{BinOp, Expr};
+use smplc_ast::{BinOp, Expr};
 
 use crate::{
     error::Error,

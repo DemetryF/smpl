@@ -10,7 +10,7 @@ pub struct Scope {
 }
 
 impl Scope {
-    pub fn get(&self, id: &frontend::ast::Id) -> Result<Variable, Error> {
+    pub fn get(&self, id: &smplc_ast::Id) -> Result<Variable, Error> {
         match self.variables.get(&id.id) {
             Some(variable) => Ok(variable.clone()),
 

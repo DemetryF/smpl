@@ -1,4 +1,4 @@
-use frontend::ast::DeclareStatement;
+use smplc_ast::DeclareStatement;
 
 use crate::{instruction::*, Error};
 use crate::{translate::Translate, Translator};

@@ -1,16 +1,7 @@
+use smplc_ast::{Block, Expr, WhileStatement};
 use smplc_lexer::TokenValue;
 
-use crate::{
-    ast::{Block, Collect, Expr},
-    error::ParseError,
-    TokenStream,
-};
-
-#[derive(PartialEq, Debug)]
-pub struct WhileStatement {
-    pub condition: Expr,
-    pub body: Block,
-}
+use crate::{ast::Collect, error::ParseError, TokenStream};
 
 impl Collect for WhileStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {

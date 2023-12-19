@@ -1,4 +1,4 @@
-use frontend::ast::IfStatement;
+use smplc_ast::IfStatement;
 
 use crate::{
     instruction::{Goto, Label, Unless},

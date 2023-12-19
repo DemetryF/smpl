@@ -6,7 +6,7 @@ mod label;
 use derive_more::Constructor;
 use macros::{display, EnumWrap};
 
-pub use frontend::ast::{BinOp, UnOp};
+pub use smplc_ast::{BinOp, UnOp};
 
 pub use self::{atom::Atom, id::Id, label::Label};
 

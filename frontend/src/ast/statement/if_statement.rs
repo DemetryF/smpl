@@ -1,17 +1,7 @@
+use smplc_ast::{Block, Expr, IfStatement};
 use smplc_lexer::TokenValue;
 
-use crate::{
-    ast::{Block, Collect, Expr},
-    error::ParseError,
-    token_stream::TokenStream,
-};
-
-#[derive(PartialEq, Debug)]
-pub struct IfStatement {
-    pub condition: Expr,
-    pub then_body: Block,
-    pub else_body: Option<Block>,
-}
+use crate::{ast::Collect, error::ParseError, token_stream::TokenStream};
 
 impl Collect for IfStatement {
     fn collect(token_stream: &mut TokenStream) -> Result<Self, ParseError> {

@@ -35,7 +35,7 @@ impl Scopes {
         self.stack.pop();
     }
 
-    pub fn add_variable(&mut self, id: frontend::ast::Id) -> Result<Id, Error> {
+    pub fn add_variable(&mut self, id: smplc_ast::Id) -> Result<Id, Error> {
         if let Ok(variable) = self.current().get(&id) {
             let error = Error::redeclaring_variable(id, variable);
 
@@ -62,7 +62,7 @@ impl Scopes {
         variables_count
     }
 
-    pub fn get_variable(&self, id: frontend::ast::Id) -> Result<Variable, Error> {
+    pub fn get_variable(&self, id: smplc_ast::Id) -> Result<Variable, Error> {
         for i in self.stack.iter().rev().copied() {
             let env = &self.envs[i];
 
@@ -74,7 +74,7 @@ impl Scopes {
         Err(Error::non_existent_variable(id))
     }
 
-    pub fn get_function(&self, id: &frontend::ast::Id) -> Result<&Function, Error> {
+    pub fn get_function(&self, id: &smplc_ast::Id) -> Result<&Function, Error> {
         match self.functions.get(&id.id) {
             Some(function) => Ok(function),
             None => {
@@ -85,11 +85,7 @@ impl Scopes {
         }
     }
 
-    pub fn add_function(
-        &mut self,
-        id: &frontend::ast::Id,
-        function: Function,
-    ) -> Result<(), Error> {
+    pub fn add_function(&mut self, id: &smplc_ast::Id, function: Function) -> Result<(), Error> {
         if self.get_function(id).is_ok() {
             let error = Error::non_existent_function(id.clone());
 
