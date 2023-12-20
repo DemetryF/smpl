@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::{Atom, BinOp, Id, Literal, UnOp};
 
-impl fmt::Display for Atom {
+impl fmt::Display for Atom<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Atom::Id(id) => write!(f, "{id}"),
@@ -11,7 +11,7 @@ impl fmt::Display for Atom {
     }
 }
 
-impl fmt::Display for Id {
+impl fmt::Display for Id<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.id)
     }

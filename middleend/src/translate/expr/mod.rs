@@ -11,8 +11,8 @@ use crate::{
 
 use super::Translate;
 
-impl Translate<Atom> for Expr {
-    fn translate(self, translator: &mut Translator) -> Result<Atom, Error> {
+impl<'source> Translate<'source, Atom> for Expr<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<Atom, Error<'source>> {
         match self {
             Expr::Prefix { op, rhs } => {
                 let result = translator.create_temp_variable();

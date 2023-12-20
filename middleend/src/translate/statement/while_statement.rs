@@ -3,11 +3,11 @@ use smplc_ast::WhileStatement;
 use crate::{
     instruction::{Goto, Label, Unless},
     translate::Translate,
-    Error,
+    Error, Translator,
 };
 
-impl Translate for WhileStatement {
-    fn translate(self, translator: &mut crate::Translator) -> Result<(), Error> {
+impl<'source> Translate<'source> for WhileStatement<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {
         translator.whiles_count += 1;
 
         let (start_label, end_label) = while_labels(translator.whiles_count);

@@ -6,8 +6,8 @@ use crate::{
     Error, Translator,
 };
 
-impl Translate for IfStatement {
-    fn translate(self, translator: &mut Translator) -> Result<(), Error> {
+impl<'source> Translate<'source> for IfStatement<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {
         translator.ifs_count += 1;
 
         let end_label = Label(format!("endif{}", translator.ifs_count));

@@ -5,13 +5,16 @@ use super::Parse;
 use crate::error::ParseError;
 use crate::{TokenStream, TryParse};
 
-impl Parse for Expr {
-    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl<'source> Parse<'source> for Expr<'source> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
         expr_bp(token_stream, 0)
     }
 }
 
-fn expr_bp(token_stream: &mut TokenStream, min_bp: usize) -> Result<Expr, ParseError> {
+fn expr_bp<'source>(
+    token_stream: &mut TokenStream<'source>,
+    min_bp: usize,
+) -> Result<Expr<'source>, ParseError<'source>> {
     let mut lhs = parse_fact(token_stream)?;
 
     while let Some(op) = BinOp::try_parse(token_stream) {
@@ -38,7 +41,9 @@ fn expr_bp(token_stream: &mut TokenStream, min_bp: usize) -> Result<Expr, ParseE
     Ok(lhs)
 }
 
-fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, ParseError> {
+fn parse_fact<'source>(
+    token_stream: &mut TokenStream<'source>,
+) -> Result<Expr<'source>, ParseError<'source>> {
     let fact = match token_stream.current().value {
         TokenValue::Id(_) => {
             let id = Id::parse(token_stream)?;
@@ -84,13 +89,18 @@ fn parse_fact(token_stream: &mut TokenStream) -> Result<Expr, ParseError> {
     Ok(fact)
 }
 
-pub fn parse_call(token_stream: &mut TokenStream, id: Id) -> Result<Expr, ParseError> {
+pub fn parse_call<'source>(
+    token_stream: &mut TokenStream<'source>,
+    id: Id<'source>,
+) -> Result<Expr<'source>, ParseError<'source>> {
     let args = parse_call_args(token_stream)?;
 
     Ok(Expr::Call(Call { id, args }))
 }
 
-fn parse_call_args(token_stream: &mut TokenStream) -> Result<Vec<Expr>, ParseError> {
+fn parse_call_args<'source>(
+    token_stream: &mut TokenStream<'source>,
+) -> Result<Vec<Expr<'source>>, ParseError<'source>> {
     let mut args = Vec::new();
 
     token_stream.consume(TokenValue::LParen)?;
@@ -109,8 +119,8 @@ fn parse_call_args(token_stream: &mut TokenStream) -> Result<Vec<Expr>, ParseErr
     Ok(args)
 }
 
-impl Parse for Id {
-    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl<'source> Parse<'source> for Id<'source> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
         match &token_stream.current().value {
             TokenValue::Id(_) => {
                 let Token { value, pos } = token_stream.next();

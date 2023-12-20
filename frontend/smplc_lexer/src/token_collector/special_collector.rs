@@ -4,13 +4,16 @@ use super::TokenCollector;
 
 pub struct SpecialCollector;
 impl TokenCollector for SpecialCollector {
-    fn try_collect(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
+    fn try_collect<'source>(
+        &mut self,
+        code_stream: &mut CodeStream<'source>,
+    ) -> Option<TokenValue<'source>> {
         Self::double(code_stream).or(Self::single(code_stream))
     }
 }
 
 impl SpecialCollector {
-    pub fn double(code_stream: &mut CodeStream) -> Option<TokenValue> {
+    pub fn double<'source>(code_stream: &mut CodeStream<'source>) -> Option<TokenValue<'source>> {
         let value = match code_stream.slice_from_current(2) {
             ">=" => TokenValue::Ge,
             "<=" => TokenValue::Le,
@@ -25,7 +28,7 @@ impl SpecialCollector {
         Some(value)
     }
 
-    pub fn single(code_stream: &mut CodeStream) -> Option<TokenValue> {
+    pub fn single<'source>(code_stream: &mut CodeStream<'source>) -> Option<TokenValue<'source>> {
         let value = match code_stream.current() {
             ';' => TokenValue::Semicolon,
             ',' => TokenValue::Comma,

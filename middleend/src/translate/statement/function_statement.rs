@@ -2,8 +2,8 @@ use smplc_ast::FunctionStatement;
 
 use crate::{code::CodeFunction, scopes::Function, translate::Translate, Error, Translator};
 
-impl Translate for FunctionStatement {
-    fn translate(self, translator: &mut Translator) -> Result<(), Error> {
+impl<'source> Translate<'source> for FunctionStatement<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {
         let function = Function {
             defined_at: self.id.pos,
             args_count: self.args.len(),
@@ -28,7 +28,7 @@ impl Translate for FunctionStatement {
         }
 
         let code_function = {
-            let id = self.id.id.clone();
+            let id = self.id.id.into();
 
             CodeFunction::new(id, args)
         };

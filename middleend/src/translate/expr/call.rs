@@ -6,11 +6,11 @@ use crate::{
     Atom, Error,
 };
 
-fn translate_call(
-    call: smplc_ast::Call,
-    translator: &mut Translator,
+fn translate_call<'source>(
+    call: smplc_ast::Call<'source>,
+    translator: &mut Translator<'source>,
     result: Option<Id>,
-) -> Result<(), Error> {
+) -> Result<(), Error<'source>> {
     let function = translator.scopes.get_function(&call.id)?;
 
     if function.args_count != call.args.len() {
@@ -39,14 +39,14 @@ fn translate_call(
     Ok(())
 }
 
-impl Translate for smplc_ast::Call {
-    fn translate(self, translator: &mut Translator) -> Result<(), Error> {
+impl<'source> Translate<'source> for smplc_ast::Call<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {
         translate_call(self, translator, None)
     }
 }
 
-impl Translate<Atom> for smplc_ast::Call {
-    fn translate(self, translator: &mut Translator) -> Result<Atom, Error> {
+impl<'source> Translate<'source, Atom> for smplc_ast::Call<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<Atom, Error<'source>> {
         let result = translator.create_temp_variable();
 
         translate_call(self, translator, Some(result.clone()))?;

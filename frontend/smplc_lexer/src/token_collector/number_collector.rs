@@ -9,7 +9,10 @@ const RADIX_PREFIX_LENGTH: usize = 2;
 
 pub struct NumberCollector;
 impl TokenCollector for NumberCollector {
-    fn try_collect(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
+    fn try_collect<'source>(
+        &mut self,
+        code_stream: &mut CodeStream<'source>,
+    ) -> Option<TokenValue<'source>> {
         if !Self::is_digit(code_stream, 10) {
             return None;
         }
