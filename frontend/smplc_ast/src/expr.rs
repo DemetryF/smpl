@@ -1,40 +1,40 @@
 use crate::{BinOp, Pos, UnOp};
 
 #[derive(Debug, PartialEq)]
-pub enum Expr {
+pub enum Expr<'source> {
     Prefix {
         op: UnOp,
-        rhs: Box<Expr>,
+        rhs: Box<Self>,
     },
     Infix {
-        lhs: Box<Expr>,
+        lhs: Box<Self>,
         op: BinOp,
-        rhs: Box<Expr>,
+        rhs: Box<Self>,
     },
-    Call(Call),
-    Atom(Atom),
+    Call(Call<'source>),
+    Atom(Atom<'source>),
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Call {
-    pub id: Id,
-    pub args: Vec<Expr>,
+pub struct Call<'source> {
+    pub id: Id<'source>,
+    pub args: Vec<Expr<'source>>,
 }
 
 #[derive(PartialEq, Debug)]
-pub enum Atom {
-    Id(Id),
+pub enum Atom<'source> {
+    Id(Id<'source>),
     Literal(Literal),
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct Id {
-    pub id: String,
+pub struct Id<'source> {
+    pub id: &'source str,
     pub pos: Pos,
 }
 
-impl Id {
-    pub fn new(id: String, pos: Pos) -> Self {
+impl<'source> Id<'source> {
+    pub fn new(id: &'source str, pos: Pos) -> Self {
         Self { id, pos }
     }
 }

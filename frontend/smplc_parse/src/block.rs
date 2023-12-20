@@ -5,8 +5,8 @@ use crate::{error::ParseError, TokenStream};
 
 use super::Parse;
 
-impl Parse for Block {
-    fn parse(token_stream: &mut TokenStream) -> Result<Self, ParseError> {
+impl<'source> Parse<'source> for Block<'source> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
         let mut stmts = Vec::new();
 
         token_stream.consume(TokenValue::LBrace)?;

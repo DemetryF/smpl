@@ -2,8 +2,8 @@ use smplc_ast::{BinOp, Expr, ExprStatement};
 
 use crate::{instruction::Copy, translate::Translate, Error, Translator};
 
-impl Translate for ExprStatement {
-    fn translate(self, translator: &mut Translator) -> Result<(), Error> {
+impl<'source> Translate<'source> for ExprStatement<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {
         match self.0 {
             smplc_ast::Expr::Infix {
                 lhs,

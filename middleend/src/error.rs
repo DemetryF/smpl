@@ -7,52 +7,52 @@ use smplc_ast::{Id, Pos};
 use crate::scopes::{Function, Variable};
 
 #[derive(Debug, Constructor)]
-pub struct Error {
-    pub kind: ErrorKind,
+pub struct Error<'source> {
+    pub kind: ErrorKind<'source>,
     pub pos: Pos,
 }
 
 #[derive(Debug)]
-pub enum ErrorKind {
+pub enum ErrorKind<'source> {
     ReDeclaringVariable {
-        id: String,
+        id: &'source str,
         first_declaration: Pos,
     },
 
     ReDeclaringFunction {
-        id: String,
+        id: &'source str,
         first_declaration: Pos,
     },
 
     InvalidArgumentsCount {
         expected_args_count: usize,
         received_args_count: usize,
-        function_id: Id,
+        function_id: Id<'source>,
     },
 
-    NonExistentVariable(String),
-    NonExistentFunction(String),
+    NonExistentVariable(&'source str),
+    NonExistentFunction(&'source str),
 
-    DuplicateFunctionArgs(String),
+    DuplicateFunctionArgs(&'source str),
 
     ExpectedLValue,
     UnexpectedAssignment,
 }
 
-impl Error {
-    pub fn non_existent_variable(id: Id) -> Self {
+impl<'source> Error<'source> {
+    pub fn non_existent_variable(id: Id<'source>) -> Self {
         let kind = ErrorKind::NonExistentVariable(id.id);
 
         Self::new(kind, id.pos)
     }
 
-    pub fn non_existent_function(id: Id) -> Self {
+    pub fn non_existent_function(id: Id<'source>) -> Self {
         let kind = ErrorKind::NonExistentFunction(id.id);
 
         Self::new(kind, id.pos)
     }
 
-    pub fn redeclaring_variable(id: Id, variable: Variable) -> Self {
+    pub fn redeclaring_variable(id: Id<'source>, variable: Variable) -> Self {
         let kind = ErrorKind::ReDeclaringVariable {
             id: id.id,
             first_declaration: variable.defined_at,
@@ -61,7 +61,7 @@ impl Error {
         Self::new(kind, id.pos)
     }
 
-    pub fn redeclaring_function(id: Id, function: Function) -> Self {
+    pub fn redeclaring_function(id: Id<'source>, function: Function) -> Self {
         let kind = ErrorKind::ReDeclaringFunction {
             id: id.id,
             first_declaration: function.defined_at,
@@ -70,7 +70,7 @@ impl Error {
         Self::new(kind, id.pos)
     }
 
-    pub fn duplicate_function_args(id: Id) -> Self {
+    pub fn duplicate_function_args(id: Id<'source>) -> Self {
         let kind = ErrorKind::DuplicateFunctionArgs(id.id);
 
         Self::new(kind, id.pos)
@@ -85,7 +85,7 @@ impl Error {
     }
 }
 
-impl Display for ErrorKind {
+impl Display for ErrorKind<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ErrorKind::ReDeclaringVariable {

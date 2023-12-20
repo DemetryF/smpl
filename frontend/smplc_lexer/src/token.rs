@@ -2,14 +2,14 @@ use std::fmt::Display;
 
 use smplc_ast::{Literal, Pos};
 
-#[derive(Clone, Debug)]
-pub struct Token {
-    pub value: TokenValue,
+#[derive(Clone, Copy, Debug)]
+pub struct Token<'source> {
+    pub value: TokenValue<'source>,
     pub pos: Pos,
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum TokenValue {
+#[derive(Clone, Debug, PartialEq, Copy)]
+pub enum TokenValue<'source> {
     // keywords
     Return,
     While,
@@ -42,12 +42,12 @@ pub enum TokenValue {
 
     // other
     Literal(Literal),
-    Id(String),
+    Id(&'source str),
 
     EOF,
 }
 
-impl Display for TokenValue {
+impl<'source> Display for TokenValue<'source> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = match self {
             TokenValue::Return => "return",

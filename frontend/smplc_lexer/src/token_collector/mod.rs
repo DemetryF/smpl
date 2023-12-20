@@ -10,5 +10,8 @@ pub use self::{
 };
 
 pub trait TokenCollector {
-    fn try_collect(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue>;
+    fn try_collect<'source>(
+        &mut self,
+        code_stream: &mut CodeStream<'source>,
+    ) -> Option<TokenValue<'source>>;
 }

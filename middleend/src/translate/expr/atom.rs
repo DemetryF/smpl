@@ -1,7 +1,7 @@
 use crate::{instruction::Atom, translate::Translate, Error, Translator};
 
-impl Translate<Atom> for smplc_ast::Atom {
-    fn translate(self, translator: &mut Translator) -> Result<Atom, Error> {
+impl<'source> Translate<'source, Atom> for smplc_ast::Atom<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<Atom, Error<'source>> {
         match self {
             smplc_ast::Atom::Id(id) => translator
                 .scopes

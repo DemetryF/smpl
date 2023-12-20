@@ -6,7 +6,10 @@ use super::TokenCollector;
 
 pub struct WordCollector;
 impl TokenCollector for WordCollector {
-    fn try_collect(&mut self, code_stream: &mut CodeStream) -> Option<TokenValue> {
+    fn try_collect<'source>(
+        &mut self,
+        code_stream: &mut CodeStream<'source>,
+    ) -> Option<TokenValue<'source>> {
         if !Self::is_word_char(code_stream) {
             return None;
         }
@@ -23,7 +26,7 @@ impl TokenCollector for WordCollector {
             "true" => TokenValue::Literal(Literal::Bool(true)),
             "false" => TokenValue::Literal(Literal::Bool(false)),
 
-            id => TokenValue::Id(String::from(id)),
+            id => TokenValue::Id(id),
         })
     }
 }
@@ -35,7 +38,7 @@ impl WordCollector {
             || code_stream.check('_')
     }
 
-    fn word_literal<'code>(code_stream: &'code mut CodeStream) -> &'code str {
+    fn word_literal<'source>(code_stream: &mut CodeStream<'source>) -> &'source str {
         let start = code_stream.get_index();
 
         while !code_stream.is_eof()

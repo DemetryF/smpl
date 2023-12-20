@@ -4,8 +4,8 @@ use crate::{Error, Translator};
 
 use super::Translate;
 
-impl Translate for Block {
-    fn translate(self, translator: &mut Translator) -> Result<(), Error> {
+impl<'source> Translate<'source> for Block<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {
         translator.scopes.fork();
 
         for stmt in self.stmts {

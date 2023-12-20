@@ -3,15 +3,15 @@ use smplc_lexer::{Token, TokenValue};
 
 use crate::error::ParseError;
 
-pub struct TokenStream {
-    tokens: Vec<Token>,
+pub struct TokenStream<'source> {
+    tokens: Vec<Token<'source>>,
     index: usize,
 
     pub in_function: bool,
 }
 
-impl TokenStream {
-    pub fn new(tokens: Vec<Token>) -> Self {
+impl<'source> TokenStream<'source> {
+    pub fn new(tokens: Vec<Token<'source>>) -> Self {
         Self {
             tokens,
             index: 0,
@@ -19,7 +19,7 @@ impl TokenStream {
         }
     }
 
-    pub fn current(&self) -> &Token {
+    pub fn current(&self) -> &Token<'source> {
         &self.tokens[self.index]
     }
 
@@ -27,7 +27,7 @@ impl TokenStream {
         !self.is_end() && self.current().value == value
     }
 
-    pub fn consume(&mut self, value: TokenValue) -> Result<(), ParseError> {
+    pub fn consume(&mut self, value: TokenValue) -> Result<(), ParseError<'source>> {
         if self.check(value) {
             self.next();
 
@@ -47,7 +47,7 @@ impl TokenStream {
         false
     }
 
-    pub fn next(&mut self) -> Token {
+    pub fn next(&mut self) -> Token<'source> {
         let token = self.current().clone();
 
         self.index += 1;
@@ -55,7 +55,7 @@ impl TokenStream {
         token
     }
 
-    pub fn unexpected_token(&self) -> ParseError {
+    pub fn unexpected_token(&self) -> ParseError<'source> {
         ParseError::unexpected_token(self.current().clone())
     }
 

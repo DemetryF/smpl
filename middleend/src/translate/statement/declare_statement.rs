@@ -3,8 +3,8 @@ use smplc_ast::DeclareStatement;
 use crate::{instruction::*, Error};
 use crate::{translate::Translate, Translator};
 
-impl Translate for DeclareStatement {
-    fn translate(self, translator: &mut Translator) -> Result<(), Error> {
+impl<'source> Translate<'source> for DeclareStatement<'source> {
+    fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {
         let value = if let Some(expr) = self.init_expr {
             expr.translate(translator)?
         } else {

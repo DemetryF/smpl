@@ -5,12 +5,12 @@ use crate::error::Error;
 use super::Variable;
 
 #[derive(Default)]
-pub struct Scope {
-    pub variables: HashMap<String, Variable>,
+pub struct Scope<'source> {
+    pub variables: HashMap<&'source str, Variable>,
 }
 
-impl Scope {
-    pub fn get(&self, id: &smplc_ast::Id) -> Result<Variable, Error> {
+impl<'source> Scope<'source> {
+    pub fn get(&self, id: &smplc_ast::Id<'source>) -> Result<Variable, Error<'source>> {
         match self.variables.get(&id.id) {
             Some(variable) => Ok(variable.clone()),
 

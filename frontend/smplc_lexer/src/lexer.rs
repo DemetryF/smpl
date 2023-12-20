@@ -7,14 +7,14 @@ use crate::{
     LexError, Token, TokenValue,
 };
 
-pub struct Lexer<'code> {
-    code_stream: CodeStream<'code>,
+pub struct Lexer<'source> {
+    code_stream: CodeStream<'source>,
     collectors: Vec<Box<dyn TokenCollector>>,
     ended: bool,
 }
 
-impl<'code> Lexer<'code> {
-    pub fn new(code: &'code str) -> Self {
+impl<'source> Lexer<'source> {
+    pub fn new(code: &'source str) -> Self {
         Self {
             code_stream: CodeStream::new(code),
             collectors: vec![
@@ -26,7 +26,7 @@ impl<'code> Lexer<'code> {
         }
     }
 
-    pub fn next_token(&mut self) -> Result<Token, LexError> {
+    pub fn next_token(&mut self) -> Result<Token<'source>, LexError> {
         CommentsHandler::skip(&mut self.code_stream);
 
         let pos = self.code_stream.get_pos();
@@ -61,8 +61,8 @@ impl<'code> Lexer<'code> {
     }
 }
 
-impl Iterator for Lexer<'_> {
-    type Item = Result<Token, LexError>;
+impl<'source> Iterator for Lexer<'source> {
+    type Item = Result<Token<'source>, LexError>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.ended {

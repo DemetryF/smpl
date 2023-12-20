@@ -1,12 +1,12 @@
 use smplc_ast::Pos;
 
-pub struct CodeStream<'code> {
-    code: &'code str,
+pub struct CodeStream<'source> {
+    code: &'source str,
     pos: Pos,
 }
 
-impl<'code> CodeStream<'code> {
-    pub fn new(code: &'code str) -> Self {
+impl<'source> CodeStream<'source> {
+    pub fn new(code: &'source str) -> Self {
         Self {
             code,
             pos: Pos::default(),
@@ -43,11 +43,11 @@ impl<'code> CodeStream<'code> {
         self.slice(start, end) == str
     }
 
-    pub fn slice(&self, start: usize, end: usize) -> &str {
+    pub fn slice(&self, start: usize, end: usize) -> &'source str {
         self.code.get(start..end).unwrap_or_default()
     }
 
-    pub fn slice_from_current(&self, len: usize) -> &str {
+    pub fn slice_from_current(&self, len: usize) -> &'source str {
         self.slice(self.pos.index, self.pos.index + len)
     }
 
@@ -55,7 +55,7 @@ impl<'code> CodeStream<'code> {
         self.pos
     }
 
-    pub fn skip(&mut self, count: usize) -> &str {
+    pub fn skip(&mut self, count: usize) -> &'source str {
         for _ in 0..count {
             self.consume();
         }

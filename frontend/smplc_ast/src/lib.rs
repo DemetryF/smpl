@@ -10,6 +10,6 @@ pub use pos::Pos;
 pub use statement::*;
 
 #[derive(PartialEq, Debug)]
-pub struct Block {
-    pub stmts: Vec<Statement>,
+pub struct Block<'source> {
+    pub stmts: Vec<Statement<'source>>,
 }

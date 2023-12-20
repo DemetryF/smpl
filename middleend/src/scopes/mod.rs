@@ -8,17 +8,17 @@ use crate::{error::Error, instruction::Id, scopes::scope::Scope};
 
 pub use self::{function::Function, variable::Variable};
 
-pub struct Scopes {
-    envs: Vec<Scope>,
+pub struct Scopes<'source> {
+    envs: Vec<Scope<'source>>,
     stack: Vec<usize>,
 
-    functions: HashMap<String, Function>,
+    functions: HashMap<&'source str, Function>,
 
     variables_counter: usize,
 }
 
-impl Scopes {
-    fn current(&mut self) -> &mut Scope {
+impl<'source> Scopes<'source> {
+    fn current(&mut self) -> &mut Scope<'source> {
         let index = *self.stack.last().unwrap();
 
         &mut self.envs[index]
@@ -35,7 +35,7 @@ impl Scopes {
         self.stack.pop();
     }
 
-    pub fn add_variable(&mut self, id: smplc_ast::Id) -> Result<Id, Error> {
+    pub fn add_variable(&mut self, id: smplc_ast::Id<'source>) -> Result<Id, Error<'source>> {
         if let Ok(variable) = self.current().get(&id) {
             let error = Error::redeclaring_variable(id, variable);
 
@@ -62,7 +62,7 @@ impl Scopes {
         variables_count
     }
 
-    pub fn get_variable(&self, id: smplc_ast::Id) -> Result<Variable, Error> {
+    pub fn get_variable(&self, id: smplc_ast::Id<'source>) -> Result<Variable, Error<'source>> {
         for i in self.stack.iter().rev().copied() {
             let env = &self.envs[i];
 
@@ -74,7 +74,7 @@ impl Scopes {
         Err(Error::non_existent_variable(id))
     }
 
-    pub fn get_function(&self, id: &smplc_ast::Id) -> Result<&Function, Error> {
+    pub fn get_function(&self, id: &smplc_ast::Id<'source>) -> Result<&Function, Error<'source>> {
         match self.functions.get(&id.id) {
             Some(function) => Ok(function),
             None => {
@@ -85,7 +85,11 @@ impl Scopes {
         }
     }
 
-    pub fn add_function(&mut self, id: &smplc_ast::Id, function: Function) -> Result<(), Error> {
+    pub fn add_function(
+        &mut self,
+        id: &smplc_ast::Id<'source>,
+        function: Function,
+    ) -> Result<(), Error<'source>> {
         if self.get_function(id).is_ok() {
             let error = Error::non_existent_function(id.clone());
 
@@ -98,7 +102,7 @@ impl Scopes {
     }
 }
 
-impl Default for Scopes {
+impl<'source> Default for Scopes<'source> {
     fn default() -> Self {
         Self {
             envs: vec![Scope::default()],

@@ -1,43 +1,43 @@
 use crate::{Block, Expr, Id};
 
 #[derive(Debug, PartialEq)]
-pub enum Statement {
-    Declare(DeclareStatement),
-    Function(FunctionStatement),
-    If(IfStatement),
-    While(WhileStatement),
-    Expr(ExprStatement),
-    Return(ReturnStatement),
+pub enum Statement<'source> {
+    Declare(DeclareStatement<'source>),
+    Function(FunctionStatement<'source>),
+    If(IfStatement<'source>),
+    While(WhileStatement<'source>),
+    Expr(ExprStatement<'source>),
+    Return(ReturnStatement<'source>),
 }
 
 #[derive(Debug, PartialEq)]
-pub struct DeclareStatement {
-    pub id: Id,
-    pub init_expr: Option<Expr>,
+pub struct DeclareStatement<'source> {
+    pub id: Id<'source>,
+    pub init_expr: Option<Expr<'source>>,
 }
 
 #[derive(PartialEq, Debug)]
-pub struct ExprStatement(pub Expr);
+pub struct ExprStatement<'source>(pub Expr<'source>);
 
 #[derive(PartialEq, Debug)]
-pub struct FunctionStatement {
-    pub id: Id,
-    pub args: Vec<Id>,
-    pub body: Block,
+pub struct FunctionStatement<'source> {
+    pub id: Id<'source>,
+    pub args: Vec<Id<'source>>,
+    pub body: Block<'source>,
 }
 
 #[derive(PartialEq, Debug)]
-pub struct IfStatement {
-    pub condition: Expr,
-    pub then_body: Block,
-    pub else_body: Option<Block>,
+pub struct IfStatement<'source> {
+    pub condition: Expr<'source>,
+    pub then_body: Block<'source>,
+    pub else_body: Option<Block<'source>>,
 }
 
 #[derive(PartialEq, Debug)]
-pub struct ReturnStatement(pub Option<Expr>);
+pub struct ReturnStatement<'source>(pub Option<Expr<'source>>);
 
 #[derive(PartialEq, Debug)]
-pub struct WhileStatement {
-    pub condition: Expr,
-    pub body: Block,
+pub struct WhileStatement<'source> {
+    pub condition: Expr<'source>,
+    pub body: Block<'source>,
 }
