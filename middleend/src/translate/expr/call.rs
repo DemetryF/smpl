@@ -1,10 +1,6 @@
-use crate::{
-    error::ErrorKind,
-    instruction::{Call, Id, Param},
-    translate::Translate,
-    translator::Translator,
-    Atom, Error,
-};
+use smplc_ir::{Atom, Call, Id, Param};
+
+use crate::{error::ErrorKind, translate::Translate, translator::Translator, Error};
 
 fn translate_call<'source>(
     call: smplc_ast::Call<'source>,
@@ -27,7 +23,7 @@ fn translate_call<'source>(
 
     call.args
         .into_iter()
-        .map(|arg| arg.translate(translator).map(Param::new))
+        .map(|arg| arg.translate(translator).map(|value| Param { value }))
         .collect::<Result<Vec<_>, Error>>()?
         .into_iter()
         .for_each(|param| translator.code.push(param));

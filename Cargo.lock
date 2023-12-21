@@ -72,7 +72,7 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 name = "backend"
 version = "0.1.0"
 dependencies = [
- "middleend",
+ "smplc_ir",
 ]
 
 [[package]]
@@ -262,21 +262,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b64f40e5e03e0d54f03845c8197d0291253cdbedfb1cb46b13c2c117554a9f4c"
 
 [[package]]
-name = "macros"
-version = "0.1.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.13",
-]
-
-[[package]]
 name = "middleend"
 version = "0.1.0"
 dependencies = [
  "derive_more",
- "macros",
  "smplc_ast",
+ "smplc_ir",
 ]
 
 [[package]]
@@ -355,11 +346,28 @@ name = "smplc_ast"
 version = "0.1.0"
 
 [[package]]
+name = "smplc_ir"
+version = "0.1.0"
+dependencies = [
+ "smplc_ast",
+ "smplc_macros",
+]
+
+[[package]]
 name = "smplc_lexer"
 version = "0.1.0"
 dependencies = [
  "parse_int",
  "smplc_ast",
+]
+
+[[package]]
+name = "smplc_macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.13",
 ]
 
 [[package]]

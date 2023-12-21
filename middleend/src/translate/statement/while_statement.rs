@@ -1,10 +1,7 @@
 use smplc_ast::WhileStatement;
+use smplc_ir::{Goto, Label, Unless};
 
-use crate::{
-    instruction::{Goto, Label, Unless},
-    translate::Translate,
-    Error, Translator,
-};
+use crate::{translate::Translate, Error, Translator};
 
 impl<'source> Translate<'source> for WhileStatement<'source> {
     fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {

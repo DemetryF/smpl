@@ -3,14 +3,13 @@ mod display;
 mod id;
 mod label;
 
-use derive_more::Constructor;
-use macros::{display, EnumWrap};
+use smplc_macros::{display, EnumWrap};
 
 pub use smplc_ast::{BinOp, UnOp};
 
 pub use self::{atom::Atom, id::Id, label::Label};
 
-#[derive(EnumWrap, Clone)]
+#[derive(Clone, EnumWrap)]
 
 pub enum Instruction {
     Binary(Binary),
@@ -88,7 +87,7 @@ impl std::fmt::Display for Call {
     }
 }
 
-#[derive(Constructor, Clone)]
+#[derive(Clone)]
 #[display("push {value}")]
 pub struct Param {
     pub value: Atom,

@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use middleend::Call;
+use smplc_ir::Call;
 
 use crate::builder::Builder;
 use crate::env::Env;

@@ -1,7 +1,8 @@
 use smplc_ast::DeclareStatement;
+use smplc_ir::{Atom, Copy};
 
-use crate::{instruction::*, Error};
-use crate::{translate::Translate, Translator};
+use crate::translate::Translate;
+use crate::{Error, Translator};
 
 impl<'source> Translate<'source> for DeclareStatement<'source> {
     fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {

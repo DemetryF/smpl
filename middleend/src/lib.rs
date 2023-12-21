@@ -1,14 +1,11 @@
-pub use code::{Code, CodeFunction};
 pub use error::Error;
-pub use instruction::*;
 
 use scopes::Function;
 use smplc_ast::{Pos, Statement};
+use smplc_ir::{Code, CodeFunction};
 use translator::Translator;
 
-mod code;
 mod error;
-mod instruction;
 mod scopes;
 mod translate;
 mod translator;

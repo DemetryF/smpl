@@ -3,7 +3,7 @@ use std::fmt::{self, Write};
 use builder::Builder;
 use compile::Compile;
 use env::Env;
-use middleend::Code;
+use smplc_ir::Code;
 
 mod builder;
 mod compile;

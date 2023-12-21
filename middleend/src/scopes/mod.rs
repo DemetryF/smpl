@@ -4,9 +4,13 @@ mod variable;
 
 use std::collections::HashMap;
 
-use crate::{error::Error, instruction::Id, scopes::scope::Scope};
+use smplc_ir::Id;
 
-pub use self::{function::Function, variable::Variable};
+use self::scope::Scope;
+use crate::error::Error;
+
+pub use self::function::Function;
+pub use self::variable::Variable;
 
 pub struct Scopes<'source> {
     envs: Vec<Scope<'source>>,
@@ -42,7 +46,7 @@ impl<'source> Scopes<'source> {
             return Err(error);
         }
 
-        let new_id = Id::new(format!("${}", self.inc_variables_counter()));
+        let new_id = Id(format!("${}", self.inc_variables_counter()));
 
         let new_variable = Variable {
             defined_at: id.pos,

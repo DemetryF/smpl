@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use middleend::Copy;
+use smplc_ir::Copy;
 
 use crate::builder::Builder;
 use crate::env::Env;
@@ -12,8 +12,8 @@ impl Compile for Copy {
         let result = env.add(&self.result.0);
 
         let value = match self.value {
-            middleend::Atom::Id(id) => env.get(&id),
-            middleend::Atom::Number(num) => builder.float(num),
+            smplc_ir::Atom::Id(id) => env.get(&id),
+            smplc_ir::Atom::Number(num) => builder.float(num),
         };
 
         writeln!(builder, "movss xmm0, {value}")?;

@@ -2,12 +2,9 @@ mod atom;
 mod call;
 
 use smplc_ast::{BinOp, Expr};
+use smplc_ir::{Atom, Binary, Unary};
 
-use crate::{
-    error::Error,
-    instruction::{Atom, Binary, Unary},
-    Translator,
-};
+use crate::{error::Error, Translator};
 
 use super::Translate;
 

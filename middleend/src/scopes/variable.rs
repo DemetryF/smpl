@@ -1,6 +1,6 @@
 use smplc_ast::Pos;
 
-use crate::instruction::Id;
+use smplc_ir::Id;
 
 #[derive(Clone)]
 pub struct Variable {

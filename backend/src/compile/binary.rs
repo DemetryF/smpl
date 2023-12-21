@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use middleend::{Atom, BinOp, Binary};
+use smplc_ir::{Atom, BinOp, Binary};
 
 use crate::builder::Builder;
 use crate::env::Env;

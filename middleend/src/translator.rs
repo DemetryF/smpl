@@ -1,6 +1,7 @@
 use smplc_ast::Statement;
+use smplc_ir::{Code, Id};
 
-use crate::{instruction::Id, scopes::Scopes, translate::Translate, Code, Error};
+use crate::{scopes::Scopes, translate::Translate, Error};
 
 #[derive(Default)]
 pub struct Translator<'source> {
@@ -17,7 +18,7 @@ impl<'source> Translator<'source> {
     pub fn create_temp_variable(&mut self) -> Id {
         let name = format!("${}", self.scopes.inc_variables_counter());
 
-        Id::new(name)
+        Id(name)
     }
 
     pub fn translate(&mut self, stmt: Statement<'source>) {
