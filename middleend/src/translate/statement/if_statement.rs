@@ -1,10 +1,8 @@
 use smplc_ast::IfStatement;
+use smplc_ir::{Goto, Label, Unless};
 
-use crate::{
-    instruction::{Goto, Label, Unless},
-    translate::Translate,
-    Error, Translator,
-};
+use crate::translate::Translate;
+use crate::{Error, Translator};
 
 impl<'source> Translate<'source> for IfStatement<'source> {
     fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {

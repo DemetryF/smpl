@@ -10,7 +10,7 @@ mod unless;
 
 use std::fmt::{self, Write};
 
-use middleend::Instruction;
+use smplc_ir::Instruction;
 
 use crate::{builder::Builder, env::Env};
 

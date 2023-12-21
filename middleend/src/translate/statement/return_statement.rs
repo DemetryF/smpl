@@ -1,6 +1,7 @@
 use smplc_ast::ReturnStatement;
+use smplc_ir::Return;
 
-use crate::{instruction::Return, translate::Translate, Error, Translator};
+use crate::{translate::Translate, Error, Translator};
 
 impl<'source> Translate<'source> for ReturnStatement<'source> {
     fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {

@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use middleend::Return;
+use smplc_ir::Return;
 
 use crate::builder::Builder;
 use crate::compile::Compile;
@@ -10,8 +10,8 @@ impl Compile for Return {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
         if let Some(operand) = self.value {
             let operand = match operand {
-                middleend::Atom::Id(id) => env.get(&id),
-                middleend::Atom::Number(num) => builder.float(num),
+                smplc_ir::Atom::Id(id) => env.get(&id),
+                smplc_ir::Atom::Number(num) => builder.float(num),
             };
 
             writeln!(builder, "movss xmm0, {}", operand)?;

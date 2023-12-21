@@ -1,4 +1,6 @@
-use crate::{instruction::Atom, translate::Translate, Error, Translator};
+use smplc_ir::Atom;
+
+use crate::{translate::Translate, Error, Translator};
 
 impl<'source> Translate<'source, Atom> for smplc_ast::Atom<'source> {
     fn translate(self, translator: &mut Translator<'source>) -> Result<Atom, Error<'source>> {

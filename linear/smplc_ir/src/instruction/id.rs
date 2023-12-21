@@ -1,6 +1,4 @@
-use derive_more::Constructor;
-
-#[derive(Constructor, Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Id(pub String);
 
 impl std::fmt::Display for Id {

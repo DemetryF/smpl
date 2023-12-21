@@ -1,9 +1,10 @@
 [package]
-name = "backend"
+name = "smplc_ir"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-smplc_ir = { path = "../linear/smplc_ir" }
+smplc_macros = { path = "../../utils/smplc_macros" }
+smplc_ast = { path = "../../frontend/smplc_ast" }

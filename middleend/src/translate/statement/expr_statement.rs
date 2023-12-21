@@ -1,6 +1,7 @@
 use smplc_ast::{BinOp, Expr, ExprStatement};
+use smplc_ir::Copy;
 
-use crate::{instruction::Copy, translate::Translate, Error, Translator};
+use crate::{translate::Translate, Error, Translator};
 
 impl<'source> Translate<'source> for ExprStatement<'source> {
     fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {

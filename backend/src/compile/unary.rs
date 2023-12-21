@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use middleend::{UnOp, Unary};
+use smplc_ir::{UnOp, Unary};
 
 use crate::builder::Builder;
 use crate::env::Env;
@@ -12,7 +12,7 @@ impl Compile for Unary {
         let result = env.add(&self.result.0);
 
         match self.rhs {
-            middleend::Atom::Id(id) => {
+            smplc_ir::Atom::Id(id) => {
                 let operand = env.get(&id);
 
                 match self.op {
@@ -30,7 +30,7 @@ impl Compile for Unary {
                     }
                 }
             }
-            middleend::Atom::Number(mut num) => {
+            smplc_ir::Atom::Number(mut num) => {
                 num = match self.op {
                     UnOp::Not => -num,
                     UnOp::Neg => (num == 0.0) as u32 as f32,

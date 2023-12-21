@@ -5,6 +5,10 @@ members = [
     "frontend/smplc_ast",
 
     "middleend",
+    "linear/smplc_ir",
+
     "backend",
     "bin",
+
+    "utils/smplc_macros",
 ]

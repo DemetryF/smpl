@@ -1,6 +1,7 @@
 use smplc_ast::FunctionStatement;
+use smplc_ir::CodeFunction;
 
-use crate::{code::CodeFunction, scopes::Function, translate::Translate, Error, Translator};
+use crate::{scopes::Function, translate::Translate, Error, Translator};
 
 impl<'source> Translate<'source> for FunctionStatement<'source> {
     fn translate(self, translator: &mut Translator<'source>) -> Result<(), Error<'source>> {
