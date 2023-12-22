@@ -4,6 +4,8 @@ members = [
     "frontend/smplc_lexer",
     "frontend/smplc_ast",
 
+    "semantic/smplc_hir",
+
     "linear/smplc_ir",
 
     "backend",
