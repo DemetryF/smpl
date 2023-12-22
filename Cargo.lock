@@ -90,6 +90,13 @@ name = "smplc_ast"
 version = "0.1.0"
 
 [[package]]
+name = "smplc_hir"
+version = "0.1.0"
+dependencies = [
+ "smplc_ast",
+]
+
+[[package]]
 name = "smplc_ir"
 version = "0.1.0"
 dependencies = [
