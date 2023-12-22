@@ -9,7 +9,7 @@ edition = "2021"
 smplc_parse = { path = "../frontend/smplc_parse" }
 smplc_lexer = { path = "../frontend/smplc_lexer" }
 smplc_ast = { path = "../frontend/smplc_ast" }
-middleend = { path = "../middleend" }
+
 backend = { path = "../backend" }
 
 clap = { version = "4.2.5", features = ["derive"] }
