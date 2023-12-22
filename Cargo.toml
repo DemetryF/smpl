@@ -5,6 +5,7 @@ members = [
     "frontend/smplc_ast",
 
     "semantic/smplc_hir",
+    "semantic/smplc_semcheck",
 
     "linear/smplc_ir",
 
