@@ -29,7 +29,7 @@ pub enum Atom {
     Value(f32),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct FunData {
     pub declared_at: Pos,
     pub name: String,

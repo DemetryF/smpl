@@ -2,6 +2,8 @@ pub mod error;
 
 mod env;
 mod semcheck;
+#[cfg(test)]
+mod tests;
 
 use smplc_ast as ast;
 use smplc_hir::{FunData, FunRef, Function, HIR};

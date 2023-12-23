@@ -42,9 +42,13 @@ impl<'source> Variables<'source> {
     }
 
     pub fn get(&self, id: smplc_ast::Id<'source>) -> SemResult<'source, VarRef> {
-        self.last()
-            .get(id.id)
-            .ok_or_else(|| SemError::non_existent_variable(id))
+        for scope in self.data.iter().rev() {
+            if let Some(var_ref) = scope.get(id.id) {
+                return Ok(var_ref);
+            }
+        }
+
+        Err(SemError::non_existent_variable(id))
     }
 
     pub fn add_variable(&mut self, id: smplc_ast::Id<'source>) -> SemResult<'source, VarRef> {

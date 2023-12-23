@@ -136,6 +136,8 @@ version = "0.1.0"
 dependencies = [
  "smplc_ast",
  "smplc_hir",
+ "smplc_lexer",
+ "smplc_parse",
 ]
 
 [[package]]
