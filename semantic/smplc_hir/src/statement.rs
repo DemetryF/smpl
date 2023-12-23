@@ -1,10 +1,10 @@
 use crate::{Block, Expr, VarRef};
 
 pub enum Statement {
-    Expr,
-    If,
-    Return,
-    While,
+    Expr(ExprStatement),
+    If(IfStatement),
+    Return(ReturnStatement),
+    While(WhileStatement),
 }
 
 pub enum ExprStatement {

@@ -6,6 +6,7 @@ pub use smplc_ast::{BinOp, UnOp};
 pub use expr::*;
 pub use statement::*;
 
+#[derive(Default)]
 pub struct HIR {
     pub functions: Vec<Function>,
 }
@@ -16,5 +17,5 @@ pub struct Function {
 }
 
 pub struct Block {
-    pub statement: Vec<Statement>,
+    pub statements: Vec<Statement>,
 }

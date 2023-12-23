@@ -29,12 +29,14 @@ pub enum Atom {
     Value(f32),
 }
 
+#[derive(Debug)]
 pub struct FunData {
     pub declared_at: Pos,
     pub name: String,
     pub args_count: usize,
 }
 
+#[derive(Debug)]
 pub struct VarData {
     pub declared_at: Pos,
     pub name: String,
