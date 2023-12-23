@@ -9,7 +9,7 @@ pub struct SemError<'source> {
     pub pos: Pos,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum SemErrorKind<'source> {
     NonExistentFunction(&'source str),
     NonExistentVariable(&'source str),

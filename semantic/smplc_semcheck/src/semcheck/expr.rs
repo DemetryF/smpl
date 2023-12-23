@@ -4,7 +4,7 @@ use smplc_hir::{Atom, Expr};
 
 use super::SemCheck;
 use crate::env::Env;
-use crate::error::SemResult;
+use crate::error::{SemError, SemResult};
 
 impl<'source> SemCheck<'source> for ast::Expr<'source> {
     type Checked = Expr;
@@ -24,6 +24,16 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
 
             ast::Expr::Call(call) => {
                 let function = env.functions.get(call.id)?;
+
+                if call.args.len() != function.args_count {
+                    return Err(SemError::invalid_arguments(
+                        call.id.pos,
+                        function.args_count,
+                        call.args.len(),
+                        function,
+                    ));
+                }
+
                 let args = call
                     .args
                     .into_iter()
