@@ -32,7 +32,7 @@ pub enum Atom {
 pub struct FunData {
     pub declared_at: Pos,
     pub name: String,
-    pub args_count: Vec<VarData>,
+    pub args_count: usize,
 }
 
 pub struct VarData {
