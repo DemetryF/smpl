@@ -3,11 +3,13 @@ use smplc_hir::FunRef;
 
 pub type SemResult<'source, T> = Result<T, SemError<'source>>;
 
+#[derive(Debug)]
 pub struct SemError<'source> {
     pub kind: SemErrorKind<'source>,
     pub pos: Pos,
 }
 
+#[derive(Debug)]
 pub enum SemErrorKind<'source> {
     NonExistentFunction(&'source str),
     NonExistentVariable(&'source str),

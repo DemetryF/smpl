@@ -4,15 +4,18 @@ use smplc_hir::{FunData, FunRef, VarData, VarRef};
 
 use crate::error::{SemError, SemResult};
 
+#[derive(Default)]
 pub struct Env<'source> {
     pub variables: Variables<'source>,
     pub functions: Functions<'source>,
 }
 
+#[derive(Default)]
 pub struct Variables<'source> {
     data: Vec<Scope<'source, VarRef>>,
 }
 
+#[derive(Default)]
 pub struct Functions<'source> {
     data: Scope<'source, FunRef>,
 }

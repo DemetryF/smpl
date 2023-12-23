@@ -27,7 +27,7 @@ pub enum Atom<'source> {
     Literal(Literal),
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Id<'source> {
     pub id: &'source str,
     pub pos: Pos,
