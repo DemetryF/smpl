@@ -9,6 +9,7 @@ pub use statement::*;
 #[derive(Default)]
 pub struct HIR {
     pub functions: Vec<Function>,
+    pub variables_count: usize,
 }
 
 pub struct Function {

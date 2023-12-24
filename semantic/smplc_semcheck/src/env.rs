@@ -95,6 +95,10 @@ impl<'source> Variables<'source> {
             Ok(var_ref)
         }
     }
+
+    pub fn count(&self) -> usize {
+        self.variables_count
+    }
 }
 
 impl<'source> Functions<'source> {
@@ -116,7 +120,7 @@ impl<'source> Functions<'source> {
 
             let fun_ref = Rc::new(FunData {
                 declared_at: pos,
-                name: smplc_ir::FunctionId(id.into()),
+                id: smplc_ir::FunctionId(id.into()),
                 args_count,
             });
 
