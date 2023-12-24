@@ -13,6 +13,7 @@ pub struct Env<'source> {
 #[derive(Default)]
 pub struct Variables<'source> {
     data: Vec<Scope<'source, VarRef>>,
+    variables_count: usize,
 }
 
 #[derive(Default)]
@@ -62,8 +63,10 @@ impl<'source> Variables<'source> {
 
             let var_ref = Rc::new(VarData {
                 declared_at,
-                name: id.to_owned(),
+                id: smplc_ir::Id::from(self.variables_count),
             });
+
+            self.variables_count += 1;
 
             self.last_mut().add(id, Rc::clone(&var_ref));
 
@@ -82,8 +85,10 @@ impl<'source> Variables<'source> {
 
             let var_ref = Rc::new(VarData {
                 declared_at,
-                name: id.to_owned(),
+                id: smplc_ir::Id::from(self.variables_count),
             });
+
+            self.variables_count += 1;
 
             self.last_mut().add(id, Rc::clone(&var_ref));
 
@@ -111,7 +116,7 @@ impl<'source> Functions<'source> {
 
             let fun_ref = Rc::new(FunData {
                 declared_at: pos,
-                name: id.to_owned(),
+                name: smplc_ir::FunctionId(id.into()),
                 args_count,
             });
 

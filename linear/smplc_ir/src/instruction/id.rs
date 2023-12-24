@@ -9,7 +9,13 @@ impl fmt::Display for Id {
     }
 }
 
-#[derive(Clone, PartialEq, Eq, Hash, Default)]
+impl From<usize> for Id {
+    fn from(value: usize) -> Self {
+        Self(value)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub struct FunctionId(pub String);
 
 impl fmt::Display for FunctionId {

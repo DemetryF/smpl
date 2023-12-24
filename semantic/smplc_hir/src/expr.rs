@@ -32,12 +32,11 @@ pub enum Atom {
 #[derive(Debug, PartialEq)]
 pub struct FunData {
     pub declared_at: Pos,
-    pub name: String,
+    pub name: smplc_ir::FunctionId,
     pub args_count: usize,
 }
 
-#[derive(Debug)]
 pub struct VarData {
     pub declared_at: Pos,
-    pub name: String,
+    pub id: smplc_ir::Id,
 }
