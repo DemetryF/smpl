@@ -9,20 +9,20 @@ pub struct Code {
     pub functions: Vec<CodeFunction>,
 }
 
+#[derive(Default)]
 pub struct CodeFunction {
-    pub id: String,
+    pub id: FunctionId,
     pub args: Vec<Id>,
     pub instructions: Vec<Instruction>,
     pub labels: HashMap<usize, Label>,
 }
 
 impl CodeFunction {
-    pub fn new(id: String, args: Vec<Id>) -> Self {
+    pub fn new(id: FunctionId, args: Vec<Id>) -> Self {
         Self {
             id,
             args,
-            instructions: Vec::new(),
-            labels: HashMap::new(),
+            ..Default::default()
         }
     }
 
@@ -53,14 +53,17 @@ impl std::fmt::Display for Code {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for function in self.functions.iter() {
             let id = &function.id;
-            let args = function
+
+            writeln!(f, "\n{id}")?;
+
+            write!(f, "(")?;
+
+            function
                 .args
                 .iter()
-                .map(|arg| arg.0.as_str())
-                .collect::<Vec<_>>()
-                .join(", ");
+                .try_for_each(|arg| write!(f, "{arg}"))?;
 
-            writeln!(f, "\n{}({}):", id, args)?;
+            write!(f, ")")?;
 
             for (index, instruction) in function.instructions.iter().enumerate() {
                 if let Some(label) = function.labels.get(&index) {

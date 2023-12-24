@@ -7,7 +7,9 @@ use smplc_macros::{display, EnumWrap};
 
 pub use smplc_ast::{BinOp, UnOp};
 
-pub use self::{atom::Atom, id::Id, label::Label};
+pub use self::atom::Atom;
+pub use self::id::{FunctionId, Id};
+pub use self::label::Label;
 
 #[derive(Clone, EnumWrap)]
 
@@ -74,7 +76,7 @@ pub struct Goto {
 #[derive(Clone)]
 pub struct Call {
     pub result: Option<Id>,
-    pub id: Id,
+    pub id: FunctionId,
 }
 
 impl std::fmt::Display for Call {

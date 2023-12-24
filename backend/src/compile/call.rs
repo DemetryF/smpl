@@ -13,10 +13,10 @@ impl Compile for Call {
         writeln!(builder, "call {}", self.id)?;
         writeln!(builder, "add rsp, {}", env.size())?;
 
-        env.variables_count -= builder.function_arg_sizes[&self.id.0] / 8;
+        env.variables_count -= builder.function_arg_sizes[&self.id] / 8;
 
         if let Some(result) = self.result {
-            let result_ptr = env.add(&result.0);
+            let result_ptr = env.add(result);
 
             writeln!(builder, "movss {result_ptr}, xmm0")?;
         }

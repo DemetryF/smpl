@@ -10,7 +10,7 @@ impl Compile for Return {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
         if let Some(operand) = self.value {
             let operand = match operand {
-                smplc_ir::Atom::Id(id) => env.get(&id),
+                smplc_ir::Atom::Id(id) => env.get(id),
                 smplc_ir::Atom::Number(num) => builder.float(num),
             };
 

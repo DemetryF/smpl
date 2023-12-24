@@ -9,7 +9,7 @@ use crate::compile::Compile;
 
 impl Compile for Binary {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> std::fmt::Result {
-        let result_ptr = env.add(&self.result.0);
+        let result_ptr = env.add(self.result);
 
         let instruction = match self.op {
             BinOp::Add => "addss",
@@ -34,14 +34,14 @@ impl Compile for Binary {
             BinOp::Add | BinOp::Div | BinOp::Mul | BinOp::Sub => {
                 let (lhs, rhs) = match (self.lhs, self.rhs) {
                     (Atom::Id(lhs), Atom::Id(rhs)) => {
-                        let lhs = env.get(&lhs);
-                        let rhs = env.get(&rhs);
+                        let lhs = env.get(lhs);
+                        let rhs = env.get(rhs);
 
                         (lhs, rhs)
                     }
 
                     (Atom::Id(lhs), Atom::Number(rhs)) => {
-                        let lhs = env.get(&lhs);
+                        let lhs = env.get(lhs);
                         let rhs = builder.float(rhs);
 
                         (lhs, rhs)
@@ -49,7 +49,7 @@ impl Compile for Binary {
 
                     (Atom::Number(lhs), Atom::Id(rhs)) => {
                         let lhs = builder.float(lhs);
-                        let rhs = env.get(&rhs);
+                        let rhs = env.get(rhs);
 
                         (lhs, rhs)
                     }
@@ -81,8 +81,8 @@ impl Compile for Binary {
             BinOp::And | BinOp::Or => {
                 match (self.lhs, self.rhs) {
                     (Atom::Id(lhs), Atom::Id(rhs)) => {
-                        let lhs = env.get(&lhs);
-                        let rhs = env.get(&rhs);
+                        let lhs = env.get(lhs);
+                        let rhs = env.get(rhs);
 
                         let one = builder.float(1.0);
 
@@ -124,7 +124,7 @@ impl Compile for Binary {
                             // b | false = b
                             // b & true = b
                             (BinOp::Or, false) | (BinOp::And, true) => {
-                                let id = env.get(&id);
+                                let id = env.get(id);
 
                                 writeln!(builder, "movss xmm0, {id}")?;
                                 writeln!(builder, "movss {result_ptr}, xmm0")
@@ -155,12 +155,12 @@ impl Compile for Binary {
 
             BinOp::Ne | BinOp::Eq | BinOp::Ge | BinOp::Gt | BinOp::Le | BinOp::Lt => {
                 let lhs = match self.lhs {
-                    Atom::Id(id) => env.get(&id),
+                    Atom::Id(id) => env.get(id),
                     Atom::Number(num) => builder.float(num),
                 };
 
                 let rhs = match self.rhs {
-                    Atom::Id(id) => env.get(&id),
+                    Atom::Id(id) => env.get(id),
                     Atom::Number(num) => builder.float(num),
                 };
 

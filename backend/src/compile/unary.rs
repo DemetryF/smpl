@@ -9,11 +9,11 @@ use crate::compile::Compile;
 
 impl Compile for Unary {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
-        let result = env.add(&self.result.0);
+        let result = env.add(self.result);
 
         match self.rhs {
             smplc_ir::Atom::Id(id) => {
-                let operand = env.get(&id);
+                let operand = env.get(id);
 
                 match self.op {
                     UnOp::Not => {
