@@ -1,9 +1,10 @@
 use std::fmt::{self, Write};
 
+use smplc_ir::{Code, FunctionId};
+
 use builder::Builder;
 use compile::Compile;
 use env::Env;
-use smplc_ir::Code;
 
 mod builder;
 mod compile;
@@ -48,7 +49,9 @@ ret
             .insert(function.id.clone(), function.args.len() * 8);
     }
 
-    builder.function_arg_sizes.insert("print".into(), 8);
+    builder
+        .function_arg_sizes
+        .insert(FunctionId("print".into()), 8);
 
     for function in code.functions {
         let mut env = Env::default();
@@ -59,7 +62,7 @@ ret
         writeln!(builder, "mov rbp, rsp")?;
 
         for (index, arg) in function.args.into_iter().enumerate() {
-            env.set(arg.0, -(index as isize + 2));
+            env.set(arg, -(index as isize + 2));
         }
 
         for (index, instruction) in function.instructions.into_iter().enumerate() {

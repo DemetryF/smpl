@@ -10,7 +10,7 @@ impl Compile for Param {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
         let value = match self.value {
             smplc_ir::Atom::Number(num) => builder.float(num),
-            smplc_ir::Atom::Id(id) => env.get(&id),
+            smplc_ir::Atom::Id(id) => env.get(id),
         };
 
         env.variables_count += 1;

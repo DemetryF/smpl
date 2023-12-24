@@ -1,10 +1,10 @@
-use smplc_ast::Literal;
+use smplc_ast as ast;
 
-use super::Id;
+use crate::Id;
 
 #[derive(Clone)]
 pub enum Atom {
-    Id(String),
+    Id(Id),
     Number(f32),
 }
 
@@ -17,17 +17,11 @@ impl std::fmt::Display for Atom {
     }
 }
 
-impl From<Id> for Atom {
-    fn from(value: Id) -> Self {
-        Self::Id(value.0)
-    }
-}
-
-impl From<Literal> for Atom {
-    fn from(value: Literal) -> Self {
+impl From<ast::Literal> for Atom {
+    fn from(value: ast::Literal) -> Self {
         let number = match value {
-            Literal::Number(number) => number,
-            Literal::Bool(b) => b as u32 as f32,
+            ast::Literal::Number(number) => number,
+            ast::Literal::Bool(b) => b as u32 as f32,
         };
 
         Self::Number(number)
