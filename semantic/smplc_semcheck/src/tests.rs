@@ -63,7 +63,7 @@ pub fn invalid_arguments() {
             received_args_count: 1,
             function_ref: Rc::new(FunData {
                 declared_at: Pos::new(1, 4, 0, 3),
-                name: "a".into(),
+                id: "a".into(),
                 args_count: 0,
             })
         }
@@ -75,7 +75,7 @@ pub fn invalid_arguments() {
             received_args_count: 0,
             function_ref: Rc::new(FunData {
                 declared_at: Pos::new(1, 4, 0, 3),
-                name: "a".into(),
+                id: "a".into(),
                 args_count: 1,
             })
         }

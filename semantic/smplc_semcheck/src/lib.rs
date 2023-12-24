@@ -31,7 +31,7 @@ pub fn sem_check<'source>(ast: Vec<ast::Statement<'source>>) -> SemResult<'sourc
 
     let fun_ref = FunRef::new(FunData {
         declared_at: ast::Pos::default(),
-        name: "main".into(),
+        id: "main".into(),
         args_count: 0,
     });
 
@@ -41,6 +41,8 @@ pub fn sem_check<'source>(ast: Vec<ast::Statement<'source>>) -> SemResult<'sourc
         vec![],
         ast::Block { stmts },
     )?);
+
+    hir.variables_count = env.variables.count();
 
     Ok(hir)
 }
