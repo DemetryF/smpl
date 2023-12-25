@@ -1,3 +1,5 @@
+use std::fmt;
+
 use smplc_ast::Pos;
 use smplc_hir::FunRef;
 
@@ -95,6 +97,45 @@ impl<'source> SemError<'source> {
         Self {
             kind: SemErrorKind::DuplicateArgsNames(id),
             pos,
+        }
+    }
+}
+
+impl fmt::Display for SemErrorKind<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SemErrorKind::RedeclaringVariable {
+                id,
+                first_declaration,
+            } => write!(
+                f,
+                "variable \"{id}\" is already declared at {first_declaration}"
+            ),
+
+            SemErrorKind::RedeclaringFunction {
+                id,
+                first_declaration,
+            } => write!(
+                f,
+                "function \"{id}\" is already declared at {first_declaration}"
+            ),
+
+            SemErrorKind::InvalidArguments {
+                expected_args_count,
+                received_args_count,
+                function_ref,
+            } => write!(
+                f,
+                "function \"{}\" takes {expected_args_count}, but received {received_args_count}",
+                function_ref.id.0
+            ),
+
+            SemErrorKind::NonExistentVariable(id) => write!(f, "variable \"{id}\" is not defined"),
+            SemErrorKind::NonExistentFunction(id) => write!(f, "function \"{id}\" is not defined"),
+
+            SemErrorKind::DuplicateArgsNames(id) => {
+                write!(f, "two arguments with same name: {id}")
+            }
         }
     }
 }
