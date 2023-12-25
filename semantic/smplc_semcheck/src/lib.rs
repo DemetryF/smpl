@@ -16,6 +16,11 @@ pub fn sem_check<'source>(ast: Vec<ast::Statement<'source>>) -> SemResult<'sourc
     let (functions, stmts) = separate_functions(ast);
 
     let mut env = Env::default();
+
+    env.functions
+        .add(smplc_ast::Id::new("print", smplc_ast::Pos::default()), 1)
+        .unwrap();
+
     let mut hir = HIR::default();
 
     for function in functions.iter() {
