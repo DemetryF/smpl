@@ -13,4 +13,6 @@ members = [
     "backend",
 
     "utils/smplc_macros",
+
+    "bin",
 ]

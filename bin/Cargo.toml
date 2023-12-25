@@ -10,6 +10,9 @@ smplc_parse = { path = "../frontend/smplc_parse" }
 smplc_lexer = { path = "../frontend/smplc_lexer" }
 smplc_ast = { path = "../frontend/smplc_ast" }
 
+smplc_semcheck = { path = "../semantic/smplc_semcheck" }
+smplc_translate = { path = "../linear/smplc_translate" }
+
 backend = { path = "../backend" }
 
 clap = { version = "4.2.5", features = ["derive"] }

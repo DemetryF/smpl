@@ -5,9 +5,10 @@ use std::{fs, process::Command};
 use clap::Parser;
 
 use backend::compile;
-use middleend::translate;
 use smplc_lexer::lex;
 use smplc_parse::{parse, TokenStream};
+use smplc_semcheck::sem_check;
+use smplc_translate::translate;
 
 use errors::output_error;
 
@@ -43,13 +44,13 @@ fn main() {
         return;
     };
 
-    let Ok(intermediate_code) = translate(stmts).map_err(|errors| {
-        for middleend::Error { kind, pos } in errors {
-            output_error(&filename, &program, pos, kind)
-        }
+    let Ok(hir) = sem_check(stmts).map_err(|error| {
+        output_error(&filename, &program, error.pos, error.kind);
     }) else {
         return;
     };
+
+    let intermediate_code = translate(hir);
 
     let assembly = compile(intermediate_code).unwrap();
 
