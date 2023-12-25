@@ -8,6 +8,7 @@ members = [
     "semantic/smplc_semcheck",
 
     "linear/smplc_ir",
+    "linear/smplc_translate",
 
     "backend",
 

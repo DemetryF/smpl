@@ -14,6 +14,7 @@ pub struct HIR {
 
 pub struct Function {
     pub function: FunRef,
+    pub args: Vec<VarRef>,
     pub statements: Vec<Statement>,
 }
 

@@ -94,6 +94,7 @@ name = "smplc_hir"
 version = "0.1.0"
 dependencies = [
  "smplc_ast",
+ "smplc_ir",
 ]
 
 [[package]]
@@ -136,8 +137,17 @@ version = "0.1.0"
 dependencies = [
  "smplc_ast",
  "smplc_hir",
+ "smplc_ir",
  "smplc_lexer",
  "smplc_parse",
+]
+
+[[package]]
+name = "smplc_translate"
+version = "0.1.0"
+dependencies = [
+ "smplc_hir",
+ "smplc_ir",
 ]
 
 [[package]]
