@@ -72,9 +72,10 @@ pub fn proccess_function<'source>(
 ) -> SemResult<'source, Function> {
     env.variables.fork();
 
-    for arg in args {
-        env.variables.add_argument(arg)?;
-    }
+    let args = args
+        .into_iter()
+        .map(|arg| env.variables.add_argument(arg))
+        .collect::<Result<Vec<_>, _>>()?;
 
     let statements = body.check(env)?.statements;
 
@@ -82,6 +83,7 @@ pub fn proccess_function<'source>(
 
     Ok(Function {
         function: fun_ref,
+        args,
         statements,
     })
 }
