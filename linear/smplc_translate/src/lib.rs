@@ -21,8 +21,6 @@ impl Translate for Block {
 pub fn translate(hir: HIR) -> Code {
     let mut translator = Translator::new(hir.variables_count);
 
-    let mut code = Code::default();
-
     for function in hir.functions {
         let args = function
             .args
@@ -30,7 +28,7 @@ pub fn translate(hir: HIR) -> Code {
             .map(|var_ref| var_ref.id)
             .collect();
 
-        code.add_function(CodeFunction {
+        translator.code.add_function(CodeFunction {
             id: function.function.id.clone(),
             args,
             ..Default::default()
@@ -42,5 +40,5 @@ pub fn translate(hir: HIR) -> Code {
             .for_each(|stmt| stmt.translate(&mut translator))
     }
 
-    code
+    translator.code
 }

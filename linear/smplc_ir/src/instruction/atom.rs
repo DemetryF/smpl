@@ -2,7 +2,7 @@ use smplc_ast as ast;
 
 use crate::Id;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Atom {
     Id(Id),
     Number(f32),
