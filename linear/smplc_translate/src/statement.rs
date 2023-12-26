@@ -1,7 +1,7 @@
 use smplc_hir::{Expr, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement};
-use smplc_ir::{Goto, Return, Unless};
+use smplc_ir::{BinOp, Goto, Return, Unless};
 
-use crate::expr::{translate_call, translate_expr};
+use crate::expr::{translate_call, translate_expr, translate_expr_and_write_in};
 use crate::translator::Translator;
 use crate::Translate;
 
@@ -20,8 +20,7 @@ impl Translate for IfStatement {
     fn translate(self, translator: &mut Translator) {
         let (end_label, else_label) = translator.if_labels();
 
-        let condition = translator.next_id();
-        let condition = translate_expr(self.cond, translator, condition);
+        let condition = translate_expr(self.cond, translator);
 
         if let Some(else_body) = self.else_body {
             translator.code.push(Unless {
@@ -55,8 +54,7 @@ impl Translate for WhileStatement {
 
         translator.code.add_label(start_label.clone());
 
-        let result = translator.next_id();
-        let condition = translate_expr(self.cond, translator, result);
+        let condition = translate_expr(self.cond, translator);
 
         translator.code.push(Unless {
             condition,
@@ -73,10 +71,7 @@ impl Translate for WhileStatement {
 
 impl Translate for ReturnStatement {
     fn translate(self, translator: &mut Translator) {
-        let value = self.expr.map(|expr| {
-            let result = translator.next_id();
-            translate_expr(expr, translator, result)
-        });
+        let value = self.expr.map(|expr| translate_expr(expr, translator));
 
         translator.code.push(Return { value })
     }
@@ -86,11 +81,24 @@ impl Translate for ExprStatement {
     fn translate(self, translator: &mut Translator) {
         match self {
             ExprStatement::Assign { to, what } => {
-                translate_expr(what, translator, to.id);
+                translate_expr_and_write_in(what, translator, to.id);
             }
 
             ExprStatement::Expr(Expr::Call { function, args }) => {
                 translate_call(translator, function.id.clone(), args, None);
+            }
+
+            ExprStatement::Expr(Expr::Binary {
+                lhs,
+                op: BinOp::Assign,
+                rhs,
+            }) => {
+                let Expr::Atom(smplc_hir::Atom::Var(var_ref)) = lhs.as_ref() else {
+                    panic!("kaput");
+                };
+
+                let result = var_ref.id;
+                translate_expr_and_write_in(*rhs, translator, result);
             }
 
             _ => {}
