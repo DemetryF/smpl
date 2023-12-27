@@ -63,7 +63,7 @@ impl std::fmt::Display for Code {
                 .iter()
                 .try_for_each(|arg| write!(f, "{arg}"))?;
 
-            writeln!(f, ")")?;
+            writeln!(f, "):")?;
 
             for (index, instruction) in function.instructions.iter().enumerate() {
                 if let Some(label) = function.labels.get(&index) {

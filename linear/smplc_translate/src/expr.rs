@@ -87,10 +87,12 @@ pub fn translate_call(
     args: Vec<Expr>,
     result: Option<Id>,
 ) {
-    for arg in args {
-        let value = translate_expr(arg, translator);
-        translator.code.push(Param { value })
-    }
+    args.into_iter()
+        .map(|arg| translate_expr(arg, translator))
+        .rev()
+        .collect::<Vec<_>>()
+        .into_iter()
+        .for_each(|value| translator.code.push(Param { value }));
 
     translator.code.push(Call { result, id });
 }
