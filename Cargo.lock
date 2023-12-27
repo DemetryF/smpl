@@ -57,27 +57,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 
 [[package]]
-name = "backend"
-version = "0.1.0"
-dependencies = [
- "smplc_ir",
-]
-
-[[package]]
-name = "bin"
-version = "0.1.0"
-dependencies = [
- "backend",
- "clap",
- "colored",
- "smplc_ast",
- "smplc_lexer",
- "smplc_parse",
- "smplc_semcheck",
- "smplc_translate",
-]
-
-[[package]]
 name = "clap"
 version = "4.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -218,6 +197,27 @@ checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
 [[package]]
 name = "smplc_ast"
 version = "0.1.0"
+
+[[package]]
+name = "smplc_backend_x86"
+version = "0.1.0"
+dependencies = [
+ "smplc_ir",
+]
+
+[[package]]
+name = "smplc_bin"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "colored",
+ "smplc_ast",
+ "smplc_backend_x86",
+ "smplc_lexer",
+ "smplc_parse",
+ "smplc_semcheck",
+ "smplc_translate",
+]
 
 [[package]]
 name = "smplc_hir"
