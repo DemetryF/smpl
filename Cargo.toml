@@ -10,9 +10,9 @@ members = [
     "linear/smplc_ir",
     "linear/smplc_translate",
 
-    "backend",
+    "smplc_backend_x86",
 
     "utils/smplc_macros",
 
-    "bin",
+    "smplc_bin",
 ]

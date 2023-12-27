@@ -1,5 +1,5 @@
 [package]
-name = "bin"
+name = "smplc_bin"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,7 +13,7 @@ smplc_ast = { path = "../frontend/smplc_ast" }
 smplc_semcheck = { path = "../semantic/smplc_semcheck" }
 smplc_translate = { path = "../linear/smplc_translate" }
 
-backend = { path = "../backend" }
+smplc_backend_x86 = { path = "../smplc_backend_x86" }
 
 clap = { version = "4.2.5", features = ["derive"] }
 colored = "2.0.0"
