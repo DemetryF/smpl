@@ -195,18 +195,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
 
 [[package]]
-name = "smplc_ast"
-version = "0.1.0"
-
-[[package]]
-name = "smplc_backend_x86"
-version = "0.1.0"
-dependencies = [
- "smplc_ir",
-]
-
-[[package]]
-name = "smplc_bin"
+name = "smplc"
 version = "0.1.0"
 dependencies = [
  "clap",
@@ -217,6 +206,17 @@ dependencies = [
  "smplc_parse",
  "smplc_semcheck",
  "smplc_translate",
+]
+
+[[package]]
+name = "smplc_ast"
+version = "0.1.0"
+
+[[package]]
+name = "smplc_backend_x86"
+version = "0.1.0"
+dependencies = [
+ "smplc_ir",
 ]
 
 [[package]]
