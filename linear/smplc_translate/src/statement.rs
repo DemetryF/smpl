@@ -1,5 +1,5 @@
 use smplc_hir::{Expr, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement};
-use smplc_ir::{BinOp, Goto, Return, Unless};
+use smplc_ir::{Goto, Return, Unless};
 
 use crate::expr::{translate_call, translate_expr, translate_expr_and_write_in};
 use crate::translator::Translator;
@@ -86,19 +86,6 @@ impl Translate for ExprStatement {
 
             ExprStatement::Expr(Expr::Call { function, args }) => {
                 translate_call(translator, function.id.clone(), args, None);
-            }
-
-            ExprStatement::Expr(Expr::Binary {
-                lhs,
-                op: BinOp::Assign,
-                rhs,
-            }) => {
-                let Expr::Atom(smplc_hir::Atom::Var(var_ref)) = lhs.as_ref() else {
-                    panic!("kaput");
-                };
-
-                let result = var_ref.id;
-                translate_expr_and_write_in(*rhs, translator, result);
             }
 
             _ => {}

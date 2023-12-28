@@ -20,7 +20,6 @@ impl fmt::Display for Id<'_> {
 impl fmt::Display for BinOp {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::Assign => write!(f, "="),
             Self::Or => write!(f, "|"),
             Self::And => write!(f, "&"),
             Self::Ne => write!(f, "!="),

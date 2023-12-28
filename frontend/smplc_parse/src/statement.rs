@@ -49,9 +49,18 @@ fn parse_init_expr<'source>(
 impl<'source> Parse<'source> for ExprStatement<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
         let expr = Expr::parse(token_stream)?;
-        token_stream.consume(TokenValue::Semicolon)?;
 
-        Ok(ExprStatement(expr))
+        if let Expr::Atom(Atom::Id(id)) = expr {
+            if token_stream.try_consume(TokenValue::Assign) {
+                let expr = Expr::parse(token_stream)?;
+
+                Ok(ExprStatement::Assign { id, expr })
+            } else {
+                Ok(ExprStatement::Expr(expr))
+            }
+        } else {
+            Ok(ExprStatement::Expr(expr))
+        }
     }
 }
 

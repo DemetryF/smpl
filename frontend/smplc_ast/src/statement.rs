@@ -17,7 +17,13 @@ pub struct DeclareStatement<'source> {
 }
 
 #[derive(PartialEq, Debug)]
-pub struct ExprStatement<'source>(pub Expr<'source>);
+pub enum ExprStatement<'source> {
+    Expr(Expr<'source>),
+    Assign {
+        id: Id<'source>,
+        expr: Expr<'source>,
+    },
+}
 
 #[derive(PartialEq, Debug)]
 pub struct FunctionStatement<'source> {

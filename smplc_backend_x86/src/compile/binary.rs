@@ -26,8 +26,6 @@ impl Compile for Binary {
             BinOp::Gt => "seta",
             BinOp::Le => "setbe",
             BinOp::Lt => "setb",
-
-            _ => unreachable!(),
         };
 
         match self.op {
@@ -173,8 +171,6 @@ impl Compile for Binary {
                 writeln!(builder, "cvtsi2ss xmm0, eax")?;
                 writeln!(builder, "movss {result_ptr}, xmm0")
             }
-
-            BinOp::Assign => unreachable!(),
         }
     }
 }

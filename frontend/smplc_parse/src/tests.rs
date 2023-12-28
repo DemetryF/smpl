@@ -51,7 +51,7 @@ pub fn expr_statement() {
         "\
 a;
         ";
-        Statement::Expr(ExprStatement(Expr::Atom(Atom::Id(Id::new(
+        Statement::Expr(ExprStatement::Expr(Expr::Atom(Atom::Id(Id::new(
             "a".into(),
             Pos::new(1, 1, 0, 0),
         )))))

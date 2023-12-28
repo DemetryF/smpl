@@ -38,7 +38,13 @@ impl<'source> SemCheck<'source> for ast::ExprStatement<'source> {
     type Checked = ExprStatement;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        self.0.check(env).map(ExprStatement::Expr)
+        match self {
+            ast::ExprStatement::Expr(expr) => expr.check(env).map(ExprStatement::Expr),
+            ast::ExprStatement::Assign { id, expr } => Ok(ExprStatement::Assign {
+                to: env.variables.get(id)?,
+                what: expr.check(env)?,
+            }),
+        }
     }
 }
 
