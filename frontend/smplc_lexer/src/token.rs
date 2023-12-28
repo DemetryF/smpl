@@ -11,12 +11,14 @@ pub struct Token<'source> {
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub enum TokenValue<'source> {
     // keywords
-    Return,
-    While,
+    Break,
+    Continue,
     Else,
-    Let,
     Fn,
     If,
+    Let,
+    Return,
+    While,
 
     // special chars
     Semicolon,
@@ -50,12 +52,15 @@ pub enum TokenValue<'source> {
 impl<'source> Display for TokenValue<'source> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = match self {
-            TokenValue::Return => "return",
-            TokenValue::While => "while",
+            TokenValue::Break => "break",
+            TokenValue::Continue => "continue",
             TokenValue::Else => "else",
-            TokenValue::Let => "let",
             TokenValue::Fn => "fn",
             TokenValue::If => "if",
+            TokenValue::Let => "let",
+            TokenValue::Return => "return",
+            TokenValue::While => "while",
+
             TokenValue::Semicolon => ";",
             TokenValue::Comma => ",",
             TokenValue::LBrace => "{",

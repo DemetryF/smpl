@@ -8,6 +8,8 @@ pub enum Statement<'source> {
     While(WhileStatement<'source>),
     Expr(ExprStatement<'source>),
     Return(ReturnStatement<'source>),
+    Break,
+    Continue,
 }
 
 #[derive(Debug, PartialEq)]

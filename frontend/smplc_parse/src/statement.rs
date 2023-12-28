@@ -14,6 +14,20 @@ impl<'source> Parse<'source> for Statement<'source> {
             TokenValue::Return => Self::Return(ReturnStatement::parse(token_stream)?),
             TokenValue::While => Self::While(WhileStatement::parse(token_stream)?),
 
+            TokenValue::Continue => {
+                token_stream.next();
+                token_stream.consume(TokenValue::Semicolon)?;
+
+                Self::Continue
+            }
+
+            TokenValue::Break => {
+                token_stream.next();
+                token_stream.consume(TokenValue::Semicolon)?;
+
+                Self::Break
+            }
+
             _ => Self::Expr(ExprStatement::parse(token_stream)?),
         };
 
@@ -54,11 +68,17 @@ impl<'source> Parse<'source> for ExprStatement<'source> {
             if token_stream.try_consume(TokenValue::Assign) {
                 let expr = Expr::parse(token_stream)?;
 
+                token_stream.consume(TokenValue::Semicolon)?;
+
                 Ok(ExprStatement::Assign { id, expr })
             } else {
+                token_stream.consume(TokenValue::Semicolon)?;
+
                 Ok(ExprStatement::Expr(expr))
             }
         } else {
+            token_stream.consume(TokenValue::Semicolon)?;
+
             Ok(ExprStatement::Expr(expr))
         }
     }
