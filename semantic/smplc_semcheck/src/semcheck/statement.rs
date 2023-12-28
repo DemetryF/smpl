@@ -16,6 +16,9 @@ impl<'source> SemCheck<'source> for ast::Statement<'source> {
             ast::Statement::Expr(expr_stmt) => expr_stmt.check(env).map(Statement::Expr),
             ast::Statement::Return(return_stmt) => return_stmt.check(env).map(Statement::Return),
 
+            ast::Statement::Break => Ok(Statement::Break),
+            ast::Statement::Continue => Ok(Statement::Continue),
+
             ast::Statement::Function(_) => unreachable!(),
         }
     }

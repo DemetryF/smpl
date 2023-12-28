@@ -65,12 +65,18 @@ ret
             env.set(arg, -(index as isize + 2));
         }
 
+        let instructions_count = function.instructions.len();
+
         for (index, instruction) in function.instructions.into_iter().enumerate() {
             if let Some(label) = function.labels.get(&index) {
                 writeln!(builder, "{label}:")?;
             }
 
             instruction.compile(&mut env, &mut builder)?;
+        }
+
+        if let Some(label) = function.labels.get(&instructions_count) {
+            writeln!(builder, "{label}:")?;
         }
     }
 

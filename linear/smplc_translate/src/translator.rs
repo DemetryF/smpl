@@ -23,7 +23,7 @@ impl Translator {
         Id::from(self.variables_count - 1)
     }
 
-    pub fn if_labels(&mut self) -> (Label, Label) {
+    pub fn next_if_labels(&mut self) -> (Label, Label) {
         let end_label = Label(format!("endif{}", self.ifs_count));
         let else_label = Label(format!("else{}", self.ifs_count));
 
@@ -32,12 +32,20 @@ impl Translator {
         (end_label, else_label)
     }
 
-    pub fn while_labels(&mut self) -> (Label, Label) {
-        let start_label = Label(format!("while_start{}", self.whiles_count));
-        let end_label = Label(format!("while_end{}", self.whiles_count));
-
+    pub fn next_while_labels(&mut self) -> (Label, Label) {
         self.whiles_count += 1;
 
-        (start_label, end_label)
+        self.while_labels().unwrap()
+    }
+
+    pub fn while_labels(&mut self) -> Option<(Label, Label)> {
+        if self.whiles_count != 0 {
+            let start_label = Label(format!("while_start{}", self.whiles_count - 1));
+            let end_label = Label(format!("while_end{}", self.whiles_count - 1));
+
+            Some((start_label, end_label))
+        } else {
+            None
+        }
     }
 }

@@ -23,6 +23,9 @@ impl TokenCollector for WordCollector {
             "return" => TokenValue::Return,
             "while" => TokenValue::While,
 
+            "continue" => TokenValue::Continue,
+            "break" => TokenValue::Break,
+
             "true" => TokenValue::Literal(Literal::Bool(true)),
             "false" => TokenValue::Literal(Literal::Bool(false)),
 

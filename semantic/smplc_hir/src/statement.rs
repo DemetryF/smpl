@@ -5,6 +5,8 @@ pub enum Statement {
     If(IfStatement),
     Return(ReturnStatement),
     While(WhileStatement),
+    Break,
+    Continue,
 }
 
 pub enum ExprStatement {

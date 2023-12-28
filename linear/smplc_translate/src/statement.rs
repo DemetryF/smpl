@@ -12,13 +12,25 @@ impl Translate for Statement {
             Statement::If(if_stmt) => if_stmt.translate(translator),
             Statement::Return(return_stmt) => return_stmt.translate(translator),
             Statement::While(while_stmt) => while_stmt.translate(translator),
+
+            Statement::Break => {
+                let (_, end_label) = translator.while_labels().unwrap();
+
+                translator.code.push(Goto { label: end_label })
+            }
+
+            Statement::Continue => {
+                let (start_label, _) = translator.while_labels().unwrap();
+
+                translator.code.push(Goto { label: start_label });
+            }
         }
     }
 }
 
 impl Translate for IfStatement {
     fn translate(self, translator: &mut Translator) {
-        let (end_label, else_label) = translator.if_labels();
+        let (end_label, else_label) = translator.next_if_labels();
 
         let condition = translate_expr(self.cond, translator);
 
@@ -50,7 +62,7 @@ impl Translate for IfStatement {
 
 impl Translate for WhileStatement {
     fn translate(self, translator: &mut Translator) {
-        let (start_label, end_label) = translator.while_labels();
+        let (start_label, end_label) = translator.next_while_labels();
 
         translator.code.add_label(start_label.clone());
 
