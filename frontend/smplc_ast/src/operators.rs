@@ -1,7 +1,5 @@
 #[derive(Debug, PartialEq, Clone)]
 pub enum BinOp {
-    Assign,
-
     Or,
     And,
 
@@ -21,7 +19,6 @@ pub enum BinOp {
 impl BinOp {
     pub fn power(&self) -> (usize, usize) {
         match self {
-            Self::Assign => (2, 1),
             Self::Or => (3, 4),
             Self::And => (5, 6),
             Self::Ne => (7, 8),

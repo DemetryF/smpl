@@ -6,7 +6,6 @@ use crate::{TokenStream, TryParse};
 impl<'source> TryParse<'source> for BinOp {
     fn try_parse(token_stream: &mut TokenStream<'source>) -> Option<Self> {
         let op = match token_stream.current().value {
-            TokenValue::Assign => Self::Assign,
             TokenValue::Or => Self::Or,
             TokenValue::And => Self::And,
             TokenValue::Ne => Self::Ne,
