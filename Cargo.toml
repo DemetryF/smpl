@@ -1,18 +1,18 @@
 [workspace]
 members = [
-    "frontend/smplc_parse",
-    "frontend/smplc_lexer",
-    "frontend/smplc_ast",
+    "compiler/frontend/smplc_parse",
+    "compiler/frontend/smplc_lexer",
+    "compiler/frontend/smplc_ast",
 
-    "semantic/smplc_hir",
-    "semantic/smplc_semcheck",
+    "compiler/semantic/smplc_hir",
+    "compiler/semantic/smplc_semcheck",
 
-    "linear/smplc_ir",
-    "linear/smplc_translate",
+    "compiler/linear/smplc_ir",
+    "compiler/linear/smplc_translate",
 
-    "smplc_backend_x86",
+    "compiler/smplc_backend_x86",
 
     "utils/smplc_macros",
 
-    "smplc_bin",
+    "smplc",
 ]

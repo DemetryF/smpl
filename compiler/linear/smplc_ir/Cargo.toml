@@ -6,5 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-smplc_macros = { path = "../../utils/smplc_macros" }
+smplc_macros = { path = "../../../utils/smplc_macros" }
 smplc_ast = { path = "../../frontend/smplc_ast" }
