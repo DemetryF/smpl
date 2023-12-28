@@ -34,6 +34,8 @@ while cond {
 }
 ```
 
+Also there is Continue and Break statements;
+
 ## Function Declaration
 You can declare a function by using `fn` keyword:
 ```rust
