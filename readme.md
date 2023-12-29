@@ -53,3 +53,18 @@ fn add(a, b) {
 ```
 
 you can see more examples [here](https://github.com/demetryf/smpl/tree/main/examples)
+
+# Using
+
+1. Compile it: 
+```sh
+cargo build --release
+```
+2. take compiler bin
+```sh
+mv target/release/smplc ./smpl
+```
+3. compile your file:
+```sh
+./smpl <path> [-o <output binary file name>]
+```
