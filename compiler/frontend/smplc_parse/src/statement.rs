@@ -1,42 +1,41 @@
 use smplc_ast::*;
 use smplc_lexer::TokenValue;
 
-use crate::{error::ParseError, TokenStream};
+use crate::error::{ParseError, ParseResult};
+use crate::TokenStream;
 
 use super::Parse;
 
 impl<'source> Parse<'source> for Statement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
-        let stmt = match token_stream.current().value {
-            TokenValue::Let => Self::Declare(DeclareStatement::parse(token_stream)?),
-            TokenValue::Fn => Self::Function(FunctionStatement::parse(token_stream)?),
-            TokenValue::If => Self::If(IfStatement::parse(token_stream)?),
-            TokenValue::Return => Self::Return(ReturnStatement::parse(token_stream)?),
-            TokenValue::While => Self::While(WhileStatement::parse(token_stream)?),
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+        match token_stream.current().value {
+            TokenValue::Let => DeclareStatement::parse(token_stream).map(Self::Declare),
+            TokenValue::Fn => FunctionStatement::parse(token_stream).map(Self::Function),
+            TokenValue::If => IfStatement::parse(token_stream).map(Self::If),
+            TokenValue::Return => ReturnStatement::parse(token_stream).map(Self::Return),
+            TokenValue::While => WhileStatement::parse(token_stream).map(Self::While),
 
             TokenValue::Continue => {
                 token_stream.next();
                 token_stream.consume(TokenValue::Semicolon)?;
 
-                Self::Continue
+                Ok(Self::Continue)
             }
 
             TokenValue::Break => {
                 token_stream.next();
                 token_stream.consume(TokenValue::Semicolon)?;
 
-                Self::Break
+                Ok(Self::Break)
             }
 
-            _ => Self::Expr(ExprStatement::parse(token_stream)?),
-        };
-
-        Ok(stmt)
+            _ => ExprStatement::parse(token_stream).map(Self::Expr),
+        }
     }
 }
 
 impl<'source> Parse<'source> for DeclareStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::Let)?;
 
         let id = Id::parse(token_stream)?;
@@ -50,7 +49,7 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
 
 fn parse_init_expr<'source>(
     token_stream: &mut TokenStream<'source>,
-) -> Result<Option<Expr<'source>>, ParseError<'source>> {
+) -> ParseResult<'source, Option<Expr<'source>>> {
     if token_stream.try_consume(TokenValue::Assign) {
         let expr = Expr::parse(token_stream)?;
 
@@ -61,7 +60,7 @@ fn parse_init_expr<'source>(
 }
 
 impl<'source> Parse<'source> for ExprStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         let expr = Expr::parse(token_stream)?;
 
         if let Expr::Atom(Atom::Id(id)) = expr {
@@ -70,22 +69,18 @@ impl<'source> Parse<'source> for ExprStatement<'source> {
 
                 token_stream.consume(TokenValue::Semicolon)?;
 
-                Ok(ExprStatement::Assign { id, expr })
-            } else {
-                token_stream.consume(TokenValue::Semicolon)?;
-
-                Ok(ExprStatement::Expr(expr))
+                return Ok(ExprStatement::Assign { id, expr });
             }
-        } else {
-            token_stream.consume(TokenValue::Semicolon)?;
-
-            Ok(ExprStatement::Expr(expr))
         }
+
+        token_stream.consume(TokenValue::Semicolon)?;
+
+        Ok(ExprStatement::Expr(expr))
     }
 }
 
 impl<'source> Parse<'source> for FunctionStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::Fn)?;
 
         let id = Id::parse(token_stream)?;
@@ -101,7 +96,7 @@ impl<'source> Parse<'source> for FunctionStatement<'source> {
 
 fn parse_args<'source>(
     token_stream: &mut TokenStream<'source>,
-) -> Result<Vec<Id<'source>>, ParseError<'source>> {
+) -> ParseResult<'source, Vec<Id<'source>>> {
     let mut args = Vec::new();
 
     token_stream.consume(TokenValue::LParen)?;
@@ -122,7 +117,7 @@ fn parse_args<'source>(
 }
 
 impl<'source> Parse<'source> for IfStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::If)?;
 
         let condition = Expr::parse(token_stream)?;
@@ -139,7 +134,7 @@ impl<'source> Parse<'source> for IfStatement<'source> {
 
 fn parse_else_body<'source>(
     token_stream: &mut TokenStream<'source>,
-) -> Result<Option<Block<'source>>, ParseError<'source>> {
+) -> ParseResult<'source, Option<Block<'source>>> {
     let else_body = if token_stream.try_consume(TokenValue::Else) {
         let block = Block::parse(token_stream)?;
 
@@ -152,20 +147,20 @@ fn parse_else_body<'source>(
 }
 
 impl<'source> Parse<'source> for ReturnStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         check_in_function(token_stream)?;
 
         token_stream.consume(TokenValue::Return)?;
-        let expr = return_expr(token_stream)?;
+        let expr = parse_return_expr(token_stream)?;
         token_stream.consume(TokenValue::Semicolon)?;
 
         Ok(ReturnStatement(expr))
     }
 }
 
-fn return_expr<'source>(
+fn parse_return_expr<'source>(
     token_stream: &mut TokenStream<'source>,
-) -> Result<Option<Expr<'source>>, ParseError<'source>> {
+) -> ParseResult<'source, Option<Expr<'source>>> {
     let maybe_expr = if token_stream.check(TokenValue::Semicolon) {
         None
     } else {
@@ -177,9 +172,7 @@ fn return_expr<'source>(
     Ok(maybe_expr)
 }
 
-fn check_in_function<'source>(
-    token_stream: &TokenStream<'source>,
-) -> Result<(), ParseError<'source>> {
+fn check_in_function<'source>(token_stream: &TokenStream<'source>) -> ParseResult<'source, ()> {
     if !token_stream.in_function {
         let error = ParseError::return_outside_function(token_stream.get_pos());
 
@@ -190,7 +183,7 @@ fn check_in_function<'source>(
 }
 
 impl<'source> Parse<'source> for WhileStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::While)?;
 
         let condition = Expr::parse(token_stream)?;

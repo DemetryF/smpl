@@ -1,7 +1,7 @@
 use smplc_ast::Pos;
 use smplc_lexer::{Token, TokenValue};
 
-use crate::error::ParseError;
+use crate::error::{ParseError, ParseResult};
 
 pub struct TokenStream<'source> {
     tokens: Vec<Token<'source>>,
@@ -27,7 +27,7 @@ impl<'source> TokenStream<'source> {
         !self.is_end() && self.current().value == value
     }
 
-    pub fn consume(&mut self, value: TokenValue) -> Result<(), ParseError<'source>> {
+    pub fn consume(&mut self, value: TokenValue) -> ParseResult<'source, ()> {
         if self.check(value) {
             self.next();
 

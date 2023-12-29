@@ -2,11 +2,11 @@ use smplc_ast::{Atom, BinOp, Call, Expr, Id, UnOp};
 use smplc_lexer::{Token, TokenValue};
 
 use super::Parse;
-use crate::error::ParseError;
+use crate::error::ParseResult;
 use crate::{TokenStream, TryParse};
 
 impl<'source> Parse<'source> for Expr<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         expr_bp(token_stream, 0)
     }
 }
@@ -14,7 +14,7 @@ impl<'source> Parse<'source> for Expr<'source> {
 fn expr_bp<'source>(
     token_stream: &mut TokenStream<'source>,
     min_bp: usize,
-) -> Result<Expr<'source>, ParseError<'source>> {
+) -> ParseResult<'source, Expr<'source>> {
     let mut lhs = parse_fact(token_stream)?;
 
     while let Some(op) = BinOp::try_parse(token_stream) {
@@ -34,8 +34,6 @@ fn expr_bp<'source>(
 
             Expr::Infix { lhs, op, rhs }
         };
-
-        continue;
     }
 
     Ok(lhs)
@@ -43,7 +41,7 @@ fn expr_bp<'source>(
 
 fn parse_fact<'source>(
     token_stream: &mut TokenStream<'source>,
-) -> Result<Expr<'source>, ParseError<'source>> {
+) -> ParseResult<'source, Expr<'source>> {
     let fact = match token_stream.current().value {
         TokenValue::Id(_) => {
             let id = Id::parse(token_stream)?;
@@ -92,7 +90,7 @@ fn parse_fact<'source>(
 pub fn parse_call<'source>(
     token_stream: &mut TokenStream<'source>,
     id: Id<'source>,
-) -> Result<Expr<'source>, ParseError<'source>> {
+) -> ParseResult<'source, Expr<'source>> {
     let args = parse_call_args(token_stream)?;
 
     Ok(Expr::Call(Call { id, args }))
@@ -100,7 +98,7 @@ pub fn parse_call<'source>(
 
 fn parse_call_args<'source>(
     token_stream: &mut TokenStream<'source>,
-) -> Result<Vec<Expr<'source>>, ParseError<'source>> {
+) -> ParseResult<'source, Vec<Expr<'source>>> {
     let mut args = Vec::new();
 
     token_stream.consume(TokenValue::LParen)?;
@@ -120,10 +118,11 @@ fn parse_call_args<'source>(
 }
 
 impl<'source> Parse<'source> for Id<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> Result<Self, ParseError<'source>> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         match &token_stream.current().value {
             TokenValue::Id(_) => {
                 let Token { value, pos } = token_stream.next();
+
                 let TokenValue::Id(id) = value else {
                     panic!("kaput");
                 };
