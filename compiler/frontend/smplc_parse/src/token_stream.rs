@@ -3,19 +3,20 @@ use smplc_lexer::{Token, TokenValue};
 
 use crate::error::{ParseError, ParseResult};
 
+#[derive(Default)]
 pub struct TokenStream<'source> {
     tokens: Vec<Token<'source>>,
     index: usize,
 
     pub in_function: bool,
+    pub in_cycle: bool,
 }
 
 impl<'source> TokenStream<'source> {
     pub fn new(tokens: Vec<Token<'source>>) -> Self {
         Self {
             tokens,
-            index: 0,
-            in_function: false,
+            ..Default::default()
         }
     }
 
