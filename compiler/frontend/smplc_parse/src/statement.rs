@@ -1,7 +1,7 @@
 use smplc_ast::*;
 use smplc_lexer::TokenValue;
 
-use crate::error::{ParseError, ParseResult};
+use crate::error::{ParseError, ParseErrorKind, ParseResult};
 use crate::TokenStream;
 
 use super::Parse;
@@ -16,6 +16,13 @@ impl<'source> Parse<'source> for Statement<'source> {
             TokenValue::While => WhileStatement::parse(token_stream).map(Self::While),
 
             TokenValue::Continue => {
+                if !token_stream.in_cycle {
+                    return Err(ParseError {
+                        kind: ParseErrorKind::ContinueOutsideCycle,
+                        pos: token_stream.get_pos(),
+                    });
+                }
+
                 token_stream.next();
                 token_stream.consume(TokenValue::Semicolon)?;
 
@@ -23,6 +30,13 @@ impl<'source> Parse<'source> for Statement<'source> {
             }
 
             TokenValue::Break => {
+                if !token_stream.in_cycle {
+                    return Err(ParseError {
+                        kind: ParseErrorKind::BreakOutsideCycle,
+                        pos: token_stream.get_pos(),
+                    });
+                }
+
                 token_stream.next();
                 token_stream.consume(TokenValue::Semicolon)?;
 
