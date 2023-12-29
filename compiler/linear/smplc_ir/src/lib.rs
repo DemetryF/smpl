@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt;
 
 pub use instruction::*;
 
@@ -49,8 +50,8 @@ impl Code {
     }
 }
 
-impl std::fmt::Display for Code {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Code {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for function in self.functions.iter() {
             let id = &function.id;
 
@@ -58,10 +59,13 @@ impl std::fmt::Display for Code {
 
             write!(f, "(")?;
 
-            function
-                .args
-                .iter()
-                .try_for_each(|arg| write!(f, "{arg}"))?;
+            for (i, arg) in function.args.iter().enumerate() {
+                write!(f, "{arg}")?;
+
+                if i + 1 != function.args.len() {
+                    write!(f, ", ")?;
+                }
+            }
 
             writeln!(f, "):")?;
 
@@ -71,6 +75,10 @@ impl std::fmt::Display for Code {
                 }
 
                 writeln!(f, "        {instruction}")?;
+            }
+
+            if let Some(label) = function.labels.get(&function.instructions.len()) {
+                writeln!(f, "\n    {label}:")?;
             }
         }
 
