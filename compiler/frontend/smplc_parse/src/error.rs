@@ -5,6 +5,8 @@ use derive_more::Constructor;
 use smplc_ast::Pos;
 use smplc_lexer::{Token, TokenValue};
 
+pub type ParseResult<'source, T> = Result<T, ParseError<'source>>;
+
 #[derive(Debug, Constructor)]
 pub struct ParseError<'source> {
     pub kind: ParseErrorKind<'source>,
@@ -41,9 +43,17 @@ impl<'source> ParseError<'source> {
 impl Display for ParseErrorKind<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ParseErrorKind::UnexpectedToken(token) => write!(f, "unexpected token \"{token}\""),
-            ParseErrorKind::ReturnOutsideFunction => write!(f, "using return outside the function"),
-            ParseErrorKind::FunctionInBlock => write!(f, "functions are not allowed in blocks"),
+            ParseErrorKind::UnexpectedToken(token) => {
+                write!(f, "unexpected token \"{token}\"")
+            }
+
+            ParseErrorKind::ReturnOutsideFunction => {
+                write!(f, "using return outside the function")
+            }
+
+            ParseErrorKind::FunctionInBlock => {
+                write!(f, "functions are not allowed in blocks")
+            }
         }
     }
 }
