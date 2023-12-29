@@ -1,13 +1,11 @@
-use std::fmt::Display;
-
-use derive_more::Constructor;
+use std::fmt;
 
 use smplc_ast::Pos;
 use smplc_lexer::{Token, TokenValue};
 
 pub type ParseResult<'source, T> = Result<T, ParseError<'source>>;
 
-#[derive(Debug, Constructor)]
+#[derive(Debug)]
 pub struct ParseError<'source> {
     pub kind: ParseErrorKind<'source>,
     pub pos: Pos,
@@ -26,24 +24,24 @@ impl<'source> ParseError<'source> {
     pub fn unexpected_token(Token { value, pos }: Token<'source>) -> Self {
         let kind = ParseErrorKind::UnexpectedToken(value);
 
-        ParseError::new(kind, pos)
+        Self { kind, pos }
     }
 
     pub fn return_outside_function(pos: Pos) -> Self {
         let kind = ParseErrorKind::ReturnOutsideFunction;
 
-        ParseError::new(kind, pos)
+        Self { kind, pos }
     }
 
     pub fn function_in_block(pos: Pos) -> Self {
         let kind = ParseErrorKind::FunctionInBlock;
 
-        ParseError::new(kind, pos)
+        Self { kind, pos }
     }
 }
 
-impl Display for ParseErrorKind<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for ParseErrorKind<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::UnexpectedToken(token) => {
                 write!(f, "unexpected token \"{token}\"")
