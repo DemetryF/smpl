@@ -20,33 +20,23 @@ struct Args {
     output: String,
 }
 
-fn main() {
+fn main() -> Result<(), ()> {
     let Args { filename, output } = Args::parse();
 
-    let Ok(program) = fs::read_to_string(filename.as_str()) else {
-        eprintln!("failed to open \"{filename}\"");
-        return;
-    };
+    let program = fs::read_to_string(filename.as_str())
+        .map_err(|_| eprintln!("failed to open \"{filename}\""))?;
 
-    let Ok(tokens) =
-        lex(&program).map_err(|err| output_error(&filename, &program, err.pos, err.char))
-    else {
-        return;
-    };
+    let tokens =
+        lex(&program).map_err(|err| output_error(&filename, &program, err.pos, err.char))?;
 
     let token_stream = TokenStream::new(tokens);
 
-    let Ok(stmts) =
-        parse(token_stream).map_err(|err| output_error(&filename, &program, err.pos, err.kind))
-    else {
-        return;
-    };
+    let stmts =
+        parse(token_stream).map_err(|err| output_error(&filename, &program, err.pos, err.kind))?;
 
-    let Ok(hir) = sem_check(stmts).map_err(|error| {
-        output_error(&filename, &program, error.pos, error.kind);
-    }) else {
-        return;
-    };
+    let hir = sem_check(stmts).map_err(|err| {
+        output_error(&filename, &program, err.pos, err.kind);
+    })?;
 
     let intermediate_code = translate(hir);
 
@@ -73,4 +63,6 @@ fn main() {
         .arg("temp.o")
         .output()
         .unwrap();
+
+    Ok(())
 }
