@@ -6,6 +6,8 @@ function ::= 'fn' id '(' fargs? ')' block
 if       ::= 'if' expr block ('else' block)?
 while    ::= 'while' expr block
 return   ::= 'return' expr ';'
+break    ::= 'break' ';'
+continue ::= 'continue' ';'
 exprstmt ::= assignment ';'
 
 // block
