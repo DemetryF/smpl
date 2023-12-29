@@ -13,9 +13,7 @@ use smplc_translate::translate;
 use errors::output_error;
 
 #[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long)]
     filename: String,
 
     #[arg(short, long, default_value_t = String::from("a.out"))]
@@ -26,7 +24,7 @@ fn main() {
     let Args { filename, output } = Args::parse();
 
     let Ok(program) = fs::read_to_string(filename.as_str()) else {
-        eprintln!("faield to open \"{filename}\"");
+        eprintln!("failed to open \"{filename}\"");
         return;
     };
 
