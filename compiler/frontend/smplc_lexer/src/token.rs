@@ -13,6 +13,7 @@ pub enum TokenValue<'source> {
     // keywords
     Break,
     Continue,
+    Const,
     Else,
     Fn,
     If,
@@ -54,6 +55,7 @@ impl<'source> Display for TokenValue<'source> {
         let value = match self {
             TokenValue::Break => "break",
             TokenValue::Continue => "continue",
+            TokenValue::Const => "const",
             TokenValue::Else => "else",
             TokenValue::Fn => "fn",
             TokenValue::If => "if",

@@ -48,7 +48,7 @@ pub fn bool() {
 #[test]
 pub fn keywords() {
     lexer_test![
-        "return while else let fn if";
+        "return while else let fn if continue break const";
 
         TokenValue::Return,
         TokenValue::While,
@@ -56,6 +56,9 @@ pub fn keywords() {
         TokenValue::Let,
         TokenValue::Fn,
         TokenValue::If,
+        TokenValue::Continue,
+        TokenValue::Break,
+        TokenValue::Const,
     ];
 }
 
