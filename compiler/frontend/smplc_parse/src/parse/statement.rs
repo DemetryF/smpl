@@ -2,9 +2,7 @@ use smplc_ast::*;
 use smplc_lexer::TokenValue;
 
 use crate::error::{ParseError, ParseErrorKind, ParseResult};
-use crate::TokenStream;
-
-use super::Parse;
+use crate::{Parse, TokenStream};
 
 impl<'source> Parse<'source> for Statement<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {

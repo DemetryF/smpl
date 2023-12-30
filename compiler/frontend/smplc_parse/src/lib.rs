@@ -1,29 +1,17 @@
 pub mod token_stream;
 
-mod block;
-mod declaration;
 mod error;
-mod expr;
-mod operators;
-mod statement;
-
+mod parse;
 #[cfg(test)]
 mod tests;
 
 use error::ParseResult;
+use parse::{Parse, TryParse};
 use smplc_ast::Declaration;
 
 pub use error::ParseError;
 pub use smplc_lexer::LexError;
 pub use token_stream::TokenStream;
-
-pub trait Parse<'source>: Sized {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self>;
-}
-
-pub trait TryParse<'source>: Sized {
-    fn try_parse(token_stream: &mut TokenStream<'source>) -> Option<Self>;
-}
 
 pub fn parse<'source>(
     mut token_stream: TokenStream<'source>,
