@@ -109,12 +109,12 @@ impl<'source> Parse<'source> for IfStatement<'source> {
 fn parse_else_body<'source>(
     token_stream: &mut TokenStream<'source>,
 ) -> ParseResult<'source, Option<Block<'source>>> {
-    let else_body = if token_stream.try_consume(TokenValue::Else) {
-        let block = Block::parse(token_stream)?;
-
-        Some(block)
-    } else {
-        None
+    let else_body = {
+        if token_stream.try_consume(TokenValue::Else) {
+            Some(Block::parse(token_stream)?)
+        } else {
+            None
+        }
     };
 
     Ok(else_body)
@@ -133,23 +133,26 @@ impl<'source> Parse<'source> for ReturnStatement<'source> {
 fn parse_return_expr<'source>(
     token_stream: &mut TokenStream<'source>,
 ) -> ParseResult<'source, Option<Expr<'source>>> {
-    let maybe_expr = if token_stream.check(TokenValue::Semicolon) {
-        None
-    } else {
-        let expr = Expr::parse(token_stream)?;
-
-        Some(expr)
-    };
-
-    Ok(maybe_expr)
+    Ok({
+        if token_stream.check(TokenValue::Semicolon) {
+            None
+        } else {
+            Some(Expr::parse(token_stream)?)
+        }
+    })
 }
 
 impl<'source> Parse<'source> for WhileStatement<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::While)?;
 
+        let in_cycle = token_stream.in_cycle;
+        token_stream.in_cycle = true;
+
         let condition = Expr::parse(token_stream)?;
         let body = Block::parse(token_stream)?;
+
+        token_stream.in_cycle = in_cycle;
 
         Ok(WhileStatement { condition, body })
     }
