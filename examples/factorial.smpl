@@ -10,4 +10,6 @@ fn factorial(n) {
     return result;
 }
 
-print(factorial(5)); // 120
+fn main() {
+    print(factorial(5)); // 120
+}

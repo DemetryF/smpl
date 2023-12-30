@@ -1,13 +1,15 @@
-// Error: variable "aboba" is not defined
-// Error: function "print" takes 1, but received 2
-print(aboba, 2);
+fn main() {
+    // Error: variable "aboba" is not defined
+    // Error: function "print" takes 1, but received 2
+    print(aboba, 2);
 
-// Error: function "print_empty" is not defined
-print_empty();
+    // Error: function "print_empty" is not defined
+    print_empty();
 
-let aboba;
-// Error: variable "aboba" is already declared
-let aboba;
+    let aboba;
+    // Error: variable "aboba" is already declared
+    let aboba;
+}
 
 // Error: two arguments with same name
 fn aboba(a, a) {}
