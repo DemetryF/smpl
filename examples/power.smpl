@@ -18,4 +18,6 @@ fn power(x, y) {
     return x * power(x, y - 1);
 }
 
-print(power(2, 3)); // 8
+fn main() {
+    print(power(2, 3)); // 8
+}

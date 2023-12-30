@@ -6,4 +6,6 @@ fn factorial(n) {
     return factorial(n - 1) * n;
 }
 
-print(factorial(6)); // 720
+fn main() {
+    print(factorial(6)); // 720
+}

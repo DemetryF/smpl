@@ -3,6 +3,7 @@ SMPL is primitive math programming language under development.
 
 # Syntax
 All expressions end with a semicolon.
+Function `main` is entry point.
 
 ## Variable Declaration
 You can declare a variable by using `let` keyword:
