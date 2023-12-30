@@ -13,6 +13,7 @@ impl TokenCollector for WordCollector {
         if !Self::is_word_char(code_stream) {
             return None;
         }
+
         let buffer = Self::word_literal(code_stream);
 
         Some(match buffer {
@@ -22,6 +23,7 @@ impl TokenCollector for WordCollector {
             "if" => TokenValue::If,
             "return" => TokenValue::Return,
             "while" => TokenValue::While,
+            "const" => TokenValue::Const,
 
             "continue" => TokenValue::Continue,
             "break" => TokenValue::Break,
