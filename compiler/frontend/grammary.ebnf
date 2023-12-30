@@ -1,8 +1,15 @@
-stmt ::= if | while | function | declare | return | exprstmt
+root ::= declaration*
+
+// declarations
+declaration = constant | function
+
+constant ::= 'const' id '=' expr ';'
+function ::= 'fn' id '(' fargs? ')' block
 
 // statements
+stmt ::= if | while | declare | return | exprstmt
+
 declare  ::= 'let' id ('=' expr)? ';'
-function ::= 'fn' id '(' fargs? ')' block
 if       ::= 'if' expr block ('else' block)?
 while    ::= 'while' expr block
 return   ::= 'return' expr ';'
@@ -11,8 +18,7 @@ continue ::= 'continue' ';'
 exprstmt ::= assignment ';'
 
 // block
-block ::= '{' bstmt* '}'
-bstmt ::= if | while | declare | exprstmt
+block ::= '{' stmt* '}'
 
 // expressions 
 expr ::= or
