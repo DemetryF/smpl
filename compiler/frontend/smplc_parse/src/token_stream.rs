@@ -19,8 +19,8 @@ impl<'source> TokenStream<'source> {
         }
     }
 
-    pub fn current(&self) -> &Token<'source> {
-        &self.tokens[self.index]
+    pub fn current(&self) -> Token<'source> {
+        self.tokens[self.index]
     }
 
     pub fn check(&self, value: TokenValue) -> bool {
@@ -48,7 +48,7 @@ impl<'source> TokenStream<'source> {
     }
 
     pub fn next(&mut self) -> Token<'source> {
-        let token = self.current().clone();
+        let token = self.current();
 
         self.index += 1;
 
@@ -56,7 +56,7 @@ impl<'source> TokenStream<'source> {
     }
 
     pub fn unexpected_token(&self) -> ParseError<'source> {
-        ParseError::unexpected_token(self.current().clone())
+        ParseError::unexpected_token(self.current())
     }
 
     pub fn get_pos(&self) -> Pos {
