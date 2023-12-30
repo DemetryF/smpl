@@ -2,8 +2,11 @@ mod expr;
 mod statement;
 mod translator;
 
-use smplc_hir::{Block, HIR};
-use smplc_ir::{Code, CodeFunction};
+use std::collections::HashMap;
+
+use smplc_hir::{Block, Expr, HIR};
+use smplc_ir::{BinOp, Code, CodeFunction, Id, UnOp};
+
 use translator::Translator;
 
 trait Translate: Sized {
@@ -19,9 +22,24 @@ impl Translate for Block {
 }
 
 pub fn translate(hir: HIR) -> Code {
-    let mut translator = Translator::new(hir.variables_count);
+    let HIR {
+        constants,
+        functions,
+        variables_count,
+    } = hir;
 
-    for function in hir.functions {
+    let mut translator = Translator::new(variables_count);
+
+    for constant in constants {
+        let value = eval_constant_expr(constant.value, &translator.code.constants);
+
+        translator
+            .code
+            .constants
+            .insert(constant.variable.id, value);
+    }
+
+    for function in functions {
         let args = function
             .args
             .into_iter()
@@ -41,4 +59,46 @@ pub fn translate(hir: HIR) -> Code {
     }
 
     translator.code
+}
+
+fn eval_constant_expr(expr: Expr, constants: &HashMap<Id, f32>) -> f32 {
+    match expr {
+        Expr::Binary { lhs, op, rhs } => {
+            let lhs = eval_constant_expr(*lhs, constants);
+            let rhs = eval_constant_expr(*rhs, constants);
+
+            match op {
+                BinOp::Or => ((lhs == 1.0) || (rhs == 1.0)) as i32 as f32,
+                BinOp::And => ((lhs == 1.0) && (rhs == 1.0)) as i32 as f32,
+
+                BinOp::Ne => (lhs != rhs) as i32 as f32,
+                BinOp::Eq => (lhs == rhs) as i32 as f32,
+                BinOp::Ge => (lhs >= rhs) as i32 as f32,
+                BinOp::Gt => (lhs > rhs) as i32 as f32,
+                BinOp::Le => (lhs <= rhs) as i32 as f32,
+                BinOp::Lt => (lhs < rhs) as i32 as f32,
+
+                BinOp::Add => lhs + rhs,
+                BinOp::Sub => lhs - rhs,
+                BinOp::Mul => lhs * rhs,
+                BinOp::Div => lhs / rhs,
+            }
+        }
+
+        Expr::Unary { op, rhs } => {
+            let rhs = eval_constant_expr(*rhs, constants);
+
+            match op {
+                UnOp::Not => !(rhs == 1.0) as i32 as f32,
+                UnOp::Neg => -rhs,
+            }
+        }
+
+        Expr::Call { .. } => panic!("function call in constant expression"),
+
+        Expr::Atom(atom) => match atom {
+            smplc_hir::Atom::Var(var_ref) => *constants.get(&var_ref.id).unwrap(),
+            smplc_hir::Atom::Value(value) => value,
+        },
+    }
 }

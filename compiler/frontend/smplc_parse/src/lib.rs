@@ -1,15 +1,17 @@
 pub mod token_stream;
 
 mod block;
+mod declaration;
 mod error;
 mod expr;
 mod operators;
 mod statement;
+
 #[cfg(test)]
 mod tests;
 
 use error::ParseResult;
-use smplc_ast::Statement;
+use smplc_ast::Declaration;
 
 pub use error::ParseError;
 pub use smplc_lexer::LexError;
@@ -25,16 +27,16 @@ pub trait TryParse<'source>: Sized {
 
 pub fn parse<'source>(
     mut token_stream: TokenStream<'source>,
-) -> ParseResult<'source, Vec<Statement<'source>>> {
-    let mut stmts = Vec::new();
+) -> ParseResult<'source, Vec<Declaration<'source>>> {
+    let mut decls = Vec::new();
 
     while !token_stream.is_end() {
-        let maybe_stmt = Statement::parse(&mut token_stream);
+        let maybe_decl = Declaration::parse(&mut token_stream);
 
-        let stmt = maybe_stmt?;
+        let decl = maybe_decl?;
 
-        stmts.push(stmt);
+        decls.push(decl);
     }
 
-    Ok(stmts)
+    Ok(decls)
 }

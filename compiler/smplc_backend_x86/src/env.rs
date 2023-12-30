@@ -3,14 +3,26 @@ use std::collections::HashMap;
 
 use smplc_ir::Id;
 
-#[derive(Default)]
-pub struct Env {
+pub struct Env<'a> {
     addresses: HashMap<Id, isize>,
+    constants: &'a HashMap<Id, String>,
     pub variables_count: usize,
 }
 
-impl Env {
+impl<'a> Env<'a> {
+    pub fn new(constants: &'a HashMap<Id, String>) -> Self {
+        Self {
+            constants,
+            addresses: Default::default(),
+            variables_count: Default::default(),
+        }
+    }
+
     pub fn get(&self, id: Id) -> String {
+        if let Some(address) = self.constants.get(&id) {
+            return address.clone();
+        }
+
         let address = self.addresses[&id] * 8;
 
         let ordering = address.cmp(&0);

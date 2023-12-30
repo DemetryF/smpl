@@ -3,7 +3,6 @@ use crate::{Block, Expr, Id};
 #[derive(Debug, PartialEq)]
 pub enum Statement<'source> {
     Declare(DeclareStatement<'source>),
-    Function(FunctionStatement<'source>),
     If(IfStatement<'source>),
     While(WhileStatement<'source>),
     Expr(ExprStatement<'source>),
@@ -25,13 +24,6 @@ pub enum ExprStatement<'source> {
         id: Id<'source>,
         expr: Expr<'source>,
     },
-}
-
-#[derive(PartialEq, Debug)]
-pub struct FunctionStatement<'source> {
-    pub id: Id<'source>,
-    pub args: Vec<Id<'source>>,
-    pub body: Block<'source>,
 }
 
 #[derive(PartialEq, Debug)]
