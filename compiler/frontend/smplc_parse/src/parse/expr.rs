@@ -1,9 +1,8 @@
 use smplc_ast::{Atom, BinOp, Call, Expr, Id, UnOp};
 use smplc_lexer::{Token, TokenValue};
 
-use super::Parse;
 use crate::error::ParseResult;
-use crate::{TokenStream, TryParse};
+use crate::{Parse, TokenStream, TryParse};
 
 impl<'source> Parse<'source> for Expr<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
