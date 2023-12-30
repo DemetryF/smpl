@@ -8,6 +8,7 @@ mod instruction;
 #[derive(Default)]
 pub struct Code {
     pub functions: Vec<CodeFunction>,
+    pub constants: HashMap<Id, f32>,
 }
 
 #[derive(Default)]

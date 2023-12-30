@@ -1,4 +1,7 @@
-use std::fmt::{self, Write};
+use std::{
+    collections::HashMap,
+    fmt::{self, Write},
+};
 
 use smplc_ir::{Code, FunctionId};
 
@@ -12,6 +15,12 @@ mod env;
 
 pub fn compile(code: Code) -> Result<String, fmt::Error> {
     let mut builder = Builder::default();
+
+    let constants = code
+        .constants
+        .into_iter()
+        .map(|(id, value)| (id, builder.float(value)))
+        .collect::<HashMap<_, _>>();
 
     writeln!(
         builder,
@@ -54,7 +63,7 @@ ret
         .insert(FunctionId("print".into()), 8);
 
     for function in code.functions {
-        let mut env = Env::default();
+        let mut env = Env::new(&constants);
 
         writeln!(builder, "{}:", function.id)?;
 

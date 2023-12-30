@@ -8,7 +8,6 @@ pub struct TokenStream<'source> {
     tokens: Vec<Token<'source>>,
     index: usize,
 
-    pub in_function: bool,
     pub in_cycle: bool,
 }
 

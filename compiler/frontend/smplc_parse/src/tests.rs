@@ -1,12 +1,21 @@
 use smplc_ast::*;
 use smplc_lexer::lex;
 
-use crate::{parse, Parse, TokenStream};
+use crate::{Parse, TokenStream};
 
-macro_rules! parser_test {
+macro_rules! parse_test {
     ($code:expr; $stmt:expr) => {
         assert_eq!(
-            parse(TokenStream::new(lex($code).unwrap())).unwrap()[0],
+            Declaration::parse(&mut TokenStream::new(lex($code).unwrap())).unwrap(),
+            $stmt
+        );
+    };
+}
+
+macro_rules! statement_test {
+    ($code:expr; $stmt:expr) => {
+        assert_eq!(
+            Statement::parse(&mut TokenStream::new(lex($code).unwrap())).unwrap(),
             $stmt
         );
     };
@@ -21,7 +30,7 @@ macro_rules! expr_test {
 
 #[test]
 pub fn declare_statement() {
-    parser_test!(
+    statement_test!(
         "\
 let a;
         ";
@@ -31,7 +40,7 @@ let a;
         })
     );
 
-    parser_test!(
+    statement_test!(
         "\
 let a = a;
         ";
@@ -47,7 +56,7 @@ let a = a;
 
 #[test]
 pub fn expr_statement() {
-    parser_test!(
+    statement_test!(
         "\
 a;
         ";
@@ -60,22 +69,22 @@ a;
 
 #[test]
 pub fn function_statement() {
-    parser_test!(
+    parse_test!(
         "\
 fn name() {}
         ";
-        Statement::Function(FunctionStatement {
+        Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
             args: vec![],
             body: Block { stmts: vec![] },
         })
     );
 
-    parser_test!(
+    parse_test!(
         "\
 fn name(a) {}
         ";
-        Statement::Function(FunctionStatement {
+        Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
             args: vec![
                 Id::new("a".into(), Pos::new(1, 9, 0, 8))
@@ -84,11 +93,11 @@ fn name(a) {}
         })
     );
 
-    parser_test!(
+    parse_test!(
         "\
 fn name(a, b) {}
         ";
-        Statement::Function(FunctionStatement {
+        Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
             args: vec![
                 Id::new("a".into(), Pos::new(1, 9, 0, 8)),
@@ -101,7 +110,7 @@ fn name(a, b) {}
 
 #[test]
 pub fn if_statement() {
-    parser_test!(
+    statement_test!(
         "\
 if a { }
         ";
@@ -113,7 +122,7 @@ if a { }
         })
     );
 
-    parser_test!(
+    statement_test!(
         "\
 if a { }
 else { }
@@ -129,13 +138,13 @@ else { }
 
 #[test]
 pub fn return_statement() {
-    parser_test!(
+    parse_test!(
         "\
 fn name() {
     return;
 }
         ";
-        Statement::Function(FunctionStatement {
+        Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
             args: vec![],
             body: Block {
@@ -144,14 +153,14 @@ fn name() {
         })
     );
 
-    parser_test!(
+    parse_test!(
         "\
 fn name() {
     return a;
 }
         ";
 
-        Statement::Function(FunctionStatement {
+        Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
             args: vec![],
             body: Block {
@@ -165,7 +174,7 @@ fn name() {
 
 #[test]
 pub fn while_statement() {
-    parser_test!(
+    statement_test!(
         "\
 while a {}
         ";

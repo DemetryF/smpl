@@ -18,8 +18,6 @@ impl<'source> SemCheck<'source> for ast::Statement<'source> {
 
             ast::Statement::Break => Ok(Statement::Break),
             ast::Statement::Continue => Ok(Statement::Continue),
-
-            ast::Statement::Function(_) => unreachable!(),
         }
     }
 }
