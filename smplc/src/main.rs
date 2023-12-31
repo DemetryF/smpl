@@ -18,10 +18,17 @@ struct Args {
 
     #[arg(short, long, default_value_t = String::from("a.out"))]
     output: String,
+
+    #[arg(long, default_value_t = false)]
+    show_ir: bool,
 }
 
 fn main() -> Result<(), ()> {
-    let Args { filename, output } = Args::parse();
+    let Args {
+        filename,
+        output,
+        show_ir,
+    } = Args::parse();
 
     let program = fs::read_to_string(filename.as_str())
         .map_err(|_| eprintln!("failed to open \"{filename}\""))?;
@@ -38,9 +45,13 @@ fn main() -> Result<(), ()> {
         output_error(&filename, &program, err.pos, err.kind);
     })?;
 
-    let intermediate_code = translate(hir);
+    let ir_code = translate(hir);
 
-    let assembly = compile(intermediate_code).unwrap();
+    if show_ir {
+        println!("{ir_code}");
+    }
+
+    let assembly = compile(ir_code).unwrap();
 
     fs::write("./temp.asm", assembly).unwrap();
 
