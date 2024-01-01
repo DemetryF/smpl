@@ -12,7 +12,7 @@ use env::Env;
 use error::SemResult;
 use semcheck::SemCheck;
 
-pub fn sem_check<'source>(ast: Vec<ast::Declaration<'source>>) -> SemResult<'source, HIR> {
+pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
     let mut env = Env::default();
     env.variables.fork();
 

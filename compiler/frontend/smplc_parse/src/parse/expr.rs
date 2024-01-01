@@ -23,7 +23,7 @@ fn expr_bp<'source>(
             break;
         }
 
-        token_stream.next();
+        token_stream.next_token();
 
         lhs = {
             let rhs = expr_bp(token_stream, r_bp)?;
@@ -61,14 +61,14 @@ fn parse_fact<'source>(
         }
 
         TokenValue::Literal(literal) => {
-            token_stream.next();
+            token_stream.next_token();
 
             Expr::Atom(Atom::Literal(literal))
         }
 
         _ => {
             if let Some(op) = UnOp::try_parse(token_stream) {
-                token_stream.next();
+                token_stream.next_token();
 
                 let (_, r_bp) = op.power();
 
@@ -120,7 +120,7 @@ impl<'source> Parse<'source> for Id<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         match &token_stream.current().value {
             TokenValue::Id(_) => {
-                let Token { value, pos } = token_stream.next();
+                let Token { value, pos } = token_stream.next_token();
 
                 let TokenValue::Id(id) = value else {
                     panic!("kaput");

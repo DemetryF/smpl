@@ -43,7 +43,7 @@ impl<'a> Env<'a> {
     pub fn add(&mut self, id: Id) -> String {
         if !self.addresses.contains_key(&id) {
             self.variables_count += 1;
-            self.set(id.clone(), self.variables_count as isize);
+            self.set(id, self.variables_count as isize);
         }
 
         self.get(id)

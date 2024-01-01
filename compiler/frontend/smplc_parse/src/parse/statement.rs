@@ -20,7 +20,7 @@ impl<'source> Parse<'source> for Statement<'source> {
                     });
                 }
 
-                token_stream.next();
+                token_stream.next_token();
                 token_stream.consume(TokenValue::Semicolon)?;
 
                 Ok(Self::Continue)
@@ -34,7 +34,7 @@ impl<'source> Parse<'source> for Statement<'source> {
                     });
                 }
 
-                token_stream.next();
+                token_stream.next_token();
                 token_stream.consume(TokenValue::Semicolon)?;
 
                 Ok(Self::Break)

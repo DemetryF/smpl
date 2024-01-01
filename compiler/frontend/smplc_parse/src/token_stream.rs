@@ -29,7 +29,7 @@ impl<'source> TokenStream<'source> {
 
     pub fn consume(&mut self, value: TokenValue) -> ParseResult<'source, ()> {
         if self.check(value) {
-            self.next();
+            self.next_token();
 
             return Ok(());
         }
@@ -47,7 +47,7 @@ impl<'source> TokenStream<'source> {
         false
     }
 
-    pub fn next(&mut self) -> Token<'source> {
+    pub fn next_token(&mut self) -> Token<'source> {
         let token = self.current();
 
         self.index += 1;

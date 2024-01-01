@@ -56,16 +56,12 @@ fn main() -> Result<(), ()> {
     fs::write("./temp.asm", assembly).unwrap();
 
     Command::new("nasm")
-        .arg("-f elf64")
-        .arg("./temp.asm")
-        .arg("-o temp.o")
+        .args(["-f", "elf64", "./temp.asm", "-o", "temp.o"])
         .output()
         .unwrap();
 
     Command::new("gcc")
-        .arg("-no-pie")
-        .arg("temp.o")
-        .arg(format!("-o{output}"))
+        .args(["-no-pie", "temp.o", &format!("-o{output}")])
         .output()
         .unwrap();
 

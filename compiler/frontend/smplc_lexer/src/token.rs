@@ -86,7 +86,7 @@ impl<'source> Display for TokenValue<'source> {
             TokenValue::Literal(literal) => {
                 return write!(f, "{literal}");
             }
-            TokenValue::Id(id) => &id,
+            TokenValue::Id(id) => id,
             TokenValue::EOF => "\\0",
         };
 
