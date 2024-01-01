@@ -50,12 +50,9 @@ impl<'source, K: fmt::Display> fmt::Display for Error<'source, K> {
 
 impl<'source, K: fmt::Display> Error<'source, K> {
     pub fn get_line(&self) -> &'source str {
-        let line = &self.code[self.pos.line_start..];
-
-        if let Some((line, _)) = line.split_once('\n') {
-            line
-        } else {
-            line
-        }
+        self.code[self.pos.line_start..]
+            .lines()
+            .next()
+            .unwrap_or_default()
     }
 }
