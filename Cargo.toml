@@ -16,3 +16,5 @@ members = [
 
     "smplc",
 ]
+
+resolver = "2"
