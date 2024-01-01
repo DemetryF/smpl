@@ -13,9 +13,7 @@ pub use error::ParseError;
 pub use smplc_lexer::LexError;
 pub use token_stream::TokenStream;
 
-pub fn parse<'source>(
-    mut token_stream: TokenStream<'source>,
-) -> ParseResult<'source, Vec<Declaration<'source>>> {
+pub fn parse(mut token_stream: TokenStream) -> ParseResult<Vec<Declaration>> {
     let mut decls = Vec::new();
 
     while !token_stream.is_end() {

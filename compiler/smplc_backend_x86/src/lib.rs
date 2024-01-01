@@ -99,5 +99,5 @@ int 0x80
         "
     )?;
 
-    return builder.build();
+    builder.build()
 }
