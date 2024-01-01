@@ -38,29 +38,45 @@ pub fn display(attr: TokenStream, input: TokenStream) -> TokenStream {
     let struct_item = syn::parse_macro_input!(input as syn::ItemStruct);
     let struct_name = struct_item.ident;
 
-    if let syn::Fields::Named(fields) = &struct_item.fields {
-        let field_names = fields
-            .named
-            .iter()
-            .map(|field| field.ident.clone().unwrap())
-            .collect::<Vec<_>>();
+    let result = match &struct_item.fields {
+        syn::Fields::Named(fields) => {
+            let field_names = fields
+                .named
+                .iter()
+                .map(|field| field.ident.clone().unwrap())
+                .collect::<Vec<_>>();
 
-        let result = quote! {
-            #input_clone
+            quote! {
+                #input_clone
 
-            impl std::fmt::Display for #struct_name {
-                fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-                    let Self {
-                        #(#field_names),*
-                    } = self;
+                impl std::fmt::Display for #struct_name {
+                    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                        let Self {
+                            #(#field_names),*
+                        } = self;
 
-                    write!(f, #attr)
+                        write!(f, #attr)
+                    }
                 }
             }
-        };
+        }
 
-        TokenStream::from(result)
-    } else {
-        panic!("display only supports Struct variants with named fields")
-    }
+        syn::Fields::Unit => {
+            quote! {
+                #input_clone
+
+                impl std::fmt::Display for #struct_name {
+                    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                        write!(f, #attr)
+                    }
+                }
+            }
+        }
+
+        syn::Fields::Unnamed(_) => {
+            panic!("display macro doesnt support unnamed structures")
+        }
+    };
+
+    TokenStream::from(result)
 }
