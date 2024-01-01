@@ -16,8 +16,8 @@ pub enum ParseErrorKind<'source> {
     UnexpectedToken(TokenValue<'source>),
     ReturnOutsideFunction,
     FunctionInBlock,
-    BreakOutsideCycle,
-    ContinueOutsideCycle,
+    BreakOutsideLoop,
+    ContinueOutsideLoop,
 }
 
 impl<'source> ParseError<'source> {
@@ -55,12 +55,12 @@ impl fmt::Display for ParseErrorKind<'_> {
                 write!(f, "functions are not allowed in blocks")
             }
 
-            Self::BreakOutsideCycle => {
-                write!(f, "using break outside cycle")
+            Self::BreakOutsideLoop => {
+                write!(f, "using break outside loop")
             }
 
-            Self::ContinueOutsideCycle => {
-                write!(f, "using continue outside cycle")
+            Self::ContinueOutsideLoop => {
+                write!(f, "using continue outside loop")
             }
         }
     }
