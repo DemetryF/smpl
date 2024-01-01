@@ -2,6 +2,7 @@ mod binary;
 mod call;
 mod copy;
 mod goto;
+mod halt;
 mod r#if;
 mod param;
 mod r#return;
@@ -21,6 +22,7 @@ pub trait Compile {
 impl Compile for Instruction {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
         writeln!(builder, "; {}", self)?;
+
         match self {
             Instruction::Binary(a) => a.compile(env, builder),
             Instruction::Unary(a) => a.compile(env, builder),
@@ -31,6 +33,7 @@ impl Compile for Instruction {
             Instruction::Call(a) => a.compile(env, builder),
             Instruction::Param(a) => a.compile(env, builder),
             Instruction::Return(a) => a.compile(env, builder),
+            Instruction::Halt(a) => a.compile(env, builder),
         }
     }
 }

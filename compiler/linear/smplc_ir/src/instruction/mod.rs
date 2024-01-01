@@ -25,6 +25,7 @@ pub enum Instruction {
 
     Param(Param),
     Return(Return),
+    Halt(Halt),
 }
 
 #[derive(Clone)]
@@ -94,6 +95,10 @@ impl std::fmt::Display for Call {
 pub struct Param {
     pub value: Atom,
 }
+
+#[derive(Clone)]
+#[display("halt")]
+pub struct Halt;
 
 #[derive(Clone)]
 pub struct Return {
