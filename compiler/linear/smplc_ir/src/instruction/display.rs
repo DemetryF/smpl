@@ -12,6 +12,7 @@ impl std::fmt::Display for Instruction {
             Instruction::Call(a) => a.fmt(f),
             Instruction::Param(a) => a.fmt(f),
             Instruction::Return(a) => a.fmt(f),
+            Instruction::Halt(a) => a.fmt(f),
         }
     }
 }
