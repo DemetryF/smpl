@@ -24,23 +24,23 @@ macro_rules! semtest {
 #[test]
 pub fn non_existent_variable() {
     semtest![
-        "a;" => SemErrorKind::NonExistentVariable("a")
+        "fn main() { a; }" => SemErrorKind::NonExistentVariable("a")
     ];
 }
 
 #[test]
 pub fn non_existent_function() {
     semtest![
-        "a();" => SemErrorKind::NonExistentFunction("a")
+        "fn main() { a(); }" => SemErrorKind::NonExistentFunction("a")
     ];
 }
 
 #[test]
 pub fn redeclaring_variable() {
     semtest![
-        "let a; let a;" => SemErrorKind::RedeclaringVariable {
+        "fn main() { let a; let a; }" => SemErrorKind::RedeclaringVariable {
             id: "a",
-            first_declaration: Pos::new(1, 5, 0, 4)
+            first_declaration: Pos::new(1, 17, 0, 16)
         }
     ];
 }
@@ -58,7 +58,9 @@ pub fn redeclaring_function() {
 #[test]
 pub fn invalid_arguments() {
     semtest![
-        "fn a() {} a(1);" => SemErrorKind::InvalidArguments {
+        "fn a() {}
+         fn main() { a(1); }
+        " => SemErrorKind::InvalidArguments {
             expected_args_count: 0,
             received_args_count: 1,
             function_ref: Rc::new(FunData {
@@ -70,7 +72,7 @@ pub fn invalid_arguments() {
     ];
 
     semtest![
-        "fn a(b) {} a();" => SemErrorKind::InvalidArguments {
+        "fn a(b) {} fn main() { a(); }" => SemErrorKind::InvalidArguments {
             expected_args_count: 1,
             received_args_count: 0,
             function_ref: Rc::new(FunData {
