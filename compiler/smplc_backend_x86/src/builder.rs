@@ -36,7 +36,7 @@ fmt: db \"%f\", 10, 0
 
         if !self.float_constants.is_empty() {
             for (index, float) in self.float_constants.iter().enumerate() {
-                writeln!(self.code, "LC{index}: dd {float:.1}")?;
+                writeln!(self.code, "LC{index}: dd {float}")?;
             }
         }
 

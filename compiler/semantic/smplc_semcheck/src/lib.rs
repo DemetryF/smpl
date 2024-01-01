@@ -14,6 +14,7 @@ use semcheck::SemCheck;
 
 pub fn sem_check<'source>(ast: Vec<ast::Declaration<'source>>) -> SemResult<'source, HIR> {
     let mut env = Env::default();
+    env.variables.fork();
 
     env.functions
         .add(ast::Id::new("print", ast::Pos::default()), 1)
