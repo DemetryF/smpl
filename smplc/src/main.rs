@@ -23,27 +23,56 @@ struct Args {
     show_ir: bool,
 }
 
-fn main() -> Result<(), ()> {
+fn main() {
     let Args {
         filename,
         output,
         show_ir,
     } = Args::parse();
 
-    let program = fs::read_to_string(filename.as_str())
-        .map_err(|_| eprintln!("failed to open \"{filename}\""))?;
+    let program = match fs::read_to_string(filename.as_str()) {
+        Ok(program) => program,
+        Err(e) => {
+            eprintln!("{e}");
+            return;
+        }
+    };
 
-    let tokens =
-        lex(&program).map_err(|err| output_error(&filename, &program, err.pos, err.char))?;
+    let Ok(asm_code) = generate_asm(&program, &filename, show_ir) else {
+        return;
+    };
+
+    assembly(asm_code, output);
+}
+
+pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String, ()> {
+    let tokens = {
+        match lex(&code) {
+            Ok(tokens) => tokens,
+            Err(err) => {
+                output_error(&filename, &code, err.pos, err.char);
+                return Err(());
+            }
+        }
+    };
 
     let token_stream = TokenStream::new(tokens);
 
-    let stmts =
-        parse(token_stream).map_err(|err| output_error(&filename, &program, err.pos, err.kind))?;
+    let stmts = match parse(token_stream) {
+        Ok(stmts) => stmts,
+        Err(err) => {
+            output_error(&filename, &code, err.pos, err.kind);
+            return Err(());
+        }
+    };
 
-    let hir = sem_check(stmts).map_err(|err| {
-        output_error(&filename, &program, err.pos, err.kind);
-    })?;
+    let hir = match sem_check(stmts) {
+        Ok(stmts) => stmts,
+        Err(err) => {
+            output_error(&filename, &code, err.pos, err.kind);
+            return Err(());
+        }
+    };
 
     let ir_code = translate(hir);
 
@@ -51,8 +80,10 @@ fn main() -> Result<(), ()> {
         println!("{ir_code}");
     }
 
-    let assembly = compile(ir_code).unwrap();
+    compile(ir_code).map_err(|_| ())
+}
 
+pub fn assembly(assembly: String, output_filename: String) {
     fs::write("./temp.asm", assembly).unwrap();
 
     Command::new("nasm")
@@ -61,7 +92,7 @@ fn main() -> Result<(), ()> {
         .unwrap();
 
     Command::new("gcc")
-        .args(["-no-pie", "temp.o", &format!("-o{output}")])
+        .args(["-no-pie", "temp.o", &format!("-o{output_filename}")])
         .output()
         .unwrap();
 
@@ -70,6 +101,4 @@ fn main() -> Result<(), ()> {
         .arg("temp.o")
         .output()
         .unwrap();
-
-    Ok(())
 }
