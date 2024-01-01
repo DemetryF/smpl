@@ -8,15 +8,6 @@ pub enum Atom {
     Number(f32),
 }
 
-impl std::fmt::Display for Atom {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Atom::Id(id) => write!(f, "{id}"),
-            Atom::Number(num) => write!(f, "{num}"),
-        }
-    }
-}
-
 impl From<ast::Literal> for Atom {
     fn from(value: ast::Literal) -> Self {
         let number = match value {
