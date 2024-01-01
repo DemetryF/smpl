@@ -18,12 +18,6 @@ impl From<usize> for Id {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub struct FunctionId(pub String);
 
-impl fmt::Display for FunctionId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
 impl From<&str> for FunctionId {
     fn from(value: &str) -> Self {
         Self(value.into())

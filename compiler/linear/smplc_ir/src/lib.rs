@@ -1,9 +1,19 @@
 use std::collections::HashMap;
 use std::fmt;
 
-pub use instruction::*;
+pub use smplc_ast::{BinOp, UnOp};
 
-mod instruction;
+pub use atom::Atom;
+pub use id::{FunctionId, Id};
+pub use instructions::*;
+
+mod atom;
+mod display;
+mod id;
+mod instructions;
+
+#[derive(Clone)]
+pub struct Label(pub String);
 
 #[derive(Default)]
 pub struct Code {

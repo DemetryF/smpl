@@ -1,15 +1,6 @@
-mod atom;
-mod display;
-mod id;
-mod label;
-
 use smplc_macros::{display, EnumWrap};
 
-pub use smplc_ast::{BinOp, UnOp};
-
-pub use self::atom::Atom;
-pub use self::id::{FunctionId, Id};
-pub use self::label::Label;
+use crate::*;
 
 #[derive(Clone, EnumWrap)]
 
