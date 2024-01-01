@@ -13,9 +13,9 @@ impl<'source> Parse<'source> for Statement<'source> {
             TokenValue::While => WhileStatement::parse(token_stream).map(Self::While),
 
             TokenValue::Continue => {
-                if !token_stream.in_cycle {
+                if !token_stream.in_loop {
                     return Err(ParseError {
-                        kind: ParseErrorKind::ContinueOutsideCycle,
+                        kind: ParseErrorKind::ContinueOutsideLoop,
                         pos: token_stream.get_pos(),
                     });
                 }
@@ -27,9 +27,9 @@ impl<'source> Parse<'source> for Statement<'source> {
             }
 
             TokenValue::Break => {
-                if !token_stream.in_cycle {
+                if !token_stream.in_loop {
                     return Err(ParseError {
-                        kind: ParseErrorKind::BreakOutsideCycle,
+                        kind: ParseErrorKind::BreakOutsideLoop,
                         pos: token_stream.get_pos(),
                     });
                 }
@@ -50,24 +50,15 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
         token_stream.consume(TokenValue::Let)?;
 
         let id = Id::parse(token_stream)?;
-        let init_expr = parse_init_expr(token_stream)?;
+        let init_expr = token_stream
+            .try_consume(TokenValue::Assign)
+            .then(|| Expr::parse(token_stream))
+            .transpose()?;
 
         token_stream.consume(TokenValue::Semicolon)?;
 
         Ok(DeclareStatement { id, init_expr })
     }
-}
-
-fn parse_init_expr<'source>(
-    token_stream: &mut TokenStream<'source>,
-) -> ParseResult<'source, Option<Expr<'source>>> {
-    if token_stream.try_consume(TokenValue::Assign) {
-        let expr = Expr::parse(token_stream)?;
-
-        return Ok(Some(expr));
-    }
-
-    Ok(None)
 }
 
 impl<'source> Parse<'source> for ExprStatement<'source> {
@@ -146,13 +137,13 @@ impl<'source> Parse<'source> for WhileStatement<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::While)?;
 
-        let in_cycle = token_stream.in_cycle;
-        token_stream.in_cycle = true;
+        let in_loop = token_stream.in_loop;
+        token_stream.in_loop = true;
 
         let condition = Expr::parse(token_stream)?;
         let body = Block::parse(token_stream)?;
 
-        token_stream.in_cycle = in_cycle;
+        token_stream.in_loop = in_loop;
 
         Ok(WhileStatement { condition, body })
     }
