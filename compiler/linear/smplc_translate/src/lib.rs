@@ -2,10 +2,8 @@ mod expr;
 mod statement;
 mod translator;
 
-use std::collections::HashMap;
-
 use smplc_hir::{Block, Expr, HIR};
-use smplc_ir::{BinOp, Code, CodeFunction, Id, UnOp};
+use smplc_ir::{BinOp, Code, CodeFunction, UnOp};
 
 use translator::Translator;
 
@@ -25,25 +23,23 @@ pub fn translate(hir: HIR) -> Code {
     let HIR {
         constants,
         functions,
-        variables_count,
     } = hir;
 
-    let mut translator = Translator::new(variables_count);
+    let mut translator = Translator::default();
 
     for constant in constants {
-        let value = eval_constant_expr(constant.value, &translator.code.constants);
+        let value = eval_constant_expr(constant.value, &translator);
 
-        translator
-            .code
-            .constants
-            .insert(constant.variable.id, value);
+        let id = translator.variables.add(constant.variable);
+
+        translator.code.constants.insert(id, value);
     }
 
     for function in functions {
         let args = function
             .args
             .into_iter()
-            .map(|var_ref| var_ref.id)
+            .map(|var_ref| translator.variables.add(var_ref))
             .collect();
 
         translator.code.add_function(CodeFunction {
@@ -61,11 +57,11 @@ pub fn translate(hir: HIR) -> Code {
     translator.code
 }
 
-fn eval_constant_expr(expr: Expr, constants: &HashMap<Id, f32>) -> f32 {
+fn eval_constant_expr(expr: Expr, translator: &Translator) -> f32 {
     match expr {
         Expr::Binary { lhs, op, rhs } => {
-            let lhs = eval_constant_expr(*lhs, constants);
-            let rhs = eval_constant_expr(*rhs, constants);
+            let lhs = eval_constant_expr(*lhs, translator);
+            let rhs = eval_constant_expr(*rhs, translator);
 
             match op {
                 BinOp::Or => ((lhs == 1.0) || (rhs == 1.0)) as i32 as f32,
@@ -86,7 +82,7 @@ fn eval_constant_expr(expr: Expr, constants: &HashMap<Id, f32>) -> f32 {
         }
 
         Expr::Unary { op, rhs } => {
-            let rhs = eval_constant_expr(*rhs, constants);
+            let rhs = eval_constant_expr(*rhs, translator);
 
             match op {
                 UnOp::Not => !(rhs == 1.0) as i32 as f32,
@@ -97,7 +93,12 @@ fn eval_constant_expr(expr: Expr, constants: &HashMap<Id, f32>) -> f32 {
         Expr::Call { .. } => panic!("function call in constant expression"),
 
         Expr::Atom(atom) => match atom {
-            smplc_hir::Atom::Var(var_ref) => *constants.get(&var_ref.id).unwrap(),
+            smplc_hir::Atom::Var(var_ref) => {
+                let id = translator.variables.get(var_ref);
+
+                *translator.code.constants.get(&id).unwrap()
+            }
+
             smplc_hir::Atom::Value(value) => value,
         },
     }

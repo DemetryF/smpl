@@ -93,7 +93,9 @@ impl Translate for ExprStatement {
     fn translate(self, translator: &mut Translator) {
         match self {
             ExprStatement::Assign { to, what } => {
-                translate_expr_and_write_in(what, translator, to.id);
+                let result_id = translator.variables.get_or_add(to);
+
+                translate_expr_and_write_in(what, translator, result_id);
             }
 
             ExprStatement::Expr(Expr::Call { function, args }) => {

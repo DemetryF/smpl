@@ -29,7 +29,12 @@ pub fn translate_expr_and_write_in(expr: Expr, translator: &mut Translator, resu
 
         Expr::Atom(atom) => {
             let value = match atom {
-                smplc_hir::Atom::Var(id) => Atom::Id(id.id),
+                smplc_hir::Atom::Var(var_ref) => {
+                    let id = translator.variables.get(var_ref);
+
+                    Atom::Id(id)
+                }
+
                 smplc_hir::Atom::Value(value) => Atom::Number(value),
             };
 
@@ -44,7 +49,7 @@ pub fn translate_expr(expr: Expr, translator: &mut Translator) -> Atom {
             let lhs = translate_expr(*lhs, translator);
             let rhs = translate_expr(*rhs, translator);
 
-            let result = translator.next_id();
+            let result = translator.variables.next_id();
 
             translator.code.push(Binary {
                 result,
@@ -59,7 +64,7 @@ pub fn translate_expr(expr: Expr, translator: &mut Translator) -> Atom {
         Expr::Unary { op, rhs } => {
             let rhs = translate_expr(*rhs, translator);
 
-            let result = translator.next_id();
+            let result = translator.variables.next_id();
 
             translator.code.push(Unary { result, op, rhs });
 
@@ -67,7 +72,7 @@ pub fn translate_expr(expr: Expr, translator: &mut Translator) -> Atom {
         }
 
         Expr::Call { function, args } => {
-            let result = translator.next_id();
+            let result = translator.variables.next_id();
 
             translate_call(translator, function.id.clone(), args, Some(result));
 
@@ -75,7 +80,12 @@ pub fn translate_expr(expr: Expr, translator: &mut Translator) -> Atom {
         }
 
         Expr::Atom(atom) => match atom {
-            smplc_hir::Atom::Var(id) => Atom::Id(id.id),
+            smplc_hir::Atom::Var(var_ref) => {
+                let id = translator.variables.get(var_ref);
+
+                Atom::Id(id)
+            }
+
             smplc_hir::Atom::Value(value) => Atom::Number(value),
         },
     }
