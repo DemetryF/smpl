@@ -1,28 +1,25 @@
+use std::collections::HashMap;
+
+use smplc_ast::Pos;
+use smplc_hir::VarRef;
 use smplc_ir::{Code, Id, Label};
 
 #[derive(Default)]
 pub struct Translator {
     pub code: Code,
+    pub variables: Variables,
 
-    variables_count: usize,
     ifs_count: usize,
     whiles_count: usize,
 }
 
+#[derive(Default)]
+pub struct Variables {
+    data: HashMap<Pos, Id>,
+    ids_count: usize,
+}
+
 impl Translator {
-    pub fn new(variables_count: usize) -> Self {
-        Self {
-            variables_count,
-            ..Default::default()
-        }
-    }
-
-    pub fn next_id(&mut self) -> Id {
-        self.variables_count += 1;
-
-        Id::from(self.variables_count - 1)
-    }
-
     pub fn next_if_labels(&mut self) -> (Label, Label) {
         let end_label = Label(format!("endif{}", self.ifs_count));
         let else_label = Label(format!("else{}", self.ifs_count));
@@ -47,5 +44,32 @@ impl Translator {
         } else {
             None
         }
+    }
+}
+
+impl Variables {
+    pub fn get_or_add(&mut self, var: VarRef) -> Id {
+        self.data
+            .get(&var.declared_at)
+            .cloned()
+            .unwrap_or_else(|| self.add(var))
+    }
+
+    pub fn add(&mut self, var: VarRef) -> Id {
+        let id = self.next_id();
+
+        self.data.insert(var.declared_at, id);
+
+        id
+    }
+
+    pub fn get(&self, var: VarRef) -> Id {
+        self.data[&var.declared_at]
+    }
+
+    pub fn next_id(&mut self) -> Id {
+        self.ids_count += 1;
+
+        Id::from(self.ids_count - 1)
     }
 }

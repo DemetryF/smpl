@@ -10,7 +10,6 @@ pub use statement::*;
 pub struct HIR {
     pub constants: Vec<Constant>,
     pub functions: Vec<Function>,
-    pub variables_count: usize,
 }
 
 pub struct Function {

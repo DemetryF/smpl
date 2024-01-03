@@ -40,7 +40,5 @@ pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
         }
     }
 
-    hir.variables_count = env.variables.count();
-
     Ok(hir)
 }

@@ -36,7 +36,7 @@ pub struct FunData {
     pub args_count: usize,
 }
 
+#[derive(Hash)]
 pub struct VarData {
     pub declared_at: Pos,
-    pub id: smplc_ir::Id,
 }
