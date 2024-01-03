@@ -3,7 +3,7 @@ mod statement;
 mod translator;
 
 use smplc_hir::{Block, Expr, HIR};
-use smplc_ir::{BinOp, Code, CodeFunction, UnOp};
+use smplc_ir::{BinOp, Code, CodeFunction, Halt, UnOp};
 
 use translator::Translator;
 
@@ -53,6 +53,8 @@ pub fn translate(hir: HIR) -> Code {
             .into_iter()
             .for_each(|stmt| stmt.translate(&mut translator))
     }
+
+    translator.code.push(Halt);
 
     translator.code
 }
