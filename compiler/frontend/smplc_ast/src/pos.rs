@@ -1,35 +1,52 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Pos {
-    pub line: usize,
-    pub column: usize,
-
-    pub line_start: usize,
-    pub index: usize,
+    line: usize,
+    column: usize,
+    index: usize,
 }
 
 impl Pos {
-    pub fn new(line: usize, column: usize, line_start: usize, index: usize) -> Self {
+    #[inline(always)]
+    pub fn new(line: usize, column: usize, index: usize) -> Self {
         Self {
             line,
             column,
-            line_start,
             index,
         }
     }
 
+    #[inline(always)]
+    pub fn line(self) -> usize {
+        self.line
+    }
+
+    #[inline(always)]
+    pub fn column(self) -> usize {
+        self.column
+    }
+
+    #[inline(always)]
+    pub fn line_start(self) -> usize {
+        self.index - self.column + 1
+    }
+
+    #[inline(always)]
+    pub fn index(self) -> usize {
+        self.index
+    }
+
+    #[inline(always)]
     pub fn update(&mut self, char: char) {
         match char {
-            '\n' => self.new_line(),
+            '\n' => {
+                self.line += 1;
+                self.column = 1;
+            }
+
             _ => self.column += 1,
         }
 
         self.index += 1;
-    }
-
-    pub fn new_line(&mut self) {
-        self.line += 1;
-        self.column = 1;
-        self.line_start = self.index + 1;
     }
 }
 
@@ -38,7 +55,6 @@ impl Default for Pos {
         Self {
             line: 1,
             column: 1,
-            line_start: 0,
             index: 0,
         }
     }

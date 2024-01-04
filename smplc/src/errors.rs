@@ -33,24 +33,26 @@ impl<'source, K: fmt::Display> fmt::Display for Error<'source, K> {
         write!(
             f,
             "{}:{}:{}: ",
-            self.filename, self.pos.line, self.pos.column
+            self.filename,
+            self.pos.line(),
+            self.pos.column()
         )?;
 
         writeln!(f, "{} {}", "Error:".red(), self.kind)?;
 
-        let column_length = self.pos.line.ilog10() as usize + 1;
+        let column_length = self.pos.line().ilog10() as usize + 1;
 
-        write!(f, " {} | ", self.pos.line)?;
+        write!(f, " {} | ", self.pos.line())?;
         writeln!(f, "{}", self.get_line())?;
 
         write!(f, " {} | ", " ".repeat(column_length))?;
-        write!(f, "{}{}", " ".repeat(self.pos.column - 1), "^".red())
+        write!(f, "{}{}", " ".repeat(self.pos.column() - 1), "^".red())
     }
 }
 
 impl<'source, K: fmt::Display> Error<'source, K> {
     pub fn get_line(&self) -> &'source str {
-        self.code[self.pos.line_start..]
+        self.code[self.pos.line_start()..]
             .lines()
             .next()
             .unwrap_or_default()
