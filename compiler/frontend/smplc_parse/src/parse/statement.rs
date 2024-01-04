@@ -87,7 +87,13 @@ impl<'source> Parse<'source> for IfStatement<'source> {
 
         let condition = Expr::parse(token_stream)?;
         let then_body = Block::parse(token_stream)?;
-        let else_body = parse_else_body(token_stream)?;
+
+        let else_body = {
+            token_stream
+                .try_consume(TokenValue::Else)
+                .then(|| Block::parse(token_stream))
+                .transpose()?
+        };
 
         Ok(IfStatement {
             condition,
@@ -97,50 +103,31 @@ impl<'source> Parse<'source> for IfStatement<'source> {
     }
 }
 
-fn parse_else_body<'source>(
-    token_stream: &mut TokenStream<'source>,
-) -> ParseResult<'source, Option<Block<'source>>> {
-    let else_body = {
-        if token_stream.try_consume(TokenValue::Else) {
-            Some(Block::parse(token_stream)?)
-        } else {
-            None
-        }
-    };
-
-    Ok(else_body)
-}
-
 impl<'source> Parse<'source> for ReturnStatement<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::Return)?;
-        let expr = parse_return_expr(token_stream)?;
+
+        let expr = {
+            (!token_stream.check(TokenValue::Semicolon))
+                .then(|| Expr::parse(token_stream))
+                .transpose()?
+        };
+
         token_stream.consume(TokenValue::Semicolon)?;
 
         Ok(ReturnStatement(expr))
     }
 }
 
-fn parse_return_expr<'source>(
-    token_stream: &mut TokenStream<'source>,
-) -> ParseResult<'source, Option<Expr<'source>>> {
-    Ok({
-        if token_stream.check(TokenValue::Semicolon) {
-            None
-        } else {
-            Some(Expr::parse(token_stream)?)
-        }
-    })
-}
-
 impl<'source> Parse<'source> for WhileStatement<'source> {
     fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::While)?;
 
+        let condition = Expr::parse(token_stream)?;
+
         let in_loop = token_stream.in_loop;
         token_stream.in_loop = true;
 
-        let condition = Expr::parse(token_stream)?;
         let body = Block::parse(token_stream)?;
 
         token_stream.in_loop = in_loop;
