@@ -50,7 +50,7 @@ impl SpecialCollector {
             _ => return None,
         };
 
-        code_stream.skip(1);
+        code_stream.next_ch();
 
         Some(value)
     }

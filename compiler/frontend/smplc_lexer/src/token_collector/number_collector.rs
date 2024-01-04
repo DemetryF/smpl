@@ -16,7 +16,8 @@ impl TokenCollector for NumberCollector {
         if !Self::is_digit(code_stream, 10) {
             return None;
         }
-        let start = code_stream.get_index();
+
+        let start = code_stream.index();
 
         match code_stream.slice_from_current(RADIX_PREFIX_LENGTH) {
             "0b" => Self::prefixed(code_stream, 2),
@@ -25,7 +26,7 @@ impl TokenCollector for NumberCollector {
             _ => Self::common_number(code_stream),
         };
 
-        let end = code_stream.get_index();
+        let end = code_stream.index();
 
         let buffer = code_stream.slice(start, end);
 
@@ -54,7 +55,7 @@ impl NumberCollector {
 
     pub fn fraction(code_stream: &mut CodeStream) {
         if code_stream.check('.') {
-            code_stream.consume();
+            code_stream.next_ch();
 
             Self::number_literal(code_stream, 10);
         }
@@ -62,10 +63,10 @@ impl NumberCollector {
 
     pub fn exponential_part(code_stream: &mut CodeStream) {
         if code_stream.check('e') || code_stream.check('E') {
-            code_stream.consume();
+            code_stream.next_ch();
 
             if code_stream.check('-') || code_stream.check('+') {
-                code_stream.consume();
+                code_stream.next_ch();
             }
 
             Self::number_literal(code_stream, 10);
@@ -76,7 +77,7 @@ impl NumberCollector {
         while !code_stream.is_eof()
             && (Self::is_digit(code_stream, radix) || code_stream.check('_'))
         {
-            code_stream.consume();
+            code_stream.next_ch();
         }
     }
 }

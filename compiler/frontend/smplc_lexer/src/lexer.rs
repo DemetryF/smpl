@@ -1,11 +1,9 @@
 use smplc_ast::Pos;
 
-use crate::{
-    code_stream::CodeStream,
-    comment_handler::CommentsHandler,
-    token_collector::{NumberCollector, SpecialCollector, TokenCollector, WordCollector},
-    LexError, Token, TokenValue,
-};
+use crate::code_stream::CodeStream;
+use crate::comment_handler::CommentsHandler;
+use crate::token_collector::*;
+use crate::{LexError, Token, TokenValue};
 
 pub struct Lexer<'source> {
     code_stream: CodeStream<'source>,
@@ -55,7 +53,7 @@ impl<'source> Lexer<'source> {
 
     fn unexpected_char(&mut self, pos: Pos) -> LexError {
         LexError {
-            char: self.code_stream.consume(),
+            char: self.code_stream.next_ch(),
             pos,
         }
     }
