@@ -17,24 +17,21 @@ impl<'source> CodeStream<'source> {
         self.code[self.pos.index()..].chars().next().unwrap()
     }
 
-    pub fn consume(&mut self) -> char {
+    pub fn next_ch(&mut self) -> char {
         let ch = self.current();
+
         self.pos.update(ch);
 
         ch
     }
 
     pub fn check(&self, char: char) -> bool {
-        if self.get_index() + 1 > self.code.len() {
-            return false;
-        }
-
-        self.current() == char
+        !self.is_eof() && self.current() == char
     }
 
-    pub fn check_seq(&self, str: &str) -> bool {
-        let start = self.get_index();
-        let end = self.get_index() + str.len();
+    pub fn check_slice(&self, str: &str) -> bool {
+        let start = self.index();
+        let end = self.index() + str.len();
 
         if end > self.code.len() {
             return false;
@@ -55,15 +52,13 @@ impl<'source> CodeStream<'source> {
         self.pos
     }
 
-    pub fn skip(&mut self, count: usize) -> &'source str {
+    pub fn skip(&mut self, count: usize) {
         for _ in 0..count {
-            self.consume();
+            self.next_ch();
         }
-
-        self.slice(self.pos.index() - count, self.pos.index())
     }
 
-    pub fn get_index(&self) -> usize {
+    pub fn index(&self) -> usize {
         self.pos.index()
     }
 

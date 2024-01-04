@@ -44,15 +44,15 @@ impl WordCollector {
     }
 
     fn word_literal<'source>(code_stream: &mut CodeStream<'source>) -> &'source str {
-        let start = code_stream.get_index();
+        let start = code_stream.index();
 
         while !code_stream.is_eof()
             && (Self::is_word_char(code_stream) || code_stream.current().is_alphanumeric())
         {
-            code_stream.consume();
+            code_stream.next_ch();
         }
 
-        let end = code_stream.get_index();
+        let end = code_stream.index();
 
         code_stream.slice(start, end)
     }

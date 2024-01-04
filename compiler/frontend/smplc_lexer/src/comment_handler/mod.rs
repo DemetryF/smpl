@@ -1,8 +1,8 @@
+mod comment_type;
+
 use crate::CodeStream;
 
 use self::comment_type::CommentType;
-
-mod comment_type;
 
 const COMMENTS: [CommentType; 2] = [
     CommentType {
@@ -33,7 +33,7 @@ impl CommentsHandler {
 
     pub fn skip_spaces(code_stream: &mut CodeStream) {
         while !code_stream.is_eof() && code_stream.current().is_ascii_whitespace() {
-            code_stream.consume();
+            code_stream.next_ch();
         }
     }
 }

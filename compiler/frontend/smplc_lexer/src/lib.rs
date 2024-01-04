@@ -8,14 +8,11 @@ mod lexer;
 #[cfg(test)]
 mod tests;
 
+pub use self::error::LexError;
+pub use self::token::{Token, TokenValue};
+
+use code_stream::CodeStream;
 use lexer::Lexer;
-
-pub use self::{
-    error::LexError,
-    token::{Token, TokenValue},
-};
-
-use self::code_stream::CodeStream;
 
 pub fn lex(code: &str) -> Result<Vec<Token>, LexError> {
     let lexer = Lexer::new(code);
