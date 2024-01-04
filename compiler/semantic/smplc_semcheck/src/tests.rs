@@ -40,7 +40,7 @@ pub fn redeclaring_variable() {
     semtest![
         "fn main() { let a; let a; }" => SemErrorKind::RedeclaringVariable {
             id: "a",
-            first_declaration: Pos::new(1, 17, 0, 16)
+            first_declaration: Pos::new(1, 17, 16)
         }
     ];
 }
@@ -50,7 +50,7 @@ pub fn redeclaring_function() {
     semtest![
         "fn a() {} fn a() {}" => SemErrorKind::RedeclaringFunction {
             id: "a",
-            first_declaration: Pos::new(1, 4, 0, 3)
+            first_declaration: Pos::new(1, 4, 3)
         }
     ];
 }
@@ -64,7 +64,7 @@ pub fn invalid_arguments() {
             expected_args_count: 0,
             received_args_count: 1,
             function_ref: Rc::new(FunData {
-                declared_at: Pos::new(1, 4, 0, 3),
+                declared_at: Pos::new(1, 4, 3),
                 id: "a".into(),
                 args_count: 0,
             })
@@ -76,7 +76,7 @@ pub fn invalid_arguments() {
             expected_args_count: 1,
             received_args_count: 0,
             function_ref: Rc::new(FunData {
-                declared_at: Pos::new(1, 4, 0, 3),
+                declared_at: Pos::new(1, 4,  3),
                 id: "a".into(),
                 args_count: 1,
             })

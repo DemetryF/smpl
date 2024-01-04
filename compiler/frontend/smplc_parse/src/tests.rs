@@ -35,7 +35,7 @@ pub fn declare_statement() {
 let a;
         ";
         Statement::Declare(DeclareStatement {
-            id: Id::new("a".into(), Pos::new(1, 5, 0, 4)),
+            id: Id::new("a".into(), Pos::new(1, 5, 4)),
             init_expr: None,
         })
     );
@@ -45,10 +45,10 @@ let a;
 let a = a;
         ";
         Statement::Declare(DeclareStatement {
-            id: Id::new("a".into(), Pos::new(1, 5, 0, 4)),
+            id: Id::new("a".into(), Pos::new(1, 5,  4)),
             init_expr: Some(Expr::Atom(Atom::Id(Id::new(
                 "a".into(),
-                Pos::new(1, 9, 0, 8),
+                Pos::new(1, 9, 8),
             )))),
         })
     );
@@ -62,7 +62,7 @@ a;
         ";
         Statement::Expr(ExprStatement::Expr(Expr::Atom(Atom::Id(Id::new(
             "a".into(),
-            Pos::new(1, 1, 0, 0),
+            Pos::new(1, 1, 0),
         )))))
     );
 }
@@ -74,7 +74,7 @@ pub fn function_statement() {
 fn name() {}
         ";
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
+            id: Id::new("name".into(), Pos::new(1, 4, 3)),
             args: vec![],
             body: Block { stmts: vec![] },
         })
@@ -85,9 +85,9 @@ fn name() {}
 fn name(a) {}
         ";
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
+            id: Id::new("name".into(), Pos::new(1, 4, 3)),
             args: vec![
-                Id::new("a".into(), Pos::new(1, 9, 0, 8))
+                Id::new("a".into(), Pos::new(1, 9, 8))
             ],
             body: Block { stmts: vec![] },
         })
@@ -98,10 +98,10 @@ fn name(a) {}
 fn name(a, b) {}
         ";
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
+            id: Id::new("name".into(), Pos::new(1, 4,  3)),
             args: vec![
-                Id::new("a".into(), Pos::new(1, 9, 0, 8)),
-                Id::new("b".into(), Pos::new(1, 12, 0, 11)),
+                Id::new("a".into(), Pos::new(1, 9, 8)),
+                Id::new("b".into(), Pos::new(1, 12, 11)),
             ],
             body: Block { stmts: vec![] },
         })
@@ -116,7 +116,7 @@ if a { }
         ";
 
         Statement::If(IfStatement {
-            condition: Expr::Atom(Atom::Id(Id::new("a".into(), Pos::new(1, 4, 0, 3)))),
+            condition: Expr::Atom(Atom::Id(Id::new("a".into(), Pos::new(1, 4,  3)))),
             then_body: Block { stmts: vec![] },
             else_body: None,
         })
@@ -129,7 +129,7 @@ else { }
         ";
 
         Statement::If(IfStatement {
-            condition: Expr::Atom(Atom::Id(Id::new("a".into(), Pos::new(1, 4, 0, 3)))),
+            condition: Expr::Atom(Atom::Id(Id::new("a".into(), Pos::new(1, 4,  3)))),
             then_body: Block { stmts: vec![] },
             else_body: Some(Block { stmts: vec![] }),
         })
@@ -145,7 +145,7 @@ fn name() {
 }
         ";
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
+            id: Id::new("name".into(), Pos::new(1, 4, 3)),
             args: vec![],
             body: Block {
                 stmts: vec![Statement::Return(ReturnStatement(None))],
@@ -161,11 +161,11 @@ fn name() {
         ";
 
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4, 0, 3)),
+            id: Id::new("name".into(), Pos::new(1, 4,  3)),
             args: vec![],
             body: Block {
                 stmts: vec![Statement::Return(ReturnStatement(Some(Expr::Atom(
-                    Atom::Id(Id::new("a".into(), Pos::new(2, 12, 12, 23))),
+                    Atom::Id(Id::new("a".into(), Pos::new(2, 12,  23))),
                 ))))],
             },
         })
@@ -180,7 +180,7 @@ while a {}
         ";
 
         Statement::While(WhileStatement {
-            condition: Expr::Atom(Atom::Id(Id::new("a".into(), Pos::new(1, 7, 0, 6)))),
+            condition: Expr::Atom(Atom::Id(Id::new("a".into(), Pos::new(1, 7,  6)))),
             body: Block { stmts: vec![] },
         })
     );

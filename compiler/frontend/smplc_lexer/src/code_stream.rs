@@ -14,7 +14,7 @@ impl<'source> CodeStream<'source> {
     }
 
     pub fn current(&self) -> char {
-        self.code[self.pos.index..].chars().next().unwrap()
+        self.code[self.pos.index()..].chars().next().unwrap()
     }
 
     pub fn consume(&mut self) -> char {
@@ -48,7 +48,7 @@ impl<'source> CodeStream<'source> {
     }
 
     pub fn slice_from_current(&self, len: usize) -> &'source str {
-        self.slice(self.pos.index, self.pos.index + len)
+        self.slice(self.pos.index(), self.pos.index() + len)
     }
 
     pub fn get_pos(&self) -> Pos {
@@ -60,14 +60,14 @@ impl<'source> CodeStream<'source> {
             self.consume();
         }
 
-        self.slice(self.pos.index - count, self.pos.index)
+        self.slice(self.pos.index() - count, self.pos.index())
     }
 
     pub fn get_index(&self) -> usize {
-        self.pos.index
+        self.pos.index()
     }
 
     pub fn is_eof(&self) -> bool {
-        self.pos.index >= self.code.len()
+        self.pos.index() >= self.code.len()
     }
 }
