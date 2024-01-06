@@ -190,7 +190,6 @@ name = "smplc_hir"
 version = "0.1.0"
 dependencies = [
  "smplc_ast",
- "smplc_ir",
 ]
 
 [[package]]

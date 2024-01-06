@@ -105,7 +105,7 @@ impl<'source> Functions<'source> {
 
             let fun_ref = Rc::new(FunData {
                 declared_at: pos,
-                id: smplc_ir::FunctionId(id.into()),
+                id: id.to_owned(),
                 args_count,
             });
 

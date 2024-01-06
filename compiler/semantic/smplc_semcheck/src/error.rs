@@ -127,7 +127,7 @@ impl fmt::Display for SemErrorKind<'_> {
             } => write!(
                 f,
                 "function \"{}\" takes {expected_args_count}, but received {received_args_count}",
-                function_ref.id.0
+                function_ref.id
             ),
 
             SemErrorKind::NonExistentVariable(id) => write!(f, "variable \"{id}\" is not defined"),
