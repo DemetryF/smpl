@@ -32,7 +32,7 @@ pub enum Atom {
 #[derive(Debug, PartialEq)]
 pub struct FunData {
     pub declared_at: Pos,
-    pub id: smplc_ir::FunctionId,
+    pub id: String,
     pub args_count: usize,
 }
 

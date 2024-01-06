@@ -1,5 +1,5 @@
 use smplc_hir::{Expr, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement};
-use smplc_ir::{Goto, Return, Unless};
+use smplc_ir::{FunctionId, Goto, Return, Unless};
 
 use crate::expr::{translate_call, translate_expr, translate_expr_and_write_in};
 use crate::translator::Translator;
@@ -99,7 +99,7 @@ impl Translate for ExprStatement {
             }
 
             ExprStatement::Expr(Expr::Call { function, args }) => {
-                translate_call(translator, function.id.clone(), args, None);
+                translate_call(translator, FunctionId(function.id.clone()), args, None);
             }
 
             _ => {}

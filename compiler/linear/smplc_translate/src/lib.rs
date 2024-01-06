@@ -3,7 +3,7 @@ mod statement;
 mod translator;
 
 use smplc_hir::{Block, Expr, HIR};
-use smplc_ir::{BinOp, Code, CodeFunction, Halt, UnOp};
+use smplc_ir::{BinOp, Code, CodeFunction, FunctionId, Halt, UnOp};
 
 use translator::Translator;
 
@@ -43,7 +43,7 @@ pub fn translate(hir: HIR) -> Code {
             .collect();
 
         translator.code.add_function(CodeFunction {
-            id: function.function.id.clone(),
+            id: FunctionId(function.function.id.clone()),
             args,
             ..Default::default()
         });

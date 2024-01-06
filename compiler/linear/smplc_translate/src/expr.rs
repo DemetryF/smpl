@@ -24,7 +24,12 @@ pub fn translate_expr_and_write_in(expr: Expr, translator: &mut Translator, resu
         }
 
         Expr::Call { function, args } => {
-            translate_call(translator, function.id.clone(), args, Some(result));
+            translate_call(
+                translator,
+                FunctionId(function.id.clone()),
+                args,
+                Some(result),
+            );
         }
 
         Expr::Atom(atom) => {
@@ -74,7 +79,12 @@ pub fn translate_expr(expr: Expr, translator: &mut Translator) -> Atom {
         Expr::Call { function, args } => {
             let result = translator.variables.next_id();
 
-            translate_call(translator, function.id.clone(), args, Some(result));
+            translate_call(
+                translator,
+                FunctionId(function.id.clone()),
+                args,
+                Some(result),
+            );
 
             Atom::Id(result)
         }

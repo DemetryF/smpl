@@ -17,9 +17,3 @@ impl From<usize> for Id {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub struct FunctionId(pub String);
-
-impl From<&str> for FunctionId {
-    fn from(value: &str) -> Self {
-        Self(value.into())
-    }
-}
