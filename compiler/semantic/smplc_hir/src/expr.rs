@@ -15,7 +15,7 @@ pub enum Expr {
         rhs: Box<Self>,
     },
     Call {
-        function: FunRef,
+        fun_ref: FunRef,
         args: Vec<Self>,
     },
     Atom(Atom),
@@ -31,8 +31,8 @@ pub enum Atom {
 
 #[derive(Debug, PartialEq)]
 pub struct FunData {
-    pub declared_at: Pos,
     pub id: String,
+    pub declared_at: Pos,
     pub args_count: usize,
 }
 

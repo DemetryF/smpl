@@ -14,30 +14,29 @@ pub enum Statement<'source> {
 #[derive(Debug, PartialEq)]
 pub struct DeclareStatement<'source> {
     pub id: Id<'source>,
-    pub init_expr: Option<Expr<'source>>,
+    pub value: Option<Expr<'source>>,
 }
 
 #[derive(PartialEq, Debug)]
 pub enum ExprStatement<'source> {
     Expr(Expr<'source>),
-    Assign {
-        id: Id<'source>,
-        expr: Expr<'source>,
-    },
+    Assign { id: Id<'source>, rhs: Expr<'source> },
 }
 
 #[derive(PartialEq, Debug)]
 pub struct IfStatement<'source> {
-    pub condition: Expr<'source>,
-    pub then_body: Block<'source>,
+    pub cond: Expr<'source>,
+    pub body: Block<'source>,
     pub else_body: Option<Block<'source>>,
 }
 
 #[derive(PartialEq, Debug)]
-pub struct ReturnStatement<'source>(pub Option<Expr<'source>>);
+pub struct ReturnStatement<'source> {
+    pub value: Option<Expr<'source>>,
+}
 
 #[derive(PartialEq, Debug)]
 pub struct WhileStatement<'source> {
-    pub condition: Expr<'source>,
+    pub cond: Expr<'source>,
     pub body: Block<'source>,
 }

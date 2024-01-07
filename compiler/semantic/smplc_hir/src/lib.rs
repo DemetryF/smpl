@@ -13,13 +13,13 @@ pub struct HIR {
 }
 
 pub struct Function {
-    pub function: FunRef,
+    pub data: FunRef,
     pub args: Vec<VarRef>,
-    pub statements: Vec<Statement>,
+    pub body: Vec<Statement>,
 }
 
 pub struct Constant {
-    pub variable: VarRef,
+    pub data: VarRef,
     pub value: Expr,
 }
 

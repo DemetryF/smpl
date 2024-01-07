@@ -122,11 +122,11 @@ impl<'source> Parse<'source> for Id<'source> {
             TokenValue::Id(_) => {
                 let Token { value, pos } = token_stream.next_token();
 
-                let TokenValue::Id(id) = value else {
-                    panic!("kaput");
+                let TokenValue::Id(name) = value else {
+                    unreachable!()
                 };
 
-                Ok(Self::new(id, pos))
+                Ok(Self::new(name, pos))
             }
 
             _ => Err(token_stream.unexpected_token()),

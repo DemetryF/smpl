@@ -1,5 +1,6 @@
 use std::{collections::HashMap, rc::Rc};
 
+use smplc_ast as ast;
 use smplc_hir::{FunData, FunRef, VarData, VarRef};
 
 use crate::error::{SemError, SemResult};
@@ -41,9 +42,9 @@ impl<'source> Variables<'source> {
         self.data.last_mut().unwrap()
     }
 
-    pub fn get(&self, id: smplc_ast::Id<'source>) -> SemResult<'source, VarRef> {
+    pub fn get(&self, id: ast::Id<'source>) -> SemResult<'source, VarRef> {
         for scope in self.data.iter().rev() {
-            if let Some(var_ref) = scope.get(id.id) {
+            if let Some(var_ref) = scope.get(id.name) {
                 return Ok(var_ref);
             }
         }
@@ -51,35 +52,29 @@ impl<'source> Variables<'source> {
         Err(SemError::non_existent_variable(id))
     }
 
-    pub fn add_variable(&mut self, id: smplc_ast::Id<'source>) -> SemResult<'source, VarRef> {
-        if let Some(var_ref) = self.last().get(id.id) {
+    pub fn add_variable(&mut self, id: ast::Id<'source>) -> SemResult<'source, VarRef> {
+        if let Some(var_ref) = self.last().get(id.name) {
             Err(SemError::redeclaring_variable(id, var_ref.declared_at))
         } else {
-            let smplc_ast::Id {
-                id,
-                pos: declared_at,
-            } = id;
+            let var_ref = Rc::new(VarData {
+                declared_at: id.pos,
+            });
 
-            let var_ref = Rc::new(VarData { declared_at });
-
-            self.last_mut().add(id, Rc::clone(&var_ref));
+            self.last_mut().add(id.name, Rc::clone(&var_ref));
 
             Ok(var_ref)
         }
     }
 
-    pub fn add_argument(&mut self, id: smplc_ast::Id<'source>) -> SemResult<'source, VarRef> {
-        if self.last().has(id.id) {
+    pub fn add_argument(&mut self, id: ast::Id<'source>) -> SemResult<'source, VarRef> {
+        if self.last().has(id.name) {
             Err(SemError::duplicate_args_names(id))
         } else {
-            let smplc_ast::Id {
-                id,
-                pos: declared_at,
-            } = id;
+            let var_ref = Rc::new(VarData {
+                declared_at: id.pos,
+            });
 
-            let var_ref = Rc::new(VarData { declared_at });
-
-            self.last_mut().add(id, Rc::clone(&var_ref));
+            self.last_mut().add(id.name, Rc::clone(&var_ref));
 
             Ok(var_ref)
         }
@@ -87,29 +82,23 @@ impl<'source> Variables<'source> {
 }
 
 impl<'source> Functions<'source> {
-    pub fn get(&self, id: smplc_ast::Id<'source>) -> SemResult<'source, FunRef> {
+    pub fn get(&self, id: ast::Id<'source>) -> SemResult<'source, FunRef> {
         self.data
-            .get(id.id)
+            .get(id.name)
             .ok_or_else(|| SemError::non_existent_function(id))
     }
 
-    pub fn add(
-        &mut self,
-        id: smplc_ast::Id<'source>,
-        args_count: usize,
-    ) -> SemResult<'source, FunRef> {
-        if let Some(fun_ref) = self.data.get(id.id) {
+    pub fn add(&mut self, id: ast::Id<'source>, args_count: usize) -> SemResult<'source, FunRef> {
+        if let Some(fun_ref) = self.data.get(id.name) {
             Err(SemError::redeclaring_function(id, fun_ref.declared_at))
         } else {
-            let smplc_ast::Id { id, pos } = id;
-
             let fun_ref = Rc::new(FunData {
-                declared_at: pos,
-                id: id.to_owned(),
+                declared_at: id.pos,
+                id: id.name.to_owned(),
                 args_count,
             });
 
-            self.data.add(id, Rc::clone(&fun_ref));
+            self.data.add(id.name, Rc::clone(&fun_ref));
 
             Ok(fun_ref)
         }

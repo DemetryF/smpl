@@ -13,5 +13,5 @@ pub use statement::*;
 
 #[derive(PartialEq, Debug)]
 pub struct Block<'source> {
-    pub stmts: Vec<Statement<'source>>,
+    pub statements: Vec<Statement<'source>>,
 }

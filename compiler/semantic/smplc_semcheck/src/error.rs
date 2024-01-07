@@ -1,5 +1,6 @@
 use std::fmt;
 
+use smplc_ast as ast;
 use smplc_ast::Pos;
 use smplc_hir::FunRef;
 
@@ -17,85 +18,80 @@ pub enum SemErrorKind<'source> {
     NonExistentVariable(&'source str),
 
     RedeclaringVariable {
-        id: &'source str,
+        name: &'source str,
         first_declaration: Pos,
     },
 
     RedeclaringFunction {
-        id: &'source str,
+        name: &'source str,
         first_declaration: Pos,
     },
 
-    InvalidArguments {
-        expected_args_count: usize,
-        received_args_count: usize,
-        function_ref: FunRef,
+    InvalidArgumentsCount {
+        expected: usize,
+        received: usize,
+        fun_ref: FunRef,
     },
 
     DuplicateArgsNames(&'source str),
 }
 
 impl<'source> SemError<'source> {
-    pub fn non_existent_variable(id: smplc_ast::Id<'source>) -> Self {
-        let smplc_ast::Id { id, pos } = id;
+    pub fn non_existent_variable(id: ast::Id<'source>) -> Self {
+        let ast::Id { name, pos } = id;
 
         Self {
-            kind: SemErrorKind::NonExistentVariable(id),
+            kind: SemErrorKind::NonExistentVariable(name),
             pos,
         }
     }
 
-    pub fn non_existent_function(id: smplc_ast::Id<'source>) -> Self {
-        let smplc_ast::Id { id, pos } = id;
+    pub fn non_existent_function(id: ast::Id<'source>) -> Self {
+        let ast::Id { name, pos } = id;
 
         Self {
-            kind: SemErrorKind::NonExistentFunction(id),
+            kind: SemErrorKind::NonExistentFunction(name),
             pos,
         }
     }
 
-    pub fn redeclaring_variable(id: smplc_ast::Id<'source>, first_declaration: Pos) -> Self {
-        let smplc_ast::Id { id, pos } = id;
+    pub fn redeclaring_variable(id: ast::Id<'source>, first_declaration: Pos) -> Self {
+        let ast::Id { name, pos } = id;
 
         let kind = SemErrorKind::RedeclaringVariable {
-            id,
+            name,
             first_declaration,
         };
 
         Self { kind, pos }
     }
 
-    pub fn redeclaring_function(id: smplc_ast::Id<'source>, first_declaration: Pos) -> Self {
-        let smplc_ast::Id { id, pos } = id;
+    pub fn redeclaring_function(id: ast::Id<'source>, first_declaration: Pos) -> Self {
+        let ast::Id { name, pos } = id;
 
         let kind = SemErrorKind::RedeclaringFunction {
-            id,
+            name,
             first_declaration,
         };
 
         Self { kind, pos }
     }
 
-    pub fn invalid_arguments(
-        pos: Pos,
-        expected_args_count: usize,
-        received_args_count: usize,
-        function_ref: FunRef,
-    ) -> Self {
-        let kind = SemErrorKind::InvalidArguments {
-            expected_args_count,
-            received_args_count,
-            function_ref,
+    pub fn invalid_arguments(pos: Pos, expected: usize, received: usize, fun_ref: FunRef) -> Self {
+        let kind = SemErrorKind::InvalidArgumentsCount {
+            expected,
+            received,
+            fun_ref,
         };
 
         Self { kind, pos }
     }
 
-    pub fn duplicate_args_names(id: smplc_ast::Id<'source>) -> Self {
-        let smplc_ast::Id { id, pos } = id;
+    pub fn duplicate_args_names(id: ast::Id<'source>) -> Self {
+        let ast::Id { name, pos } = id;
 
         Self {
-            kind: SemErrorKind::DuplicateArgsNames(id),
+            kind: SemErrorKind::DuplicateArgsNames(name),
             pos,
         }
     }
@@ -105,36 +101,41 @@ impl fmt::Display for SemErrorKind<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             SemErrorKind::RedeclaringVariable {
-                id,
+                name,
                 first_declaration,
             } => write!(
                 f,
-                "variable \"{id}\" is already declared at {first_declaration}"
+                "variable \"{name}\" is already declared at {first_declaration}"
             ),
 
             SemErrorKind::RedeclaringFunction {
-                id,
+                name,
                 first_declaration,
             } => write!(
                 f,
-                "function \"{id}\" is already declared at {first_declaration}"
+                "function \"{name}\" is already declared at {first_declaration}"
             ),
 
-            SemErrorKind::InvalidArguments {
-                expected_args_count,
-                received_args_count,
-                function_ref,
+            SemErrorKind::InvalidArgumentsCount {
+                expected,
+                received,
+                fun_ref,
             } => write!(
                 f,
-                "function \"{}\" takes {expected_args_count}, but received {received_args_count}",
-                function_ref.id
+                "function \"{}\" takes {expected}, but received {received}",
+                fun_ref.id
             ),
 
-            SemErrorKind::NonExistentVariable(id) => write!(f, "variable \"{id}\" is not defined"),
-            SemErrorKind::NonExistentFunction(id) => write!(f, "function \"{id}\" is not defined"),
+            SemErrorKind::NonExistentVariable(name) => {
+                write!(f, "variable \"{name}\" is not defined")
+            }
 
-            SemErrorKind::DuplicateArgsNames(id) => {
-                write!(f, "two arguments with same name: {id}")
+            SemErrorKind::NonExistentFunction(name) => {
+                write!(f, "function \"{name}\" is not defined")
+            }
+
+            SemErrorKind::DuplicateArgsNames(name) => {
+                write!(f, "two arguments with same name: {name}")
             }
         }
     }
