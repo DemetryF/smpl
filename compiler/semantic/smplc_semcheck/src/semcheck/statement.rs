@@ -1,5 +1,7 @@
 use smplc_ast as ast;
-use smplc_hir::{Atom, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement};
+use smplc_hir::{
+    Atom, Expr, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement,
+};
 
 use super::SemCheck;
 use crate::env::Env;
@@ -26,12 +28,12 @@ impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
     type Checked = ExprStatement;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let to = env.variables.add_variable(self.id)?;
+        let var = env.variables.add_variable(self.id)?;
 
-        let what = self.value.map(|expr| expr.check(env)).transpose()?;
-        let what = what.unwrap_or(smplc_hir::Expr::Atom(Atom::Value(0.0)));
+        let rhs = self.value.map(|expr| expr.check(env)).transpose()?;
+        let rhs = rhs.unwrap_or(Expr::Atom(Atom::Literal(ast::Literal::Number(0.0))));
 
-        Ok(ExprStatement::Assign { var: to, rhs: what })
+        Ok(ExprStatement::Assign { var, rhs })
     }
 }
 

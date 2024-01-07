@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use smplc_ast::Pos;
+pub use smplc_ast::{Literal, Pos};
 
 use crate::{BinOp, UnOp};
 
@@ -26,7 +26,7 @@ pub type VarRef = Rc<VarData>;
 
 pub enum Atom {
     Var(VarRef),
-    Value(f32),
+    Literal(Literal),
 }
 
 #[derive(Debug, PartialEq)]

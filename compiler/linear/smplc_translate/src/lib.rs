@@ -101,7 +101,7 @@ fn eval_constant_expr(expr: Expr, translator: &Translator) -> f32 {
                 *translator.code.constants.get(&id).unwrap()
             }
 
-            smplc_hir::Atom::Value(value) => value,
+            smplc_hir::Atom::Literal(literal) => f32::from(literal),
         },
     }
 }

@@ -50,10 +50,7 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
 
             ast::Expr::Atom(atom) => Ok(Expr::Atom(match atom {
                 ast::Atom::Id(id) => Atom::Var(env.variables.get(id)?),
-                ast::Atom::Literal(literal) => match literal {
-                    ast::Literal::Number(num) => Atom::Value(num),
-                    ast::Literal::Bool(bool) => Atom::Value(bool as u8 as f32),
-                },
+                ast::Atom::Literal(literal) => Atom::Literal(literal),
             })),
         }
     }
