@@ -32,15 +32,15 @@ impl Translate for IfStatement {
     fn translate(self, translator: &mut Translator) {
         let (end_label, else_label) = translator.next_if_labels();
 
-        let condition = translate_expr(self.cond, translator);
+        let cond = translate_expr(self.cond, translator);
 
         if let Some(else_body) = self.else_body {
             translator.code.push(Unless {
-                condition,
+                cond,
                 label: else_label.clone(),
             });
 
-            self.then_body.translate(translator);
+            self.body.translate(translator);
 
             translator.code.push(Goto {
                 label: end_label.clone(),
@@ -49,11 +49,11 @@ impl Translate for IfStatement {
             else_body.translate(translator);
         } else {
             translator.code.push(Unless {
-                condition,
+                cond,
                 label: end_label.clone(),
             });
 
-            self.then_body.translate(translator);
+            self.body.translate(translator);
         }
 
         translator.code.add_label(end_label);
@@ -66,10 +66,10 @@ impl Translate for WhileStatement {
 
         translator.code.add_label(start_label.clone());
 
-        let condition = translate_expr(self.cond, translator);
+        let cond = translate_expr(self.cond, translator);
 
         translator.code.push(Unless {
-            condition,
+            cond,
             label: end_label.clone(),
         });
 
@@ -83,7 +83,7 @@ impl Translate for WhileStatement {
 
 impl Translate for ReturnStatement {
     fn translate(self, translator: &mut Translator) {
-        let value = self.expr.map(|expr| translate_expr(expr, translator));
+        let value = self.value.map(|expr| translate_expr(expr, translator));
 
         translator.code.push(Return { value })
     }
@@ -92,14 +92,14 @@ impl Translate for ReturnStatement {
 impl Translate for ExprStatement {
     fn translate(self, translator: &mut Translator) {
         match self {
-            ExprStatement::Assign { to, what } => {
-                let result_id = translator.variables.get_or_add(to);
+            ExprStatement::Assign { var, rhs } => {
+                let result_id = translator.variables.get_or_add(var);
 
-                translate_expr_and_write_in(what, translator, result_id);
+                translate_expr_and_write_in(rhs, translator, result_id);
             }
 
-            ExprStatement::Expr(Expr::Call { function, args }) => {
-                translate_call(translator, FunctionId(function.id.clone()), args, None);
+            ExprStatement::Expr(Expr::Call { fun_ref, args }) => {
+                translate_call(translator, FunctionId(fun_ref.id.clone()), args, None);
             }
 
             _ => {}

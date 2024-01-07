@@ -46,16 +46,16 @@ pub struct Copy {
 }
 
 #[derive(Clone)]
-#[display("if {condition} goto {label}")]
+#[display("if {cond} goto {label}")]
 pub struct If {
-    pub condition: Atom,
+    pub cond: Atom,
     pub label: Label,
 }
 
 #[derive(Clone)]
-#[display("unless {condition} goto {label}")]
+#[display("unless {cond} goto {label}")]
 pub struct Unless {
-    pub condition: Atom,
+    pub cond: Atom,
     pub label: Label,
 }
 

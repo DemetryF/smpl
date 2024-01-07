@@ -10,18 +10,18 @@ pub enum Statement {
 }
 
 pub enum ExprStatement {
-    Assign { to: VarRef, what: Expr },
+    Assign { var: VarRef, rhs: Expr },
     Expr(Expr),
 }
 
 pub struct IfStatement {
     pub cond: Expr,
-    pub then_body: Block,
+    pub body: Block,
     pub else_body: Option<Block>,
 }
 
 pub struct ReturnStatement {
-    pub expr: Option<Expr>,
+    pub value: Option<Expr>,
 }
 
 pub struct WhileStatement {

@@ -9,7 +9,7 @@ use crate::compile::Compile;
 
 impl Compile for Unless {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
-        match self.condition {
+        match self.cond {
             smplc_ir::Atom::Id(id) => {
                 writeln!(builder, "movss xmm0, {}", env.get(id))?;
                 writeln!(builder, "xorpd xmm1, xmm1")?;

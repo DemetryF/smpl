@@ -11,27 +11,32 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         match self {
-            ast::Expr::Prefix { op, rhs } => Ok(Expr::Unary {
-                op,
-                rhs: Box::new(rhs.check(env)?),
-            }),
-
             ast::Expr::Infix { lhs, op, rhs } => Ok(Expr::Binary {
                 lhs: Box::new(lhs.check(env)?),
                 op,
                 rhs: Box::new(rhs.check(env)?),
             }),
 
-            ast::Expr::Call(call) => {
-                let function = env.functions.get(call.id)?;
+            ast::Expr::Prefix { op, rhs } => Ok(Expr::Unary {
+                op,
+                rhs: Box::new(rhs.check(env)?),
+            }),
 
-                if call.args.len() != function.args_count {
-                    return Err(SemError::invalid_arguments(
-                        call.id.pos,
-                        function.args_count,
-                        call.args.len(),
-                        function,
-                    ));
+            ast::Expr::Call(call) => {
+                let fun_ref = env.functions.get(call.id)?;
+
+                {
+                    let expected = fun_ref.args_count;
+                    let received = call.args.len();
+
+                    if expected != received {
+                        return Err(SemError::invalid_arguments(
+                            call.id.pos,
+                            expected,
+                            received,
+                            fun_ref,
+                        ));
+                    }
                 }
 
                 let args = call
@@ -40,7 +45,7 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
                     .map(|arg| arg.check(env))
                     .collect::<Result<Vec<_>, _>>()?;
 
-                Ok(Expr::Call { function, args })
+                Ok(Expr::Call { fun_ref, args })
             }
 
             ast::Expr::Atom(atom) => Ok(Expr::Atom(match atom {

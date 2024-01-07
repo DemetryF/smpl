@@ -14,15 +14,13 @@ pub use smplc_lexer::LexError;
 pub use token_stream::TokenStream;
 
 pub fn parse(mut token_stream: TokenStream) -> ParseResult<Vec<Declaration>> {
-    let mut decls = Vec::new();
+    let mut declarations = Vec::new();
 
     while !token_stream.is_end() {
-        let maybe_decl = Declaration::parse(&mut token_stream);
+        let declaration = Declaration::parse(&mut token_stream)?;
 
-        let decl = maybe_decl?;
-
-        decls.push(decl);
+        declarations.push(declaration);
     }
 
-    Ok(decls)
+    Ok(declarations)
 }

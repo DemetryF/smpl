@@ -30,7 +30,7 @@ pub fn translate(hir: HIR) -> Code {
     for constant in constants {
         let value = eval_constant_expr(constant.value, &translator);
 
-        let id = translator.variables.add(constant.variable);
+        let id = translator.variables.add(constant.data);
 
         translator.code.constants.insert(id, value);
     }
@@ -43,13 +43,13 @@ pub fn translate(hir: HIR) -> Code {
             .collect();
 
         translator.code.add_function(CodeFunction {
-            id: FunctionId(function.function.id.clone()),
+            id: FunctionId(function.data.id.clone()),
             args,
             ..Default::default()
         });
 
         function
-            .statements
+            .body
             .into_iter()
             .for_each(|stmt| stmt.translate(&mut translator))
     }

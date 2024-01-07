@@ -39,7 +39,7 @@ pub fn non_existent_function() {
 pub fn redeclaring_variable() {
     semtest![
         "fn main() { let a; let a; }" => SemErrorKind::RedeclaringVariable {
-            id: "a",
+            name: "a",
             first_declaration: Pos::new(1, 17, 16)
         }
     ];
@@ -49,7 +49,7 @@ pub fn redeclaring_variable() {
 pub fn redeclaring_function() {
     semtest![
         "fn a() {} fn a() {}" => SemErrorKind::RedeclaringFunction {
-            id: "a",
+            name: "a",
             first_declaration: Pos::new(1, 4, 3)
         }
     ];
@@ -60,10 +60,10 @@ pub fn invalid_arguments() {
     semtest![
         "fn a() {}
          fn main() { a(1); }
-        " => SemErrorKind::InvalidArguments {
-            expected_args_count: 0,
-            received_args_count: 1,
-            function_ref: Rc::new(FunData {
+        " => SemErrorKind::InvalidArgumentsCount {
+            expected: 0,
+            received: 1,
+            fun_ref: Rc::new(FunData {
                 declared_at: Pos::new(1, 4, 3),
                 id: "a".into(),
                 args_count: 0,
@@ -72,10 +72,10 @@ pub fn invalid_arguments() {
     ];
 
     semtest![
-        "fn a(b) {} fn main() { a(); }" => SemErrorKind::InvalidArguments {
-            expected_args_count: 1,
-            received_args_count: 0,
-            function_ref: Rc::new(FunData {
+        "fn a(b) {} fn main() { a(); }" => SemErrorKind::InvalidArgumentsCount {
+            expected: 1,
+            received: 0,
+            fun_ref: Rc::new(FunData {
                 declared_at: Pos::new(1, 4,  3),
                 id: "a".into(),
                 args_count: 1,

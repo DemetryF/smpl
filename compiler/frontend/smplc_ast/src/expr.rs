@@ -29,13 +29,13 @@ pub enum Atom<'source> {
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Id<'source> {
-    pub id: &'source str,
+    pub name: &'source str,
     pub pos: Pos,
 }
 
 impl<'source> Id<'source> {
-    pub fn new(id: &'source str, pos: Pos) -> Self {
-        Self { id, pos }
+    pub fn new(name: &'source str, pos: Pos) -> Self {
+        Self { name, pos }
     }
 }
 
