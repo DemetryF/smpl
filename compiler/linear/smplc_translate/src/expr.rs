@@ -1,3 +1,4 @@
+use smplc_hir as hir;
 use smplc_hir::Expr;
 use smplc_ir::{Atom, Binary, Call, Copy, FunctionId, Id, Param, Unary};
 
@@ -33,15 +34,7 @@ pub fn translate_expr_and_write_in(expr: Expr, translator: &mut Translator, resu
         }
 
         Expr::Atom(atom) => {
-            let value = match atom {
-                smplc_hir::Atom::Var(var_ref) => {
-                    let id = translator.variables.get(var_ref);
-
-                    Atom::Id(id)
-                }
-
-                smplc_hir::Atom::Value(value) => Atom::Number(value),
-            };
+            let value = translate_atom(translator, atom);
 
             translator.code.push(Copy { result, value });
         }
@@ -89,15 +82,7 @@ pub fn translate_expr(expr: Expr, translator: &mut Translator) -> Atom {
             Atom::Id(result)
         }
 
-        Expr::Atom(atom) => match atom {
-            smplc_hir::Atom::Var(var_ref) => {
-                let id = translator.variables.get(var_ref);
-
-                Atom::Id(id)
-            }
-
-            smplc_hir::Atom::Value(value) => Atom::Number(value),
-        },
+        Expr::Atom(atom) => translate_atom(translator, atom),
     }
 }
 
@@ -115,4 +100,11 @@ pub fn translate_call(
         .for_each(|value| translator.code.push(Param { value }));
 
     translator.code.push(Call { result, id });
+}
+
+pub fn translate_atom(translator: &mut Translator, atom: hir::Atom) -> Atom {
+    match atom {
+        hir::Atom::Var(var_ref) => Atom::Id(translator.variables.get(var_ref)),
+        hir::Atom::Literal(literal) => Atom::Number(literal.into()),
+    }
 }
