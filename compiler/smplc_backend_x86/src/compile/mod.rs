@@ -4,7 +4,6 @@ mod copy;
 mod goto;
 mod halt;
 mod r#if;
-mod param;
 mod r#return;
 mod unary;
 mod unless;
@@ -31,7 +30,6 @@ impl Compile for Instruction {
             Instruction::Unless(a) => a.compile(env, builder),
             Instruction::Goto(a) => a.compile(env, builder),
             Instruction::Call(a) => a.compile(env, builder),
-            Instruction::Param(a) => a.compile(env, builder),
             Instruction::Return(a) => a.compile(env, builder),
             Instruction::Halt(a) => a.compile(env, builder),
         }
