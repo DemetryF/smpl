@@ -9,7 +9,7 @@ use crate::compile::Compile;
 
 impl Compile for Binary {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> std::fmt::Result {
-        let result_ptr = env.add(self.result);
+        let result_ptr = env.get_or_add(self.result);
 
         let instruction = match self.op {
             BinOp::Add => "addss",

@@ -1,13 +1,9 @@
-use std::collections::HashMap;
 use std::fmt::{self, Write};
-
-use smplc_ir::FunctionId;
 
 #[derive(Default)]
 pub struct Builder {
     code: String,
     float_constants: Vec<f32>,
-    pub function_arg_sizes: HashMap<FunctionId, usize>,
 }
 
 impl Write for Builder {

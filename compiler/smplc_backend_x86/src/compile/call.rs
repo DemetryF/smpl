@@ -9,30 +9,28 @@ use crate::compile::Compile;
 
 impl Compile for Call {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
-        for arg in self.args.into_iter().rev() {
+        let shift = env.stack_size() + self.args.len() * 8;
+
+        for (n, arg) in self.args.into_iter().rev().enumerate() {
             let value = match arg {
                 smplc_ir::Atom::Number(num) => builder.float(num),
                 smplc_ir::Atom::Id(id) => env.get(id),
             };
 
-            env.variables_count += 1;
-
             writeln!(builder, "movss xmm0, {value}")?;
             writeln!(
                 builder,
                 "movss DWORD [rsp - {}], xmm0",
-                env.variables_count * 8
+                env.stack_size() + (n + 1) * 8
             )?;
         }
 
-        writeln!(builder, "sub rsp, {}", env.size())?;
+        writeln!(builder, "sub rsp, {shift}")?;
         writeln!(builder, "call {}", self.id)?;
-        writeln!(builder, "add rsp, {}", env.size())?;
-
-        env.variables_count -= builder.function_arg_sizes[&self.id] / 8;
+        writeln!(builder, "add rsp, {shift}")?;
 
         if let Some(result) = self.result {
-            let result_ptr = env.add(result);
+            let result_ptr = env.get_or_add(result);
 
             writeln!(builder, "movss {result_ptr}, xmm0")?;
         }
