@@ -12,7 +12,6 @@ impl fmt::Display for Instruction {
             Instruction::Unless(a) => a.fmt(f),
             Instruction::Goto(a) => a.fmt(f),
             Instruction::Call(a) => a.fmt(f),
-            Instruction::Param(a) => a.fmt(f),
             Instruction::Return(a) => a.fmt(f),
             Instruction::Halt(a) => a.fmt(f),
         }
@@ -30,7 +29,7 @@ impl fmt::Display for Atom {
 
 impl fmt::Display for FunctionId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "@{}", self.0)
     }
 }
 

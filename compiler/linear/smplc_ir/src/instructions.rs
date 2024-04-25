@@ -1,9 +1,10 @@
+use std::fmt;
+
 use smplc_macros::{display, EnumWrap};
 
 use crate::*;
 
 #[derive(Clone, EnumWrap)]
-
 pub enum Instruction {
     Binary(Binary),
     Unary(Unary),
@@ -14,7 +15,6 @@ pub enum Instruction {
     Goto(Goto),
     Call(Call),
 
-    Param(Param),
     Return(Return),
     Halt(Halt),
 }
@@ -69,22 +69,21 @@ pub struct Goto {
 pub struct Call {
     pub result: Option<Id>,
     pub id: FunctionId,
+    pub args: Vec<Atom>,
 }
 
-impl std::fmt::Display for Call {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Call {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(result) = &self.result {
             write!(f, "{result} = ")?;
         }
 
-        write!(f, "call {}", self.id)
-    }
-}
+        write!(f, "call {}(", self.id)?;
 
-#[derive(Clone)]
-#[display("push {value}")]
-pub struct Param {
-    pub value: Atom,
+        self.args.iter().try_for_each(|a| write!(f, "{a}"))?;
+
+        write!(f, ")")
+    }
 }
 
 #[derive(Clone)]
@@ -96,8 +95,8 @@ pub struct Return {
     pub value: Option<Atom>,
 }
 
-impl std::fmt::Display for Return {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for Return {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "return")?;
 
         if let Some(value) = &self.value {

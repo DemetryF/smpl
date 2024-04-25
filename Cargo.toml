@@ -13,8 +13,6 @@ members = [
     "compiler/smplc_backend_x86",
 
     "utils/smplc_macros",
-
-    "smplc",
 ]
 
 resolver = "2"

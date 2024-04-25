@@ -1,6 +1,6 @@
 use smplc_hir as hir;
 use smplc_hir::Expr;
-use smplc_ir::{Atom, Binary, Call, Copy, FunctionId, Id, Param, Unary};
+use smplc_ir::{Atom, Binary, Call, Copy, FunctionId, Id, Unary};
 
 use crate::translator::Translator;
 
@@ -92,14 +92,12 @@ pub fn translate_call(
     args: Vec<Expr>,
     result: Option<Id>,
 ) {
-    args.into_iter()
-        .map(|arg| translate_expr(arg, translator))
-        .rev()
-        .collect::<Vec<_>>()
+    let args = args
         .into_iter()
-        .for_each(|value| translator.code.push(Param { value }));
+        .map(|arg| translate_expr(arg, translator))
+        .collect();
 
-    translator.code.push(Call { result, id });
+    translator.code.push(Call { result, id, args });
 }
 
 pub fn translate_atom(translator: &mut Translator, atom: hir::Atom) -> Atom {
