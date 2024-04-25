@@ -9,7 +9,7 @@ use crate::compile::Compile;
 
 impl Compile for Unary {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
-        let result = env.add(self.result);
+        let result = env.get_or_add(self.result);
 
         match self.rhs {
             smplc_ir::Atom::Id(id) => {

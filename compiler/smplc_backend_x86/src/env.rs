@@ -1,24 +1,26 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-use smplc_ir::Id;
+use smplc_ir as ir;
 
 pub struct Env<'a> {
-    addresses: HashMap<Id, isize>,
-    constants: &'a HashMap<Id, String>,
-    pub variables_count: usize,
+    constants: &'a HashMap<ir::Id, String>,
+
+    addresses: HashMap<ir::Id, isize>,
+    vars_count: usize,
 }
 
 impl<'a> Env<'a> {
-    pub fn new(constants: &'a HashMap<Id, String>) -> Self {
+    pub fn new(constants: &'a HashMap<ir::Id, String>) -> Self {
         Self {
             constants,
+
             addresses: Default::default(),
-            variables_count: Default::default(),
+            vars_count: Default::default(),
         }
     }
 
-    pub fn get(&self, id: Id) -> String {
+    pub fn get(&self, id: ir::Id) -> String {
         if let Some(address) = self.constants.get(&id) {
             return address.clone();
         }
@@ -36,20 +38,20 @@ impl<'a> Env<'a> {
         }
     }
 
-    pub fn set(&mut self, id: Id, address: isize) {
+    pub fn set(&mut self, id: ir::Id, address: isize) {
         self.addresses.insert(id, address);
     }
 
-    pub fn add(&mut self, id: Id) -> String {
+    pub fn get_or_add(&mut self, id: ir::Id) -> String {
         if !self.addresses.contains_key(&id) {
-            self.variables_count += 1;
-            self.set(id, self.variables_count as isize);
+            self.vars_count += 1;
+            self.set(id, self.vars_count as isize);
         }
 
         self.get(id)
     }
 
-    pub fn size(&self) -> usize {
-        self.variables_count * 8
+    pub fn stack_size(&self) -> usize {
+        self.vars_count * 8
     }
 }

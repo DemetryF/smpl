@@ -1,9 +1,7 @@
-use std::{
-    collections::HashMap,
-    fmt::{self, Write},
-};
+use std::collections::HashMap;
+use std::fmt::{self, Write};
 
-use smplc_ir::{Code, FunctionId};
+use smplc_ir as ir;
 
 use builder::Builder;
 use compile::Compile;
@@ -13,7 +11,7 @@ mod builder;
 mod compile;
 mod env;
 
-pub fn compile(code: Code) -> Result<String, fmt::Error> {
+pub fn compile(code: ir::Code) -> Result<String, fmt::Error> {
     let mut builder = Builder::default();
 
     let constants = code
@@ -51,16 +49,6 @@ print_L0:
 ret
         "
     )?;
-
-    for function in code.functions.iter() {
-        builder
-            .function_arg_sizes
-            .insert(function.id.clone(), function.args.len() * 8);
-    }
-
-    builder
-        .function_arg_sizes
-        .insert(FunctionId("print".into()), 8);
 
     for function in code.functions {
         let mut env = Env::new(&constants);
