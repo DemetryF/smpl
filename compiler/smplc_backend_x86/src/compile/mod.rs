@@ -1,16 +1,14 @@
-mod binary;
+mod assign;
 mod call;
-mod copy;
 mod goto;
 mod halt;
 mod r#if;
 mod r#return;
-mod unary;
 mod unless;
 
 use std::fmt::{self, Write};
 
-use smplc_ir::Instruction;
+use smplc_ir::{Atom, Instruction};
 
 use crate::{builder::Builder, env::Env};
 
@@ -23,9 +21,7 @@ impl Compile for Instruction {
         writeln!(builder, "; {}", self)?;
 
         match self {
-            Instruction::Binary(a) => a.compile(env, builder),
-            Instruction::Unary(a) => a.compile(env, builder),
-            Instruction::Copy(a) => a.compile(env, builder),
+            Instruction::Assign(a) => a.compile(env, builder),
             Instruction::If(a) => a.compile(env, builder),
             Instruction::Unless(a) => a.compile(env, builder),
             Instruction::Goto(a) => a.compile(env, builder),
@@ -33,5 +29,12 @@ impl Compile for Instruction {
             Instruction::Return(a) => a.compile(env, builder),
             Instruction::Halt(a) => a.compile(env, builder),
         }
+    }
+}
+
+pub fn to_asm(env: &mut Env, builder: &mut Builder, atom: Atom) -> String {
+    match atom {
+        Atom::Id(id) => env.get(id),
+        Atom::Number(value) => builder.float(value),
     }
 }

@@ -1,7 +1,7 @@
 use smplc_hir::{Expr, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement};
-use smplc_ir::{FunctionId, Goto, Return, Unless};
+use smplc_ir::{Assign, FunctionId, Goto, Return, Unless};
 
-use crate::expr::{translate_call, translate_expr, translate_expr_and_write_in};
+use crate::expr::{atom_or_assign, translate_call, translate_expr};
 use crate::translator::Translator;
 use crate::Translate;
 
@@ -33,6 +33,7 @@ impl Translate for IfStatement {
         let (end_label, else_label) = translator.next_if_labels();
 
         let cond = translate_expr(self.cond, translator);
+        let cond = atom_or_assign(translator, cond);
 
         if let Some(else_body) = self.else_body {
             translator.code.push(Unless {
@@ -67,6 +68,7 @@ impl Translate for WhileStatement {
         translator.code.add_label(start_label.clone());
 
         let cond = translate_expr(self.cond, translator);
+        let cond = atom_or_assign(translator, cond);
 
         translator.code.push(Unless {
             cond,
@@ -83,7 +85,10 @@ impl Translate for WhileStatement {
 
 impl Translate for ReturnStatement {
     fn translate(self, translator: &mut Translator) {
-        let value = self.value.map(|expr| translate_expr(expr, translator));
+        let value = self
+            .value
+            .map(|expr| translate_expr(expr, translator))
+            .map(|value| atom_or_assign(translator, value));
 
         translator.code.push(Return { value })
     }
@@ -95,11 +100,16 @@ impl Translate for ExprStatement {
             ExprStatement::Assign { var, rhs } => {
                 let result_id = translator.variables.get_or_add(var);
 
-                translate_expr_and_write_in(rhs, translator, result_id);
+                let rhs = translate_expr(rhs, translator);
+
+                translator.code.push(Assign {
+                    lhs: result_id,
+                    rhs,
+                })
             }
 
             ExprStatement::Expr(Expr::Call { fun_ref, args }) => {
-                translate_call(translator, FunctionId(fun_ref.id.clone()), args, None);
+                translate_call(translator, FunctionId(fun_ref.id.clone()), args);
             }
 
             _ => {}

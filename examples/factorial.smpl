@@ -12,4 +12,5 @@ fn factorial(n) {
 
 fn main() {
     print(factorial(5)); // 120
+    return;
 }
