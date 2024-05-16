@@ -3,16 +3,13 @@ use std::fmt::{self, Write};
 use smplc_ir::Return;
 
 use crate::builder::Builder;
-use crate::compile::Compile;
+use crate::compile::{to_asm, Compile};
 use crate::env::Env;
 
 impl Compile for Return {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
         if let Some(operand) = self.value {
-            let operand = match operand {
-                smplc_ir::Atom::Id(id) => env.get(id),
-                smplc_ir::Atom::Number(num) => builder.float(num),
-            };
+            let operand = to_asm(env, builder, operand);
 
             writeln!(builder, "movss xmm0, {}", operand)?;
         }

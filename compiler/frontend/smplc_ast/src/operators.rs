@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum BinOp {
     Or,
     And,
@@ -17,7 +17,7 @@ pub enum BinOp {
 }
 
 impl BinOp {
-    pub fn power(&self) -> (usize, usize) {
+    pub fn power(self) -> (usize, usize) {
         match self {
             Self::Or => (3, 4),
             Self::And => (5, 6),
@@ -32,6 +32,24 @@ impl BinOp {
             Self::Mul => (13, 14),
             Self::Div => (13, 14),
         }
+    }
+
+    pub fn is_arithm(self) -> bool {
+        use BinOp::*;
+
+        matches!(self, Add | Sub | Mul | Div)
+    }
+
+    pub fn is_rel(self) -> bool {
+        use BinOp::*;
+
+        matches!(self, Eq | Ne | Lt | Le | Gt | Ge)
+    }
+
+    pub fn is_logic(self) -> bool {
+        use BinOp::*;
+
+        matches!(self, And | Or)
     }
 }
 

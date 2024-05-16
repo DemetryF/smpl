@@ -20,4 +20,5 @@ fn power(x, y) {
 
 fn main() {
     print(power(2, 3)); // 8
+    return;
 }

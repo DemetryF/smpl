@@ -8,4 +8,5 @@ fn mul(x, y) {
 
 fn main() {
     print(mul(5, 4)); // 20
+    return;
 }

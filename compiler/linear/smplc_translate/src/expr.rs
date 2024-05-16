@@ -1,108 +1,71 @@
 use smplc_hir as hir;
 use smplc_hir::Expr;
-use smplc_ir::{Atom, Binary, Call, Copy, FunctionId, Id, Unary};
+use smplc_ir::{Assign, AssignRhs, Atom, Call, FunctionId};
 
 use crate::translator::Translator;
 
-pub fn translate_expr_and_write_in(expr: Expr, translator: &mut Translator, result: Id) {
+pub fn translate_expr(expr: Expr, translator: &mut Translator) -> AssignRhs {
     match expr {
         Expr::Binary { lhs, op, rhs } => {
             let lhs = translate_expr(*lhs, translator);
-            let rhs = translate_expr(*rhs, translator);
+            let lhs = atom_or_assign(translator, lhs);
 
-            translator.code.push(Binary {
-                result,
-                lhs,
-                op,
-                rhs,
-            });
+            let rhs = translate_expr(*rhs, translator);
+            let rhs = atom_or_assign(translator, rhs);
+
+            AssignRhs::Binary { lhs, op, rhs }
         }
 
         Expr::Unary { op, rhs } => {
             let rhs = translate_expr(*rhs, translator);
+            let rhs = atom_or_assign(translator, rhs);
 
-            translator.code.push(Unary { result, op, rhs });
+            AssignRhs::Unary { op, rhs }
         }
 
         Expr::Call { fun_ref, args } => {
-            translate_call(
-                translator,
-                FunctionId(fun_ref.id.clone()),
+            let args = translate_args(translator, args);
+
+            AssignRhs::Call(Call {
+                id: FunctionId(fun_ref.id.clone()),
                 args,
-                Some(result),
-            );
+            })
         }
 
-        Expr::Atom(atom) => {
-            let value = translate_atom(translator, atom);
-
-            translator.code.push(Copy { result, value });
-        }
+        Expr::Atom(atom) => AssignRhs::Atom(translate_atom(translator, atom)),
     }
 }
 
-pub fn translate_expr(expr: Expr, translator: &mut Translator) -> Atom {
-    match expr {
-        Expr::Binary { lhs, op, rhs } => {
-            let lhs = translate_expr(*lhs, translator);
-            let rhs = translate_expr(*rhs, translator);
+pub fn translate_call(translator: &mut Translator, id: FunctionId, args: Vec<Expr>) {
+    let args = translate_args(translator, args);
 
-            let result = translator.variables.next_id();
-
-            translator.code.push(Binary {
-                result,
-                lhs,
-                op,
-                rhs,
-            });
-
-            Atom::Id(result)
-        }
-
-        Expr::Unary { op, rhs } => {
-            let rhs = translate_expr(*rhs, translator);
-
-            let result = translator.variables.next_id();
-
-            translator.code.push(Unary { result, op, rhs });
-
-            Atom::Id(result)
-        }
-
-        Expr::Call { fun_ref, args } => {
-            let result = translator.variables.next_id();
-
-            translate_call(
-                translator,
-                FunctionId(fun_ref.id.clone()),
-                args,
-                Some(result),
-            );
-
-            Atom::Id(result)
-        }
-
-        Expr::Atom(atom) => translate_atom(translator, atom),
-    }
+    translator.code.push(Call { id, args })
 }
 
-pub fn translate_call(
-    translator: &mut Translator,
-    id: FunctionId,
-    args: Vec<Expr>,
-    result: Option<Id>,
-) {
-    let args = args
-        .into_iter()
-        .map(|arg| translate_expr(arg, translator))
-        .collect();
-
-    translator.code.push(Call { result, id, args });
+pub fn translate_args(translator: &mut Translator, args: Vec<Expr>) -> Vec<Atom> {
+    args.into_iter()
+        .map(|arg| {
+            let arg = translate_expr(arg, translator);
+            atom_or_assign(translator, arg)
+        })
+        .collect()
 }
 
 pub fn translate_atom(translator: &mut Translator, atom: hir::Atom) -> Atom {
     match atom {
         hir::Atom::Var(var_ref) => Atom::Id(translator.variables.get(var_ref)),
         hir::Atom::Literal(literal) => Atom::Number(literal.into()),
+    }
+}
+
+pub fn atom_or_assign(translator: &mut Translator, rhs: AssignRhs) -> Atom {
+    if let AssignRhs::Atom(atom) = rhs {
+        atom
+    } else {
+        let result = translator.variables.next_id();
+
+        translator.code.push(Assign { lhs: result, rhs });
+
+        Atom::Id(result)
     }
 }
