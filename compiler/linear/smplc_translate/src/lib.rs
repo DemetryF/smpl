@@ -2,8 +2,8 @@ mod expr;
 mod statement;
 mod translator;
 
-use smplc_hir::{Block, Expr, HIR};
-use smplc_lir::{BinOp, Code, CodeFunction, FunctionId, Halt, UnOp};
+use smplc_hir::{self as hir, Block, Expr, HIR};
+use smplc_lir::{Code, CodeFunction, FunctionId, Halt};
 
 use translator::Translator;
 
@@ -66,20 +66,20 @@ fn eval_constant_expr(expr: Expr, translator: &Translator) -> f32 {
             let rhs = eval_constant_expr(*rhs, translator);
 
             match op {
-                BinOp::Or => ((lhs == 1.0) || (rhs == 1.0)) as i32 as f32,
-                BinOp::And => ((lhs == 1.0) && (rhs == 1.0)) as i32 as f32,
+                hir::BinOp::Or => ((lhs == 1.0) || (rhs == 1.0)) as i32 as f32,
+                hir::BinOp::And => ((lhs == 1.0) && (rhs == 1.0)) as i32 as f32,
 
-                BinOp::Ne => (lhs != rhs) as i32 as f32,
-                BinOp::Eq => (lhs == rhs) as i32 as f32,
-                BinOp::Ge => (lhs >= rhs) as i32 as f32,
-                BinOp::Gt => (lhs > rhs) as i32 as f32,
-                BinOp::Le => (lhs <= rhs) as i32 as f32,
-                BinOp::Lt => (lhs < rhs) as i32 as f32,
+                hir::BinOp::Ne => (lhs != rhs) as i32 as f32,
+                hir::BinOp::Eq => (lhs == rhs) as i32 as f32,
+                hir::BinOp::Ge => (lhs >= rhs) as i32 as f32,
+                hir::BinOp::Gt => (lhs > rhs) as i32 as f32,
+                hir::BinOp::Le => (lhs <= rhs) as i32 as f32,
+                hir::BinOp::Lt => (lhs < rhs) as i32 as f32,
 
-                BinOp::Add => lhs + rhs,
-                BinOp::Sub => lhs - rhs,
-                BinOp::Mul => lhs * rhs,
-                BinOp::Div => lhs / rhs,
+                hir::BinOp::Add => lhs + rhs,
+                hir::BinOp::Sub => lhs - rhs,
+                hir::BinOp::Mul => lhs * rhs,
+                hir::BinOp::Div => lhs / rhs,
             }
         }
 
@@ -87,8 +87,8 @@ fn eval_constant_expr(expr: Expr, translator: &Translator) -> f32 {
             let rhs = eval_constant_expr(*rhs, translator);
 
             match op {
-                UnOp::Not => !(rhs == 1.0) as i32 as f32,
-                UnOp::Neg => -rhs,
+                hir::UnOp::Not => !(rhs == 1.0) as i32 as f32,
+                hir::UnOp::Neg => -rhs,
             }
         }
 

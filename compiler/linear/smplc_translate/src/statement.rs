@@ -1,7 +1,7 @@
 use smplc_hir::{Expr, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement};
-use smplc_lir::{Assign, FunctionId, Goto, Return, Unless};
+use smplc_lir::{Assign, FunctionId, Goto, Return};
 
-use crate::expr::{atom_or_assign, translate_call, translate_expr};
+use crate::expr::{atom_or_assign, translate_call, translate_expr, translate_logic_expr};
 use crate::translator::Translator;
 use crate::Translate;
 
@@ -30,30 +30,33 @@ impl Translate for Statement {
 
 impl Translate for IfStatement {
     fn translate(self, translator: &mut Translator) {
-        let (end_label, else_label) = translator.next_if_labels();
-
-        let cond = translate_expr(self.cond, translator);
-        let cond = atom_or_assign(translator, cond);
+        let end_label = translator.next_label();
 
         if let Some(else_body) = self.else_body {
-            translator.code.push(Unless {
-                cond,
-                label: else_label.clone(),
-            });
+            let true_label = translator.next_label();
+            let false_label = translator.next_label();
 
+            translate_logic_expr(
+                self.cond,
+                translator,
+                true_label.clone(),
+                false_label.clone(),
+            );
+
+            translator.code.add_label(true_label);
             self.body.translate(translator);
-
             translator.code.push(Goto {
                 label: end_label.clone(),
             });
 
+            translator.code.add_label(false_label);
             else_body.translate(translator);
         } else {
-            translator.code.push(Unless {
-                cond,
-                label: end_label.clone(),
-            });
+            let true_label = translator.next_label();
 
+            translate_logic_expr(self.cond, translator, true_label.clone(), end_label.clone());
+
+            translator.code.add_label(true_label);
             self.body.translate(translator);
         }
 
@@ -67,17 +70,9 @@ impl Translate for WhileStatement {
 
         translator.code.add_label(start_label.clone());
 
-        let cond = translate_expr(self.cond, translator);
-        let cond = atom_or_assign(translator, cond);
-
-        translator.code.push(Unless {
-            cond,
-            label: end_label.clone(),
-        });
-
         self.body.translate(translator);
 
-        translator.code.push(Goto { label: start_label });
+        translate_logic_expr(self.cond, translator, start_label, end_label.clone());
 
         translator.code.add_label(end_label);
     }

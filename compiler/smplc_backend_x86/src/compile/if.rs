@@ -1,29 +1,40 @@
 use std::fmt::{self, Write};
 
-use smplc_lir::If;
+use smplc_lir::{self as lir, If};
 
 use crate::builder::Builder;
 use crate::env::Env;
 
 use crate::compile::Compile;
 
+use super::to_asm;
+
 impl Compile for If {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
-        match self.cond {
-            smplc_lir::Atom::Id(id) => {
-                writeln!(builder, "movss xmm0, {}", env.get(id))?;
-                writeln!(builder, "xorpd xmm1, xmm1")?;
-                writeln!(builder, "ucomiss xmm0, xmm1")?;
-                writeln!(builder, "jnz {}", self.label)
-            }
+        let (then_instr, else_instr) = match self.op {
+            lir::RelOp::Eq => ("je", "jne"),
+            lir::RelOp::Ne => ("jne", "jne"),
+            lir::RelOp::Le => ("jbe", "jae"),
+            lir::RelOp::Lt => ("jb", "ja"),
+            lir::RelOp::Ge => ("jae", "jbe"),
+            lir::RelOp::Gt => ("ja", "jb"),
+        };
 
-            smplc_lir::Atom::Number(num) => {
-                if num != 0.0 {
-                    writeln!(builder, "jmp {}", self.label)?;
-                }
+        let lhs = to_asm(env, builder, self.lhs);
+        let rhs = to_asm(env, builder, self.rhs);
 
-                Ok(())
-            }
+        writeln!(builder, "movss xmm0, {lhs}")?;
+        writeln!(builder, "movss xmm1, {rhs}")?;
+        writeln!(builder, "ucomiss xmm0, xmm1")?;
+
+        if let Some(then_label) = self.then_label {
+            writeln!(builder, "{then_instr} {then_label}")?;
         }
+
+        if let Some(else_label) = self.else_label {
+            writeln!(builder, "{else_instr} {else_label}")?;
+        }
+
+        Ok(())
     }
 }
