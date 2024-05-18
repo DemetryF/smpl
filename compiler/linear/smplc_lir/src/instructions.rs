@@ -2,14 +2,13 @@ mod display;
 
 use smplc_macros::{display, EnumWrap};
 
-use crate::{Atom, BinOp, FunctionId, Id, Label, UnOp};
+use crate::{Atom, BinOp, FunctionId, Id, Label, RelOp};
 
 #[derive(EnumWrap)]
 pub enum Instruction {
     Assign(Assign),
 
     If(If),
-    Unless(Unless),
     Goto(Goto),
     Call(Call),
 
@@ -24,21 +23,18 @@ pub struct Assign {
 
 pub enum AssignRhs {
     Binary { lhs: Atom, op: BinOp, rhs: Atom },
-    Unary { op: UnOp, rhs: Atom },
+    Neg { rhs: Atom },
     Call(Call),
     Atom(Atom),
 }
 
-#[display("if {cond} goto {label}")]
 pub struct If {
-    pub cond: Atom,
-    pub label: Label,
-}
+    pub lhs: Atom,
+    pub op: RelOp,
+    pub rhs: Atom,
 
-#[display("unless {cond} goto {label}")]
-pub struct Unless {
-    pub cond: Atom,
-    pub label: Label,
+    pub then_label: Option<Label>,
+    pub else_label: Option<Label>,
 }
 
 #[display("goto {label}")]

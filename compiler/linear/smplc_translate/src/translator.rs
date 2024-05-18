@@ -9,8 +9,8 @@ pub struct Translator {
     pub code: Code,
     pub variables: Variables,
 
-    ifs_count: usize,
     whiles_count: usize,
+    labels: usize,
 }
 
 #[derive(Default)]
@@ -20,15 +20,6 @@ pub struct Variables {
 }
 
 impl Translator {
-    pub fn next_if_labels(&mut self) -> (Label, Label) {
-        let end_label = Label(format!("endif{}", self.ifs_count));
-        let else_label = Label(format!("else{}", self.ifs_count));
-
-        self.ifs_count += 1;
-
-        (end_label, else_label)
-    }
-
     pub fn next_while_labels(&mut self) -> (Label, Label) {
         self.whiles_count += 1;
 
@@ -44,6 +35,14 @@ impl Translator {
         } else {
             None
         }
+    }
+
+    pub fn next_label(&mut self) -> Label {
+        let label = Label(format!("label{}", self.labels));
+
+        self.labels += 1;
+
+        label
     }
 }
 

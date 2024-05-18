@@ -4,7 +4,6 @@ mod goto;
 mod halt;
 mod r#if;
 mod r#return;
-mod unless;
 
 use std::fmt::{self, Write};
 
@@ -23,7 +22,6 @@ impl Compile for Instruction {
         match self {
             Instruction::Assign(a) => a.compile(env, builder),
             Instruction::If(a) => a.compile(env, builder),
-            Instruction::Unless(a) => a.compile(env, builder),
             Instruction::Goto(a) => a.compile(env, builder),
             Instruction::Call(a) => a.compile(env, builder),
             Instruction::Return(a) => a.compile(env, builder),
