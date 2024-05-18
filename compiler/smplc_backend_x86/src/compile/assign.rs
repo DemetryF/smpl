@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use smplc_ir::{Assign, AssignRhs, BinOp, UnOp};
+use smplc_lir::{Assign, AssignRhs, BinOp, UnOp};
 
 use crate::{builder::Builder, env::Env};
 

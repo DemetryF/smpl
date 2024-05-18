@@ -3,7 +3,7 @@ mod statement;
 mod translator;
 
 use smplc_hir::{Block, Expr, HIR};
-use smplc_ir::{BinOp, Code, CodeFunction, FunctionId, Halt, UnOp};
+use smplc_lir::{BinOp, Code, CodeFunction, FunctionId, Halt, UnOp};
 
 use translator::Translator;
 

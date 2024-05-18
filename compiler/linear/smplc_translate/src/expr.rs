@@ -1,12 +1,11 @@
 use smplc_hir as hir;
-use smplc_hir::Expr;
-use smplc_ir::{Assign, AssignRhs, Atom, Call, FunctionId};
+use smplc_lir::{Assign, AssignRhs, Atom, Call, FunctionId};
 
 use crate::translator::Translator;
 
-pub fn translate_expr(expr: Expr, translator: &mut Translator) -> AssignRhs {
+pub fn translate_expr(expr: hir::Expr, translator: &mut Translator) -> AssignRhs {
     match expr {
-        Expr::Binary { lhs, op, rhs } => {
+        hir::Expr::Binary { lhs, op, rhs } => {
             let lhs = translate_expr(*lhs, translator);
             let lhs = atom_or_assign(translator, lhs);
 
@@ -16,14 +15,14 @@ pub fn translate_expr(expr: Expr, translator: &mut Translator) -> AssignRhs {
             AssignRhs::Binary { lhs, op, rhs }
         }
 
-        Expr::Unary { op, rhs } => {
+        hir::Expr::Unary { op, rhs } => {
             let rhs = translate_expr(*rhs, translator);
             let rhs = atom_or_assign(translator, rhs);
 
             AssignRhs::Unary { op, rhs }
         }
 
-        Expr::Call { fun_ref, args } => {
+        hir::Expr::Call { fun_ref, args } => {
             let args = translate_args(translator, args);
 
             AssignRhs::Call(Call {
@@ -32,17 +31,17 @@ pub fn translate_expr(expr: Expr, translator: &mut Translator) -> AssignRhs {
             })
         }
 
-        Expr::Atom(atom) => AssignRhs::Atom(translate_atom(translator, atom)),
+        hir::Expr::Atom(atom) => AssignRhs::Atom(translate_atom(translator, atom)),
     }
 }
 
-pub fn translate_call(translator: &mut Translator, id: FunctionId, args: Vec<Expr>) {
+pub fn translate_call(translator: &mut Translator, id: FunctionId, args: Vec<hir::Expr>) {
     let args = translate_args(translator, args);
 
     translator.code.push(Call { id, args })
 }
 
-pub fn translate_args(translator: &mut Translator, args: Vec<Expr>) -> Vec<Atom> {
+pub fn translate_args(translator: &mut Translator, args: Vec<hir::Expr>) -> Vec<Atom> {
     args.into_iter()
         .map(|arg| {
             let arg = translate_expr(arg, translator);

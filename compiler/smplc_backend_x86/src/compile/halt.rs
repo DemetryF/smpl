@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use smplc_ir::Halt;
+use smplc_lir::Halt;
 
 use crate::builder::Builder;
 use crate::env::Env;

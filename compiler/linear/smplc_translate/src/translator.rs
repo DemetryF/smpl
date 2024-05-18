@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use smplc_ast::Pos;
 use smplc_hir::VarRef;
-use smplc_ir::{Code, Id, Label};
+use smplc_lir::{Code, Id, Label};
 
 #[derive(Default)]
 pub struct Translator {

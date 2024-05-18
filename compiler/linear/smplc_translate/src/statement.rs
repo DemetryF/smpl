@@ -1,5 +1,5 @@
 use smplc_hir::{Expr, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement};
-use smplc_ir::{Assign, FunctionId, Goto, Return, Unless};
+use smplc_lir::{Assign, FunctionId, Goto, Return, Unless};
 
 use crate::expr::{atom_or_assign, translate_call, translate_expr};
 use crate::translator::Translator;

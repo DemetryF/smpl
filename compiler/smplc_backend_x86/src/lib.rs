@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::{self, Write};
 
-use smplc_ir as ir;
+use smplc_lir as ir;
 
 use builder::Builder;
 use compile::Compile;

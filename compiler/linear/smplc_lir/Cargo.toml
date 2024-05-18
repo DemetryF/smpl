@@ -1,5 +1,5 @@
 [package]
-name = "smplc_ir"
+name = "smplc_lir"
 version = "0.1.0"
 edition = "2021"
 

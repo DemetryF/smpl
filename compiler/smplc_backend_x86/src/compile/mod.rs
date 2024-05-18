@@ -8,7 +8,7 @@ mod unless;
 
 use std::fmt::{self, Write};
 
-use smplc_ir::{Atom, Instruction};
+use smplc_lir::{Atom, Instruction};
 
 use crate::{builder::Builder, env::Env};
 
