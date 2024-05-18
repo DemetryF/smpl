@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "smplc",
+    "bin",
 
     "compiler/frontend/smplc_parse",
     "compiler/frontend/smplc_lexer",
