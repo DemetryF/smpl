@@ -1,6 +1,8 @@
+mod display;
+
 use smplc_macros::{display, EnumWrap};
 
-use crate::*;
+use crate::{Atom, BinOp, FunctionId, Id, Label, UnOp};
 
 #[derive(EnumWrap)]
 pub enum Instruction {
