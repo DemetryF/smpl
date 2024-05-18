@@ -182,7 +182,7 @@ version = "0.1.0"
 name = "smplc_backend_x86"
 version = "0.1.0"
 dependencies = [
- "smplc_ir",
+ "smplc_lir",
 ]
 
 [[package]]
@@ -193,19 +193,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "smplc_ir"
-version = "0.1.0"
-dependencies = [
- "smplc_ast",
- "smplc_macros",
-]
-
-[[package]]
 name = "smplc_lexer"
 version = "0.1.0"
 dependencies = [
  "parse_int",
  "smplc_ast",
+]
+
+[[package]]
+name = "smplc_lir"
+version = "0.1.0"
+dependencies = [
+ "smplc_ast",
+ "smplc_macros",
 ]
 
 [[package]]
@@ -231,8 +231,8 @@ version = "0.1.0"
 dependencies = [
  "smplc_ast",
  "smplc_hir",
- "smplc_ir",
  "smplc_lexer",
+ "smplc_lir",
  "smplc_parse",
 ]
 
@@ -242,7 +242,7 @@ version = "0.1.0"
 dependencies = [
  "smplc_ast",
  "smplc_hir",
- "smplc_ir",
+ "smplc_lir",
 ]
 
 [[package]]

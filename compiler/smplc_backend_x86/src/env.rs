@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-use smplc_ir as ir;
+use smplc_lir as ir;
 
 pub struct Env<'a> {
     constants: &'a HashMap<ir::Id, String>,

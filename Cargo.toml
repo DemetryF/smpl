@@ -9,7 +9,7 @@ members = [
     "compiler/semantic/smplc_hir",
     "compiler/semantic/smplc_semcheck",
 
-    "compiler/linear/smplc_ir",
+    "compiler/linear/smplc_lir",
     "compiler/linear/smplc_translate",
 
     "compiler/smplc_backend_x86",

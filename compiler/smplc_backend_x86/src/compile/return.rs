@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use smplc_ir::Return;
+use smplc_lir::Return;
 
 use crate::builder::Builder;
 use crate::compile::{to_asm, Compile};
