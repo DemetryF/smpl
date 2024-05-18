@@ -63,9 +63,9 @@ cargo build --release
 ```
 2. take compiler bin
 ```sh
-mv target/release/smplc ./smpl
+mv target/release/smplc ./smplc
 ```
 3. compile your file:
 ```sh
-./smpl <path> [-o <output binary file name>]
+./smplc <path> [-o <output binary file name>]
 ```
