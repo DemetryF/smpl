@@ -1,4 +1,9 @@
-fn collision(aMinX, aMaxX, aMinY, aMaxY, bMinX, bMaxX, bMinY, bMaxY) {
+fn collision(
+    aMinX: real, aMinY: real, 
+    aMaxX: real, aMaxY: real, 
+    bMinX: real, bMinY: real, 
+    bMaxX: real, bMaxY: real,
+) -> bool {
     if aMaxX < bMinX | aMinX > bMaxX {
         return false;
     }

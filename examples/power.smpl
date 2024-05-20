@@ -1,12 +1,14 @@
-fn module(x, d) {
-    let a = 0;
+fn module(x: int, d: int) -> int {
+    let a: int = 0;
+
     while (a < d) {
         a = a + d;
     }
+
     return x - a + d;
 }
 
-fn power(x, y) {
+fn power(x: int, y: int) -> int {
     if y == 0 {
         return 1;
     }
