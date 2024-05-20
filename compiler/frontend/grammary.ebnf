@@ -1,31 +1,32 @@
-root ::= declaration*
+root = declaration*
 
-// declarations
-declaration = constant | function
+(* declarations *)
+declaration ::= constant | function
 
-constant ::= 'const' id '=' expr ';'
-function ::= 'fn' id '(' fargs? ')' block
+constant ::= 'const' id ':' ty '=' expr ';'
+function ::= 'fn' id '(' fargs? ')' ('->' ty)? block
 
-// statements
+fargs ::= id (',' id)*
+
+(* statements *)
 stmt ::= if | while | declare | return | exprstmt
 
-declare  ::= 'let' id ('=' expr)? ';'
+declare  ::= 'let' id ':' ty ('=' expr)? ';'
 if       ::= 'if' expr block ('else' block)?
 while    ::= 'while' expr block
-return   ::= 'return' expr ';'
+return   ::= 'return' expr? ';'
 break    ::= 'break' ';'
 continue ::= 'continue' ';'
 exprstmt ::= assignment ';'
 
-// block
+(* block *)
 block ::= '{' stmt* '}'
 
-// expressions 
+(* expressions *) 
 expr ::= or
 
-assignment ::= 
-      id '=' or
-    | or;
+assignment ::= id '=' or
+    | or
 
 or ::= or '|' and
      | and
@@ -62,8 +63,4 @@ fact ::= num | id | parenthesis | call
 
 parenthesis ::= '(' expr ')'
 call ::= id '(' cargs? ')'
-
-// arguments
-
-fargs ::= id (',' id)*
 cargs ::= expr (',' expr)*
