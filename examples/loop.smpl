@@ -1,7 +1,7 @@
 fn main() {
     let n: int = 0;
 
-    while 1 {
+    while true {
         n = n + 1;
 
         if n == 2 | n == 4 {

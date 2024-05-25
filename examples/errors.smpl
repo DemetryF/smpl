@@ -1,10 +1,10 @@
 fn main() {
     // Error: variable "aboba" is not defined
-    // Error: function "print" takes 1, but received 2
-    print(aboba, 2);
+    // Error: function "printr" takes 1, but received 2
+    printr(aboba, 2);
 
-    // Error: function "print_empty" is not defined
-    print_empty();
+    // Error: function "print" is not defined
+    print();
 
     let aboba;
     // Error: variable "aboba" is already declared

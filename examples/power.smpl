@@ -21,6 +21,6 @@ fn power(x: int, y: int) -> int {
 }
 
 fn main() {
-    print(power(2, 3)); // 8
+    printi(power(2, 3)); // 8
     return;
 }

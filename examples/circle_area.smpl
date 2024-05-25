@@ -1,0 +1,10 @@
+const PI: real = 3.14;
+
+fn circle_area(radius: real) -> real {
+    return 2.0 * PI * radius; 
+}
+
+fn main() {
+    printr(circle_area(6.0));
+    return;
+}

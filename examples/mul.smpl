@@ -7,6 +7,6 @@ fn mul(x: int, y: int) -> int {
 }
 
 fn main() {
-    print(mul(5, 4)); // 20
+    printi(mul(5, 4)); // 20
     return;
 }

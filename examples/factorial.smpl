@@ -11,6 +11,6 @@ fn factorial(n: int) -> int {
 }
 
 fn main() {
-    print(factorial(5)); // 120
+    printi(factorial(5)); // 120
     return;
 }
