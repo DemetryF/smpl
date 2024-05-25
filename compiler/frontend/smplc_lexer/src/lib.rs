@@ -1,10 +1,10 @@
 mod code_stream;
 mod comment_handler;
+mod error;
+mod lexer;
 mod token;
 mod token_collector;
 
-mod error;
-mod lexer;
 #[cfg(test)]
 mod tests;
 

@@ -11,9 +11,9 @@ impl Compile for Halt {
         writeln!(
             builder,
             "
-    mov ebx, 0
-    mov eax, 1
-    int 0x80
+mov rbx, 0
+mov rax, 1
+syscall
             "
         )
     }

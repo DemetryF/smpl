@@ -6,13 +6,24 @@ fn main() {
     // Error: function "print" is not defined
     print();
 
-    let aboba;
+    let aboba: real;
     // Error: variable "aboba" is already declared
-    let aboba;
+    let aboba: real;
+
+    // Error: wrong type: received int, but expected bool 
+    if 1 {}
+
+    // Error: wrong type: received int, but expected real
+    aboba = 10;
+}
+
+fn test(a: int) -> int {
+    // Error: wrong type: received real, but expected int 
+    return 1.0;
 }
 
 // Error: two arguments with same name
-fn aboba(a, a) {}
+fn aboba(a: real, a: real) {}
 
 // Error: function "aboba" is already declared
 fn aboba() {}

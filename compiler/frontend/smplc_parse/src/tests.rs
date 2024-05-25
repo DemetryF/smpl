@@ -32,23 +32,25 @@ macro_rules! expr_test {
 pub fn declare_statement() {
     statement_test!(
         "\
-let a;
+let a: int;
         ";
         Statement::Declare(DeclareStatement {
             id: Id::new("a".into(), Pos::new(1, 5, 4)),
+            ty: Type::Int,
             value: None,
         })
     );
 
     statement_test!(
         "\
-let a = a;
+let a: real = a;
         ";
         Statement::Declare(DeclareStatement {
             id: Id::new("a".into(), Pos::new(1, 5,  4)),
+            ty: Type::Real,
             value: Some(Expr::Atom(Atom::Id(Id::new(
                 "a".into(),
-                Pos::new(1, 9, 8),
+                Pos::new(1, 15, 14),
             )))),
         })
     );
@@ -76,33 +78,44 @@ fn name() {}
         Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4, 3)),
             args: vec![],
+            ret_ty: None,
             body: Block { statements: vec![] },
         })
     );
 
     parse_test!(
         "\
-fn name(a) {}
+fn name(a: real) -> real {}
         ";
         Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4, 3)),
-            args: vec![
-                Id::new("a".into(), Pos::new(1, 9, 8))
+            args: vec![FunctionArg {
+              id:  Id::new("a".into(), Pos::new(1, 9, 8)),
+              ty: Type::Real,
+            }
             ],
+            ret_ty: Some(Type::Real),
             body: Block { statements: vec![] },
         })
     );
 
     parse_test!(
         "\
-fn name(a, b) {}
+fn name(a: bool, b: bool) -> bool {}
         ";
         Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4,  3)),
             args: vec![
-                Id::new("a".into(), Pos::new(1, 9, 8)),
-                Id::new("b".into(), Pos::new(1, 12, 11)),
+                FunctionArg {
+                    id: Id::new("a".into(), Pos::new(1, 9, 8)),
+                    ty: Type::Bool,
+                },
+                FunctionArg {
+                    id: Id::new("b".into(), Pos::new(1, 18, 17)),
+                    ty: Type::Bool,
+                }
             ],
+            ret_ty: Some(Type::Bool),
             body: Block { statements: vec![] },
         })
     );
@@ -147,6 +160,7 @@ fn name() {
         Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4, 3)),
             args: vec![],
+            ret_ty: None,
             body: Block {
                 statements: vec![Statement::Return(ReturnStatement { value: None })],
             },
@@ -163,6 +177,7 @@ fn name() {
         Declaration::Function(FunctionDeclaration {
             id: Id::new("name".into(), Pos::new(1, 4,  3)),
             args: vec![],
+            ret_ty: None,
             body: Block {
                 statements: vec![Statement::Return(ReturnStatement { value: Some(Expr::Atom(
                     Atom::Id(Id::new("a".into(), Pos::new(2, 12,  23))),
@@ -198,7 +213,7 @@ pub fn expr_call() {
         Expr::Call(Call {
             id: Id::new("call".into(), Pos::default()),
             args: vec![
-                Expr::Atom(Atom::Literal(Literal::Number(1.0)))
+                Expr::Atom(Atom::Literal(Literal::Int(1)))
             ],
         })
     );
@@ -208,8 +223,8 @@ pub fn expr_call() {
         Expr::Call(Call {
             id: Id::new("call".into(), Pos::default()),
             args: vec![
-                Expr::Atom(Atom::Literal(Literal::Number(1.0))),
-                Expr::Atom(Atom::Literal(Literal::Number(2.0)))
+                Expr::Atom(Atom::Literal(Literal::Int(1))),
+                Expr::Atom(Atom::Literal(Literal::Int(2)))
             ],
         })
     );

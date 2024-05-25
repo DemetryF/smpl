@@ -1,4 +1,4 @@
-use smplc_ast::Literal;
+use smplc_ast::{Literal, Type};
 
 use super::{Lexer, TokenValue};
 
@@ -27,11 +27,11 @@ pub fn numbers() {
             1E10        /* exponential notation (no)    */
         ";
 
-        TokenValue::Literal(Literal::Number(384400.0)),
-        TokenValue::Literal(Literal::Number(3.1415)),
-        TokenValue::Literal(Literal::Number(6.67e-11)),
-        TokenValue::Literal(Literal::Number(6.022e+23)),
-        TokenValue::Literal(Literal::Number(1e10))
+        TokenValue::Literal(Literal::Int(384400)),
+        TokenValue::Literal(Literal::Real(3.1415)),
+        TokenValue::Literal(Literal::Real(6.67e-11)),
+        TokenValue::Literal(Literal::Real(6.022e+23)),
+        TokenValue::Literal(Literal::Real(1e10))
     ];
 }
 
@@ -48,7 +48,7 @@ pub fn bool() {
 #[test]
 pub fn keywords() {
     lexer_test![
-        "return while else let fn if continue break const";
+        "return while else let fn if continue break const int real bool";
 
         TokenValue::Return,
         TokenValue::While,
@@ -59,6 +59,10 @@ pub fn keywords() {
         TokenValue::Continue,
         TokenValue::Break,
         TokenValue::Const,
+
+        TokenValue::Type(Type::Int),
+        TokenValue::Type(Type::Real),
+        TokenValue::Type(Type::Bool),
     ];
 }
 

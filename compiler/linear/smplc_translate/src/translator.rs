@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use smplc_ast::Pos;
-use smplc_hir::VarRef;
+use smplc_hir::{NumberType, VarRef};
 use smplc_lir::{Code, Id, Label};
 
 #[derive(Default)]
@@ -17,6 +17,7 @@ pub struct Translator {
 pub struct Variables {
     data: HashMap<Pos, Id>,
     ids_count: usize,
+    pub types: HashMap<Id, NumberType>,
 }
 
 impl Translator {
@@ -55,9 +56,11 @@ impl Variables {
     }
 
     pub fn add(&mut self, var: VarRef) -> Id {
-        let id = self.next_id();
+        let id = self.next_id(NumberType::for_ir(var.ty));
 
         self.data.insert(var.declared_at, id);
+
+        self.types.insert(id, NumberType::for_ir(var.ty));
 
         id
     }
@@ -66,9 +69,18 @@ impl Variables {
         self.data[&var.declared_at]
     }
 
-    pub fn next_id(&mut self) -> Id {
+    pub fn next_id(&mut self, ty: NumberType) -> Id {
         self.ids_count += 1;
 
-        Id::from(self.ids_count - 1)
+        let id = Id::from(self.ids_count - 1);
+
+        self.types.insert(id, ty);
+
+        id
+    }
+
+    pub fn ty(&self, id: Id) -> NumberType {
+        println!("{:?} {id:?}", &self.types);
+        self.types[&id]
     }
 }

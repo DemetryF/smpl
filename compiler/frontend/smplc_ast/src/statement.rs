@@ -1,4 +1,4 @@
-use crate::{Block, Expr, Id};
+use crate::{Block, Expr, Id, Type};
 
 #[derive(Debug, PartialEq)]
 pub enum Statement<'source> {
@@ -14,6 +14,7 @@ pub enum Statement<'source> {
 #[derive(Debug, PartialEq)]
 pub struct DeclareStatement<'source> {
     pub id: Id<'source>,
+    pub ty: Type,
     pub value: Option<Expr<'source>>,
 }
 

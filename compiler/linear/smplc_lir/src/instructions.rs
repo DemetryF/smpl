@@ -2,7 +2,9 @@ mod display;
 
 use smplc_macros::{display, EnumWrap};
 
-use crate::{Atom, BinOp, FunctionId, Id, Label, RelOp};
+pub use smplc_hir::{ArithmOp, NumberType, RelOp, Type};
+
+use crate::{Atom, FunctionId, Id, Label};
 
 #[derive(EnumWrap)]
 pub enum Instruction {
@@ -22,15 +24,24 @@ pub struct Assign {
 }
 
 pub enum AssignRhs {
-    Binary { lhs: Atom, op: BinOp, rhs: Atom },
-    Neg { rhs: Atom },
-    Call(Call),
+    Binary {
+        lhs: Atom,
+        op: ArithmOp,
+        rhs: Atom,
+        ty: NumberType,
+    },
+    Neg {
+        rhs: Atom,
+        ty: NumberType,
+    },
+    Call(Call, NumberType),
     Atom(Atom),
 }
 
 pub struct If {
     pub lhs: Atom,
     pub op: RelOp,
+    pub ty: NumberType,
     pub rhs: Atom,
 
     pub then_label: Option<Label>,
@@ -44,7 +55,7 @@ pub struct Goto {
 
 pub struct Call {
     pub id: FunctionId,
-    pub args: Vec<Atom>,
+    pub args: Vec<(Atom, NumberType)>,
 }
 
 #[display("halt")]
