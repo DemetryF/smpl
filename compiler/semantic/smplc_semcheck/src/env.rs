@@ -9,6 +9,8 @@ use crate::error::{SemError, SemResult};
 pub struct Env<'source> {
     pub variables: Variables<'source>,
     pub functions: Functions<'source>,
+
+    pub current_fn: Option<FunRef>,
 }
 
 #[derive(Default)]

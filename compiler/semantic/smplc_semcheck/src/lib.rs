@@ -33,6 +33,8 @@ pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
     for declaration in ast {
         match declaration {
             ast::Declaration::Function(function) => {
+                env.current_fn = Some(env.functions.get(function.id).unwrap());
+
                 hir.functions.push(function.check(&mut env)?);
             }
 

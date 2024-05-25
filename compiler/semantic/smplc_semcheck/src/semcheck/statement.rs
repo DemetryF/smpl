@@ -1,10 +1,10 @@
 use smplc_ast as ast;
 use smplc_hir::*;
 
-use super::expr::expect_ty;
+use super::expr::{expect_ty, expr_ty};
 use super::SemCheck;
 use crate::env::Env;
-use crate::error::SemResult;
+use crate::error::{SemError, SemResult};
 
 impl<'source> SemCheck<'source> for ast::Statement<'source> {
     type Checked = Statement;
@@ -88,7 +88,13 @@ impl<'source> SemCheck<'source> for ast::ReturnStatement<'source> {
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let value = self.value.map(|expr| expr.check(env)).transpose()?;
 
-        if let Some(_) = &value { /* add typecheck here */ }
+        if let Some(expr) = &value {
+            if let Some(ty) = env.current_fn.as_ref().unwrap().ret_ty {
+                expect_ty(expr, ty)?;
+            } else {
+                return Err(SemError::wrong_ty(expr_ty(expr), vec![]));
+            }
+        }
 
         Ok(ReturnStatement { value })
     }
