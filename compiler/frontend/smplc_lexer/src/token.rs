@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use smplc_ast::{Literal, Pos};
+use smplc_ast::{Literal, Pos, Type};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Token<'source> {
@@ -23,12 +23,14 @@ pub enum TokenValue<'source> {
 
     // special chars
     Semicolon,
-    Comma,
     LBrace,
     RBrace,
     LParen,
     RParen,
     Assign,
+    Arrow,
+    Colon,
+    Comma,
     Or,
     And,
     Ne,
@@ -45,6 +47,7 @@ pub enum TokenValue<'source> {
 
     // other
     Literal(Literal),
+    Type(Type),
     Id(&'source str),
 
     EOF,
@@ -63,7 +66,9 @@ impl<'source> Display for TokenValue<'source> {
             TokenValue::Return => "return",
             TokenValue::While => "while",
 
+            TokenValue::Arrow => "->",
             TokenValue::Semicolon => ";",
+            TokenValue::Colon => ":",
             TokenValue::Comma => ",",
             TokenValue::LBrace => "{",
             TokenValue::RBrace => "}",
@@ -83,11 +88,16 @@ impl<'source> Display for TokenValue<'source> {
             TokenValue::Star => "*",
             TokenValue::Slash => "/",
             TokenValue::Not => "!",
+            TokenValue::Id(id) => id,
+            TokenValue::EOF => "\\0",
+
             TokenValue::Literal(literal) => {
                 return write!(f, "{literal}");
             }
-            TokenValue::Id(id) => id,
-            TokenValue::EOF => "\\0",
+
+            TokenValue::Type(ty) => {
+                return write!(f, "{ty}");
+            }
         };
 
         write!(f, "{value}")

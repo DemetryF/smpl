@@ -8,7 +8,7 @@ Function `main` is entry point.
 ## Variable Declaration
 You can declare a variable by using `let` keyword:
 ```rust
-let a = 2;
+let a: int = 2;
 ```
 ## If Statement
 Conditional constructs in SMPL are similar to conditional constructs in Rust:
@@ -40,7 +40,7 @@ Also there is Continue and Break statements;
 ## Function Declaration
 You can declare a function by using `fn` keyword:
 ```rust
-fn name(arg1, arg2) {
+fn name(arg1: int, arg2: real) -> bool {
     // body
 }
 ```
@@ -48,12 +48,16 @@ fn name(arg1, arg2) {
 Use return statement for exit from function:
 
 ```rust
-fn add(a, b) {
+fn add(a: real, b: real) -> real {
     return a + b;
 }
 ```
 
-you can see more examples [here](https://github.com/demetryf/smpl/tree/main/examples)
+you can see more examples [here](https://github.com/demetryf/smpl/tree/feature/add_typing/examples)
+and formal grammary [here](https://github.com/demetryf/smpl/tree/feature/add_typing/compiler/frontend/grammary.ebnff)
+
+# Typing
+SMPL is typed language, so it have 3 types: `real` (f32), `int` (i32) and bool
 
 # Using
 

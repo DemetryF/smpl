@@ -1,7 +1,6 @@
 use std::rc::Rc;
 
-use smplc_ast::Pos;
-use smplc_hir::FunData;
+use smplc_hir::{FunData, Pos, Type};
 use smplc_lexer::lex;
 use smplc_parse::{parse, TokenStream};
 
@@ -38,7 +37,7 @@ pub fn non_existent_function() {
 #[test]
 pub fn redeclaring_variable() {
     semtest![
-        "fn main() { let a; let a; }" => SemErrorKind::RedeclaringVariable {
+        "fn main() { let a: real; let a: real; }" => SemErrorKind::RedeclaringVariable {
             name: "a",
             first_declaration: Pos::new(1, 17, 16)
         }
@@ -66,19 +65,21 @@ pub fn invalid_arguments() {
             fun_ref: Rc::new(FunData {
                 declared_at: Pos::new(1, 4, 3),
                 id: "a".into(),
-                args_count: 0,
+                args: vec![],
+                ret_ty: None
             })
         }
     ];
 
     semtest![
-        "fn a(b) {} fn main() { a(); }" => SemErrorKind::InvalidArgumentsCount {
+        "fn a(b: real) {} fn main() { a(); }" => SemErrorKind::InvalidArgumentsCount {
             expected: 1,
             received: 0,
             fun_ref: Rc::new(FunData {
-                declared_at: Pos::new(1, 4,  3),
+                declared_at: Pos::new(1, 4, 3),
                 id: "a".into(),
-                args_count: 1,
+                args: vec![Type::Real],
+                ret_ty: None
             })
         }
     ];
@@ -87,6 +88,33 @@ pub fn invalid_arguments() {
 #[test]
 pub fn duplicate_args_names() {
     semtest![
-        "fn a(b, b) {}" => SemErrorKind::DuplicateArgsNames("b")
+        "fn a(b: real, b: real) {}" => SemErrorKind::DuplicateArgsNames("b")
+    ];
+}
+
+#[test]
+pub fn wrong_type() {
+    semtest![
+        "fn main() { let a: real = 1; }" => SemErrorKind::WrongType { received: Type::Int, expected: vec![Type::Real] }
+    ];
+
+    semtest![
+        "fn main() { let a: real; a = 1; }" => SemErrorKind::WrongType { received: Type::Int, expected: vec![Type::Real] }
+    ];
+
+    semtest![
+        "fn main() { if 1 {} }" => SemErrorKind::WrongType { received: Type::Int, expected: vec![Type::Bool] }
+    ];
+
+    semtest![
+        "fn main() { while 1 {} }" => SemErrorKind::WrongType { received: Type::Int, expected: vec![Type::Bool] }
+    ];
+
+    semtest![
+        "fn a(b: real) {} fn main() { a(1); }" => SemErrorKind::WrongType { received: Type::Int, expected: vec![Type::Real] }
+    ];
+
+    semtest![
+        "fn a() -> real {} fn main() { let b: int = a(); }" => SemErrorKind::WrongType { received: Type::Real, expected: vec![Type::Int] }
     ];
 }

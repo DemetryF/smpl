@@ -18,21 +18,23 @@ impl TokenCollector for NumberCollector {
         }
 
         let start = code_stream.index();
+        let mut is_float = false;
 
         match code_stream.slice_from_current(RADIX_PREFIX_LENGTH) {
             "0b" => Self::prefixed(code_stream, 2),
             "0o" => Self::prefixed(code_stream, 8),
             "0x" => Self::prefixed(code_stream, 16),
-            _ => Self::common_number(code_stream),
+            _ => Self::common_number(code_stream, &mut is_float),
         };
 
         let end = code_stream.index();
 
         let buffer = code_stream.slice(start, end);
 
-        let number = parse(buffer).unwrap();
-
-        Some(TokenValue::Literal(Literal::Number(number)))
+        match is_float {
+            true => Some(TokenValue::Literal(Literal::Real(parse(buffer).unwrap()))),
+            false => Some(TokenValue::Literal(Literal::Int(parse(buffer).unwrap()))),
+        }
     }
 }
 
@@ -46,23 +48,27 @@ impl NumberCollector {
         Self::number_literal(code_stream, radix);
     }
 
-    pub fn common_number(code_stream: &mut CodeStream) {
+    pub fn common_number(code_stream: &mut CodeStream, is_float: &mut bool) {
         Self::number_literal(code_stream, 10);
 
-        Self::fraction(code_stream);
-        Self::exponential_part(code_stream);
+        Self::fraction(code_stream, is_float);
+        Self::exponential_part(code_stream, is_float);
     }
 
-    pub fn fraction(code_stream: &mut CodeStream) {
+    pub fn fraction(code_stream: &mut CodeStream, is_float: &mut bool) {
         if code_stream.check('.') {
+            *is_float = true;
+
             code_stream.next_ch();
 
             Self::number_literal(code_stream, 10);
         }
     }
 
-    pub fn exponential_part(code_stream: &mut CodeStream) {
+    pub fn exponential_part(code_stream: &mut CodeStream, is_float: &mut bool) {
         if code_stream.check('e') || code_stream.check('E') {
+            *is_float = true;
+
             code_stream.next_ch();
 
             if code_stream.check('-') || code_stream.check('+') {

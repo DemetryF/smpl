@@ -26,7 +26,8 @@ impl Builder {
             self,
             "
 section .data
-fmt: db \"%f\", 10, 0
+fmtr: db \"%f\", 10, 0
+fmti: db \"%ld\", 10, 0
 "
         )?;
 

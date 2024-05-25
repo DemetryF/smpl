@@ -1,8 +1,7 @@
 use smplc_ast as ast;
-use smplc_hir::{
-    Atom, Expr, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement,
-};
+use smplc_hir::*;
 
+use super::expr::expect_ty;
 use super::SemCheck;
 use crate::env::Env;
 use crate::error::SemResult;
@@ -28,10 +27,19 @@ impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
     type Checked = ExprStatement;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let var = env.variables.add_variable(self.id)?;
+        let var = env.variables.add_variable(self.id, self.ty)?;
 
         let rhs = self.value.map(|expr| expr.check(env)).transpose()?;
-        let rhs = rhs.unwrap_or(Expr::Atom(Atom::Literal(ast::Literal::Number(0.0))));
+
+        if let Some(expr) = &rhs {
+            expect_ty(expr, var.ty)?;
+        }
+
+        let rhs = rhs.unwrap_or(Expr::Atom(Atom::Literal(match self.ty {
+            Type::Real => ast::Literal::Real(0.0),
+            Type::Int => ast::Literal::Int(0),
+            Type::Bool => ast::Literal::Bool(false),
+        })));
 
         Ok(ExprStatement::Assign { var, rhs })
     }
@@ -43,10 +51,14 @@ impl<'source> SemCheck<'source> for ast::ExprStatement<'source> {
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         match self {
             ast::ExprStatement::Expr(expr) => expr.check(env).map(ExprStatement::Expr),
-            ast::ExprStatement::Assign { id, rhs: expr } => Ok(ExprStatement::Assign {
-                var: env.variables.get(id)?,
-                rhs: expr.check(env)?,
-            }),
+            ast::ExprStatement::Assign { id, rhs: expr } => {
+                let var = env.variables.get(id)?;
+                let rhs = expr.check(env)?;
+
+                expect_ty(&rhs, var.ty)?;
+
+                Ok(ExprStatement::Assign { var, rhs })
+            }
         }
     }
 }
@@ -56,12 +68,15 @@ impl<'source> SemCheck<'source> for ast::IfStatement<'source> {
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let cond = self.cond.check(env)?;
-        let then_body = self.body.check(env)?;
+
+        expect_ty(&cond, Type::Bool)?;
+
+        let body = self.body.check(env)?;
         let else_body = self.else_body.map(|body| body.check(env)).transpose()?;
 
         Ok(IfStatement {
             cond,
-            body: then_body,
+            body,
             else_body,
         })
     }
@@ -73,6 +88,8 @@ impl<'source> SemCheck<'source> for ast::ReturnStatement<'source> {
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let value = self.value.map(|expr| expr.check(env)).transpose()?;
 
+        if let Some(_) = &value { /* add typecheck here */ }
+
         Ok(ReturnStatement { value })
     }
 }
@@ -82,6 +99,9 @@ impl<'source> SemCheck<'source> for ast::WhileStatement<'source> {
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let cond = self.cond.check(env)?;
+
+        expect_ty(&cond, Type::Bool)?;
+
         let body = self.body.check(env)?;
 
         Ok(WhileStatement { cond, body })

@@ -1,8 +1,7 @@
 use std::fmt;
 
 use smplc_ast as ast;
-use smplc_ast::Pos;
-use smplc_hir::FunRef;
+use smplc_hir::{FunRef, Pos, Type};
 
 pub type SemResult<'source, T> = Result<T, SemError<'source>>;
 
@@ -34,6 +33,11 @@ pub enum SemErrorKind<'source> {
     },
 
     DuplicateArgsNames(&'source str),
+
+    WrongType {
+        received: Type,
+        expected: Vec<Type>,
+    },
 }
 
 impl<'source> SemError<'source> {
@@ -95,6 +99,13 @@ impl<'source> SemError<'source> {
             pos,
         }
     }
+
+    pub fn wrong_ty(received: Type, expected: Vec<Type>) -> Self {
+        Self {
+            kind: SemErrorKind::WrongType { received, expected },
+            pos: Pos::default(),
+        }
+    }
 }
 
 impl fmt::Display for SemErrorKind<'_> {
@@ -136,6 +147,26 @@ impl fmt::Display for SemErrorKind<'_> {
 
             SemErrorKind::DuplicateArgsNames(name) => {
                 write!(f, "two arguments with same name: {name}")
+            }
+
+            SemErrorKind::WrongType { received, expected } => {
+                write!(f, "wrong type: received {received}")?;
+
+                match expected.as_slice() {
+                    [] => Ok(()),
+
+                    [ty] => write!(f, "but expected {ty}"),
+
+                    [first, middle @ .., last] => {
+                        write!(f, "but expected {first}")?;
+
+                        for ty in middle {
+                            write!(f, ", {ty}")?;
+                        }
+
+                        write!(f, "or {last}")
+                    }
+                }
             }
         }
     }

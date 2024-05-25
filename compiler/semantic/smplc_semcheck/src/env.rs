@@ -1,7 +1,7 @@
 use std::{collections::HashMap, rc::Rc};
 
 use smplc_ast as ast;
-use smplc_hir::{FunData, FunRef, VarData, VarRef};
+use smplc_hir::{FunData, FunRef, Type, VarData, VarRef};
 
 use crate::error::{SemError, SemResult};
 
@@ -52,12 +52,13 @@ impl<'source> Variables<'source> {
         Err(SemError::non_existent_variable(id))
     }
 
-    pub fn add_variable(&mut self, id: ast::Id<'source>) -> SemResult<'source, VarRef> {
+    pub fn add_variable(&mut self, id: ast::Id<'source>, ty: Type) -> SemResult<'source, VarRef> {
         if let Some(var_ref) = self.last().get(id.name) {
             Err(SemError::redeclaring_variable(id, var_ref.declared_at))
         } else {
             let var_ref = Rc::new(VarData {
                 declared_at: id.pos,
+                ty,
             });
 
             self.last_mut().add(id.name, Rc::clone(&var_ref));
@@ -66,15 +67,16 @@ impl<'source> Variables<'source> {
         }
     }
 
-    pub fn add_argument(&mut self, id: ast::Id<'source>) -> SemResult<'source, VarRef> {
-        if self.last().has(id.name) {
-            Err(SemError::duplicate_args_names(id))
+    pub fn add_argument(&mut self, arg: ast::FunctionArg<'source>) -> SemResult<'source, VarRef> {
+        if self.last().has(&arg.id.name) {
+            Err(SemError::duplicate_args_names(arg.id))
         } else {
             let var_ref = Rc::new(VarData {
-                declared_at: id.pos,
+                declared_at: arg.id.pos,
+                ty: arg.ty,
             });
 
-            self.last_mut().add(id.name, Rc::clone(&var_ref));
+            self.last_mut().add(&arg.id.name, Rc::clone(&var_ref));
 
             Ok(var_ref)
         }
@@ -88,14 +90,20 @@ impl<'source> Functions<'source> {
             .ok_or_else(|| SemError::non_existent_function(id))
     }
 
-    pub fn add(&mut self, id: ast::Id<'source>, args_count: usize) -> SemResult<'source, FunRef> {
+    pub fn add(
+        &mut self,
+        id: ast::Id<'source>,
+        args: Vec<Type>,
+        ret_ty: Option<Type>,
+    ) -> SemResult<'source, FunRef> {
         if let Some(fun_ref) = self.data.get(id.name) {
             Err(SemError::redeclaring_function(id, fun_ref.declared_at))
         } else {
             let fun_ref = Rc::new(FunData {
                 declared_at: id.pos,
                 id: id.name.to_owned(),
-                args_count,
+                args,
+                ret_ty,
             });
 
             self.data.add(id.name, Rc::clone(&fun_ref));

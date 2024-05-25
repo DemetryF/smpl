@@ -7,7 +7,7 @@ mod r#return;
 
 use std::fmt::{self, Write};
 
-use smplc_lir::{Atom, Instruction};
+use smplc_lir::{Atom, Instruction, NumberType};
 
 use crate::{builder::Builder, env::Env};
 
@@ -33,6 +33,15 @@ impl Compile for Instruction {
 pub fn to_asm(env: &mut Env, builder: &mut Builder, atom: Atom) -> String {
     match atom {
         Atom::Id(id) => env.get(id),
-        Atom::Number(value) => builder.float(value),
+        Atom::Real(value) => builder.float(value),
+        Atom::Int(value) => value.to_string(),
+    }
+}
+
+pub fn to_asm_with_ty(env: &Env, builder: &mut Builder, atom: Atom) -> (String, NumberType) {
+    match atom {
+        Atom::Id(id) => (env.get(id), env.ty(id)),
+        Atom::Real(value) => (builder.float(value), NumberType::Real),
+        Atom::Int(value) => (value.to_string(), NumberType::Int),
     }
 }

@@ -21,13 +21,17 @@ impl<'source> Parse<'source> for ConstantDeclaration<'source> {
 
         let id = Id::parse(token_stream)?;
 
+        token_stream.consume(TokenValue::Colon)?;
+
+        let ty = Type::parse(token_stream)?;
+
         token_stream.consume(TokenValue::Assign)?;
 
         let value = Expr::parse(token_stream)?;
 
         token_stream.consume(TokenValue::Semicolon)?;
 
-        Ok(Self { id, value })
+        Ok(Self { id, ty, value })
     }
 }
 
@@ -38,15 +42,27 @@ impl<'source> Parse<'source> for FunctionDeclaration<'source> {
         let id = Id::parse(token_stream)?;
         let args = parse_args(token_stream)?;
 
+        let ret_ty = {
+            token_stream
+                .try_consume(TokenValue::Arrow)
+                .then(|| Type::parse(token_stream))
+                .transpose()?
+        };
+
         let body = Block::parse(token_stream)?;
 
-        Ok(Self { id, args, body })
+        Ok(Self {
+            id,
+            ret_ty,
+            args,
+            body,
+        })
     }
 }
 
 fn parse_args<'source>(
     token_stream: &mut TokenStream<'source>,
-) -> ParseResult<'source, Vec<Id<'source>>> {
+) -> ParseResult<'source, Vec<FunctionArg<'source>>> {
     let mut args = Vec::new();
 
     token_stream.consume(TokenValue::LParen)?;
@@ -55,13 +71,25 @@ fn parse_args<'source>(
         return Ok(args);
     }
 
-    args.push(Id::parse(token_stream)?);
+    args.push(FunctionArg::parse(token_stream)?);
 
     while token_stream.try_consume(TokenValue::Comma) {
-        args.push(Id::parse(token_stream)?);
+        args.push(FunctionArg::parse(token_stream)?);
     }
 
     token_stream.consume(TokenValue::RParen)?;
 
     Ok(args)
+}
+
+impl<'source> Parse<'source> for FunctionArg<'source> {
+    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+        let id = Id::parse(token_stream)?;
+
+        token_stream.consume(TokenValue::Colon)?;
+
+        let ty = Type::parse(token_stream)?;
+
+        Ok(FunctionArg { id, ty })
+    }
 }

@@ -74,30 +74,30 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
         }
     };
 
-    let ir_code = translate(hir);
+    let (ir_code, types) = translate(hir);
 
     if show_ir {
         println!("{ir_code}");
     }
 
-    compile(ir_code).map_err(|_| ())
+    compile(ir_code, types).map_err(|_| ())
 }
 
 pub fn assembly(assembly: String, output_filename: String) {
     fs::write("./temp.asm", assembly).unwrap();
 
-    Command::new("nasm")
+    dbg!(Command::new("nasm")
         .args(["-f", "elf64", "./temp.asm", "-o", "temp.o"])
-        .output()
-        .unwrap();
+        .output())
+    .unwrap();
 
-    Command::new("gcc")
+    dbg!(Command::new("gcc")
         .args(["-no-pie", "temp.o", &format!("-o{output_filename}")])
-        .output()
-        .unwrap();
+        .output())
+    .unwrap();
 
     Command::new("rm")
-        .arg("./temp.asm")
+        // .arg("./temp.asm")
         .arg("temp.o")
         .output()
         .unwrap();

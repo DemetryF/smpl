@@ -50,6 +50,11 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
         token_stream.consume(TokenValue::Let)?;
 
         let id = Id::parse(token_stream)?;
+
+        token_stream.consume(TokenValue::Colon)?;
+
+        let ty = Type::parse(token_stream)?;
+
         let value = {
             token_stream
                 .try_consume(TokenValue::Assign)
@@ -59,7 +64,7 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
 
         token_stream.consume(TokenValue::Semicolon)?;
 
-        Ok(DeclareStatement { id, value })
+        Ok(DeclareStatement { id, ty, value })
     }
 }
 

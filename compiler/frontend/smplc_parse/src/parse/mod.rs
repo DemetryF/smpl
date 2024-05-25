@@ -3,6 +3,7 @@ mod declaration;
 mod expr;
 mod operators;
 mod statement;
+mod ty;
 
 use crate::error::ParseResult;
 use crate::TokenStream;

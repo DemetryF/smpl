@@ -1,6 +1,6 @@
-fn factorial(n) {
-    let result = 1;
-    let i = 0;
+fn factorial(n: int) -> int {
+    let result: int = 1;
+    let i: int = 0;
 
     while i < n {
         i = i + 1;
@@ -11,6 +11,6 @@ fn factorial(n) {
 }
 
 fn main() {
-    print(factorial(5)); // 120
+    printi(factorial(5)); // 120
     return;
 }

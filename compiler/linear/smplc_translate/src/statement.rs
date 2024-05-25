@@ -104,7 +104,12 @@ impl Translate for ExprStatement {
             }
 
             ExprStatement::Expr(Expr::Call { fun_ref, args }) => {
-                translate_call(translator, FunctionId(fun_ref.id.clone()), args);
+                translate_call(
+                    translator,
+                    FunctionId(fun_ref.id.clone()),
+                    args,
+                    &fun_ref.args,
+                );
             }
 
             _ => {}

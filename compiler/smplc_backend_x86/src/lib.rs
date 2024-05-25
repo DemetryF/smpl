@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::{self, Write};
 
+use ir::{Number, NumberType};
 use smplc_lir as ir;
 
 use builder::Builder;
@@ -11,18 +12,21 @@ mod builder;
 mod compile;
 mod env;
 
-pub fn compile(code: ir::Code) -> Result<String, fmt::Error> {
+pub fn compile(code: ir::Code, types: HashMap<ir::Id, NumberType>) -> Result<String, fmt::Error> {
     let mut builder = Builder::default();
 
     let constants = code
         .constants
         .into_iter()
-        .map(|(id, value)| (id, builder.float(value)))
+        .map(|(id, value)| match value {
+            Number::Real(value) => (id, builder.float(value)),
+            Number::Int(value) => (id, value.to_string()),
+        })
         .collect::<HashMap<_, _>>();
 
     writeln!(
         builder,
-        "
+        "\
 section .text
 global main
 extern printf
@@ -31,27 +35,47 @@ extern printf
 
     writeln!(
         builder,
+        "\
+printr:
+        movss xmm0, [rsp+8]
+        cvtss2sd xmm0, xmm0
+        lea rdi, [fmtr]
+        mov rax, 1
+        test rsp, 15
+        jne printr_L1
+        call printf
+        jmp printr_L0
+    printr_L1:
+        sub rsp, 8
+        call printf
+        add rsp, 8 
+    printr_L0:
+        ret\
         "
-print:
-movss xmm0, [rsp+8]
-cvtss2sd xmm0, xmm0
-lea rdi, [fmt]
-mov rax, 1
-test rsp, 15
-jne print_L1
-call printf
-jmp print_L0
-print_L1:
-sub rsp, 8
-call printf
-add rsp, 8 
-print_L0:
-ret
+    )?;
+
+    writeln!(
+        builder,
+        "\
+printi:
+    mov rsi, [rsp+8]
+    lea rdi, [fmti]
+
+    test rsp, 15
+    jne printi_L1
+    call printf
+    jmp printi_L0
+  printi_L1:
+    sub rsp, 8
+    call printf
+    add rsp, 8 
+  printi_L0:
+    ret\
         "
     )?;
 
     for function in code.functions {
-        let mut env = Env::new(&constants);
+        let mut env = Env::new(&constants, &types);
 
         writeln!(builder, "{}:", function.id)?;
 

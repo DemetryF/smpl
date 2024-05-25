@@ -41,15 +41,7 @@ impl<'source> Id<'source> {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Literal {
-    Number(f32),
+    Real(f32),
+    Int(i32),
     Bool(bool),
-}
-
-impl From<Literal> for f32 {
-    fn from(value: Literal) -> f32 {
-        match value {
-            Literal::Number(num) => num,
-            Literal::Bool(bool) => bool as i32 as f32,
-        }
-    }
 }

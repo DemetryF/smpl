@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-pub use smplc_ast::{Literal, Pos};
+pub use smplc_ast::{Literal, Pos, Type};
 
 use crate::{BinOp, UnOp};
 
@@ -31,12 +31,14 @@ pub enum Atom {
 
 #[derive(Debug, PartialEq)]
 pub struct FunData {
-    pub id: String,
     pub declared_at: Pos,
-    pub args_count: usize,
+    pub id: String,
+    pub ret_ty: Option<Type>,
+    pub args: Vec<Type>,
 }
 
 #[derive(Hash)]
 pub struct VarData {
     pub declared_at: Pos,
+    pub ty: Type,
 }

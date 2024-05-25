@@ -1,4 +1,4 @@
-use smplc_ast::Literal;
+use smplc_ast::{Literal, Type};
 
 use crate::{CodeStream, TokenValue};
 
@@ -30,6 +30,10 @@ impl TokenCollector for WordCollector {
 
             "true" => TokenValue::Literal(Literal::Bool(true)),
             "false" => TokenValue::Literal(Literal::Bool(false)),
+
+            "real" => TokenValue::Type(Type::Real),
+            "int" => TokenValue::Type(Type::Int),
+            "bool" => TokenValue::Type(Type::Bool),
 
             id => TokenValue::Id(id),
         })

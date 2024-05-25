@@ -6,7 +6,7 @@ mod semcheck;
 mod tests;
 
 use smplc_ast as ast;
-use smplc_hir::HIR;
+use smplc_hir::{Type, HIR};
 
 use env::Env;
 use error::SemResult;
@@ -16,15 +16,17 @@ pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
     let mut env = Env::default();
     env.variables.fork();
 
-    env.functions
-        .add(ast::Id::new("print", ast::Pos::default()), 1)
-        .unwrap();
+    init_std(&mut env);
 
     let mut hir = HIR::default();
 
     for declaration in ast.iter() {
         if let ast::Declaration::Function(function) = declaration {
-            env.functions.add(function.id, function.args.len())?;
+            env.functions.add(
+                function.id,
+                function.args.iter().map(|arg| arg.ty).collect(),
+                function.ret_ty,
+            )?;
         }
     }
 
@@ -41,4 +43,30 @@ pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
     }
 
     Ok(hir)
+}
+
+pub fn init_std(env: &mut Env) {
+    env.functions
+        .add(
+            ast::Id::new("printr", ast::Pos::default()),
+            vec![Type::Real],
+            None,
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printi", ast::Pos::default()),
+            vec![Type::Int],
+            None,
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printb", ast::Pos::default()),
+            vec![Type::Bool],
+            None,
+        )
+        .unwrap();
 }
