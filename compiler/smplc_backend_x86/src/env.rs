@@ -1,20 +1,25 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
+use ir::NumberType;
 use smplc_lir as ir;
 
 pub struct Env<'a> {
     constants: &'a HashMap<ir::Id, String>,
+    types: &'a HashMap<ir::Id, NumberType>,
 
     addresses: HashMap<ir::Id, isize>,
     vars_count: usize,
 }
 
 impl<'a> Env<'a> {
-    pub fn new(constants: &'a HashMap<ir::Id, String>) -> Self {
+    pub fn new(
+        constants: &'a HashMap<ir::Id, String>,
+        types: &'a HashMap<ir::Id, NumberType>,
+    ) -> Self {
         Self {
             constants,
-
+            types,
             addresses: Default::default(),
             vars_count: Default::default(),
         }
@@ -53,5 +58,10 @@ impl<'a> Env<'a> {
 
     pub fn stack_size(&self) -> usize {
         self.vars_count * 8
+    }
+
+    pub fn ty(&self, id: ir::Id) -> NumberType {
+        println!("{:?} {id}", &self.types);
+        self.types[&id]
     }
 }

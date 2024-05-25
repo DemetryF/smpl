@@ -1,4 +1,4 @@
-fn mul(x, y) {
+fn mul(x: int, y: int) -> int {
     if y == 1 {
         return x;
     }
@@ -7,6 +7,6 @@ fn mul(x, y) {
 }
 
 fn main() {
-    print(mul(5, 4)); // 20
+    printi(mul(5, 4)); // 20
     return;
 }

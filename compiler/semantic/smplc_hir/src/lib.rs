@@ -1,9 +1,9 @@
 mod expr;
+mod operators;
 mod statement;
 
-pub use smplc_ast::{BinOp, UnOp};
-
 pub use expr::*;
+pub use operators::*;
 pub use statement::*;
 
 #[derive(Default)]

@@ -19,6 +19,7 @@ impl SpecialCollector {
             "<=" => TokenValue::Le,
             "!=" => TokenValue::Ne,
             "==" => TokenValue::Eq,
+            "->" => TokenValue::Arrow,
 
             _ => return None,
         };
@@ -32,6 +33,7 @@ impl SpecialCollector {
         let value = match code_stream.current() {
             ';' => TokenValue::Semicolon,
             ',' => TokenValue::Comma,
+            ':' => TokenValue::Colon,
             '{' => TokenValue::LBrace,
             '}' => TokenValue::RBrace,
             '(' => TokenValue::LParen,

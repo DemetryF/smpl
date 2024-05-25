@@ -1,4 +1,4 @@
-use crate::{Block, Expr, Id};
+use crate::{Block, Expr, Id, Type};
 
 #[derive(Debug, PartialEq)]
 pub enum Declaration<'source> {
@@ -9,12 +9,20 @@ pub enum Declaration<'source> {
 #[derive(PartialEq, Debug)]
 pub struct FunctionDeclaration<'source> {
     pub id: Id<'source>,
-    pub args: Vec<Id<'source>>,
+    pub args: Vec<FunctionArg<'source>>,
+    pub ret_ty: Option<Type>,
     pub body: Block<'source>,
+}
+
+#[derive(PartialEq, Debug)]
+pub struct FunctionArg<'source> {
+    pub id: Id<'source>,
+    pub ty: Type,
 }
 
 #[derive(Debug, PartialEq)]
 pub struct ConstantDeclaration<'source> {
     pub id: Id<'source>,
+    pub ty: Type,
     pub value: Expr<'source>,
 }

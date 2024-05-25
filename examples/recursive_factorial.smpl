@@ -1,4 +1,4 @@
-fn factorial(n) {
+fn factorial(n: int) -> int {
     if n == 1 {
         return 1;
     }
@@ -7,6 +7,6 @@ fn factorial(n) {
 }
 
 fn main() {
-    print(factorial(6)); // 720
+    printi(factorial(6)); // 720
     return;
 }

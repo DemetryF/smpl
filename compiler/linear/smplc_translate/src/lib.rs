@@ -2,8 +2,10 @@ mod expr;
 mod statement;
 mod translator;
 
-use smplc_hir::{self as hir, Block, Expr, HIR};
-use smplc_lir::{Code, CodeFunction, FunctionId, Halt};
+use std::collections::HashMap;
+
+use smplc_hir::{self as hir, ArithmOp, BinOp, Block, Expr, NumberType, RelOp, HIR};
+use smplc_lir::{Code, CodeFunction, FunctionId, Id, Number};
 
 use translator::Translator;
 
@@ -19,7 +21,7 @@ impl Translate for Block {
     }
 }
 
-pub fn translate(hir: HIR) -> Code {
+pub fn translate(hir: HIR) -> (Code, HashMap<Id, NumberType>) {
     let HIR {
         constants,
         functions,
@@ -48,38 +50,100 @@ pub fn translate(hir: HIR) -> Code {
             ..Default::default()
         });
 
-        function
-            .body
-            .into_iter()
-            .for_each(|stmt| stmt.translate(&mut translator))
+        for stmt in function.body {
+            stmt.translate(&mut translator)
+        }
     }
 
-    translator.code.push(Halt);
+    // translator.code.push(Halt);
 
-    translator.code
+    (translator.code, translator.variables.types)
 }
 
-fn eval_constant_expr(expr: Expr, translator: &Translator) -> f32 {
+fn eval_constant_expr(expr: Expr, translator: &Translator) -> Number {
     match expr {
         Expr::Binary { lhs, op, rhs } => {
             let lhs = eval_constant_expr(*lhs, translator);
             let rhs = eval_constant_expr(*rhs, translator);
 
             match op {
-                hir::BinOp::Or => ((lhs == 1.0) || (rhs == 1.0)) as i32 as f32,
-                hir::BinOp::And => ((lhs == 1.0) && (rhs == 1.0)) as i32 as f32,
+                BinOp::Or => {
+                    let lhs = lhs.int() == 1;
+                    let rhs = rhs.int() == 1;
 
-                hir::BinOp::Ne => (lhs != rhs) as i32 as f32,
-                hir::BinOp::Eq => (lhs == rhs) as i32 as f32,
-                hir::BinOp::Ge => (lhs >= rhs) as i32 as f32,
-                hir::BinOp::Gt => (lhs > rhs) as i32 as f32,
-                hir::BinOp::Le => (lhs <= rhs) as i32 as f32,
-                hir::BinOp::Lt => (lhs < rhs) as i32 as f32,
+                    Number::Int((lhs || rhs) as i32)
+                }
 
-                hir::BinOp::Add => lhs + rhs,
-                hir::BinOp::Sub => lhs - rhs,
-                hir::BinOp::Mul => lhs * rhs,
-                hir::BinOp::Div => lhs / rhs,
+                BinOp::And => {
+                    let lhs = lhs.int() == 1;
+                    let rhs = rhs.int() == 1;
+
+                    Number::Int((lhs && rhs) as i32)
+                }
+
+                BinOp::Arithm(op, ty) => match ty {
+                    NumberType::Real => {
+                        let lhs = lhs.real();
+                        let rhs = rhs.real();
+
+                        let value = match op {
+                            ArithmOp::Add => lhs + rhs,
+                            ArithmOp::Sub => lhs - rhs,
+                            ArithmOp::Mul => lhs * rhs,
+                            ArithmOp::Div => lhs / rhs,
+                        };
+
+                        Number::Real(value)
+                    }
+
+                    NumberType::Int => {
+                        let lhs = lhs.int();
+                        let rhs = rhs.int();
+
+                        let value = match op {
+                            ArithmOp::Add => lhs + rhs,
+                            ArithmOp::Sub => lhs - rhs,
+                            ArithmOp::Mul => lhs * rhs,
+                            ArithmOp::Div => lhs / rhs,
+                        };
+
+                        Number::Int(value)
+                    }
+                },
+
+                BinOp::Rel(op, ty) => match ty {
+                    NumberType::Real => {
+                        let lhs = lhs.real();
+                        let rhs = rhs.real();
+
+                        let value = match op {
+                            RelOp::Eq => lhs == rhs,
+                            RelOp::Ne => lhs != rhs,
+                            RelOp::Gt => lhs > rhs,
+                            RelOp::Ge => lhs >= rhs,
+                            RelOp::Lt => lhs < rhs,
+                            RelOp::Le => lhs <= rhs,
+                        };
+
+                        Number::Int(value as i32)
+                    }
+
+                    NumberType::Int => {
+                        let lhs = lhs.int();
+                        let rhs = rhs.int();
+
+                        let value = match op {
+                            RelOp::Eq => lhs == rhs,
+                            RelOp::Ne => lhs != rhs,
+                            RelOp::Gt => lhs > rhs,
+                            RelOp::Ge => lhs >= rhs,
+                            RelOp::Lt => lhs < rhs,
+                            RelOp::Le => lhs <= rhs,
+                        };
+
+                        Number::Int(value as i32)
+                    }
+                },
             }
         }
 
@@ -87,8 +151,11 @@ fn eval_constant_expr(expr: Expr, translator: &Translator) -> f32 {
             let rhs = eval_constant_expr(*rhs, translator);
 
             match op {
-                hir::UnOp::Not => !(rhs == 1.0) as i32 as f32,
-                hir::UnOp::Neg => -rhs,
+                hir::UnOp::Not => Number::Int((rhs != Number::Int(0)) as i32),
+                hir::UnOp::Neg(ty) => match ty {
+                    NumberType::Real => Number::Real(-rhs.real()),
+                    NumberType::Int => Number::Int(-rhs.int()),
+                },
             }
         }
 
@@ -101,7 +168,7 @@ fn eval_constant_expr(expr: Expr, translator: &Translator) -> f32 {
                 *translator.code.constants.get(&id).unwrap()
             }
 
-            smplc_hir::Atom::Literal(literal) => f32::from(literal),
+            smplc_hir::Atom::Literal(literal) => Number::from(literal),
         },
     }
 }
