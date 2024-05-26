@@ -74,6 +74,31 @@ printi:
         "
     )?;
 
+    writeln!(
+        builder,
+        "\
+printb:
+    cmp dword[rsp+8], 0
+    je printb_L0
+    lea rdi, [fmttrue]
+    jmp printb_L1
+  printb_L0:
+    lea rdi, [fmtfalse]
+  printb_L1:
+    
+    test rsp, 15
+    jne printb_L2
+    call printf
+    jmp printb_L3
+  printb_L2:
+    sub rsp, 8
+    call printf
+    add rsp, 8 
+  printb_L3:\
+    ret
+    "
+    )?;
+
     for function in code.functions {
         let mut env = Env::new(&constants, &types);
 

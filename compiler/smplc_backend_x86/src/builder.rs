@@ -28,6 +28,8 @@ impl Builder {
 section .data
 fmtr: db \"%f\", 10, 0
 fmti: db \"%ld\", 10, 0
+fmttrue: db \"true\", 10, 0
+fmtfalse: db \"false\", 10, 0
 "
         )?;
 
