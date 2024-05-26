@@ -80,7 +80,6 @@ impl Variables {
     }
 
     pub fn ty(&self, id: Id) -> NumberType {
-        println!("{:?} {id:?}", &self.types);
         self.types[&id]
     }
 }

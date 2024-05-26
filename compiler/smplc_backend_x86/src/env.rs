@@ -61,7 +61,6 @@ impl<'a> Env<'a> {
     }
 
     pub fn ty(&self, id: ir::Id) -> NumberType {
-        println!("{:?} {id}", &self.types);
         self.types[&id]
     }
 }
