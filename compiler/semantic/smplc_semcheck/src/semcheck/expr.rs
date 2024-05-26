@@ -164,9 +164,8 @@ fn inference_un_op<'source>(op: ast::UnOp, rhs: &Expr, span: Span) -> SemResult<
 pub fn expr_ty<'source>(expr: &Expr) -> Type {
     match expr {
         Expr::Binary { op, .. } => match op {
-            &BinOp::Rel(_, ty) => ty.into(),
+            BinOp::Rel(_, _) | BinOp::Or | BinOp::And => Type::Bool,
             &BinOp::Arithm(_, ty) => ty.into(),
-            BinOp::Or | BinOp::And => Type::Bool,
         },
 
         Expr::Unary { op, .. } => match op {
