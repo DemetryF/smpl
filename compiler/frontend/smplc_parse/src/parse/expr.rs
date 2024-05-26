@@ -44,11 +44,10 @@ fn parse_fact<'source>(
     token_stream: &mut TokenStream<'source>,
 ) -> ParseResult<'source, Spanned<Expr<'source>>> {
     let fact = match token_stream.current().value {
-        TokenValue::Id(value) => {
+        TokenValue::Id(_) => {
             let id = Id::parse(token_stream)?;
 
-            if token_stream.check(TokenValue::LParen) {
-                token_stream.consume(TokenValue::LParen)?;
+            if token_stream.try_consume(TokenValue::LParen) {
                 let args = parse_call_args(token_stream)?;
                 let span = token_stream.consume(TokenValue::RParen)?;
 
@@ -56,9 +55,7 @@ fn parse_fact<'source>(
 
                 Expr::Call(Call { id, args }).spanned(span)
             } else {
-                let span = token_stream.next_token().span;
-
-                Expr::Atom(Atom::Id(value.spanned(span))).spanned(span)
+                Expr::Atom(Atom::Id(id)).spanned(id.span())
             }
         }
 
