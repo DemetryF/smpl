@@ -5,6 +5,7 @@ mod semcheck;
 #[cfg(test)]
 mod tests;
 
+use ast::Span;
 use smplc_ast as ast;
 use smplc_hir::{Type, HIR};
 
@@ -50,7 +51,7 @@ pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
 pub fn init_std(env: &mut Env) {
     env.functions
         .add(
-            ast::Id::new("printr", ast::Pos::default()),
+            ast::Id::new("printr", Span::default()),
             vec![Type::Real],
             None,
         )
@@ -58,7 +59,7 @@ pub fn init_std(env: &mut Env) {
 
     env.functions
         .add(
-            ast::Id::new("printi", ast::Pos::default()),
+            ast::Id::new("printi", Span::default()),
             vec![Type::Int],
             None,
         )
@@ -66,7 +67,7 @@ pub fn init_std(env: &mut Env) {
 
     env.functions
         .add(
-            ast::Id::new("printb", ast::Pos::default()),
+            ast::Id::new("printb", Span::default()),
             vec![Type::Bool],
             None,
         )

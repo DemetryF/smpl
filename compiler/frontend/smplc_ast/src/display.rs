@@ -13,7 +13,7 @@ impl fmt::Display for Atom<'_> {
 
 impl fmt::Display for Id<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.name)
+        write!(f, "{}", self.0)
     }
 }
 

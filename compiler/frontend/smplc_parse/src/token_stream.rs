@@ -1,4 +1,4 @@
-use smplc_ast::Pos;
+use smplc_ast::{Pos, Span};
 use smplc_lexer::{Token, TokenValue};
 
 use crate::error::{ParseError, ParseResult};
@@ -27,11 +27,11 @@ impl<'source> TokenStream<'source> {
         !self.is_end() && self.current().value == value
     }
 
-    pub fn consume(&mut self, value: TokenValue) -> ParseResult<'source, ()> {
+    pub fn consume(&mut self, value: TokenValue) -> ParseResult<'source, Span> {
         if self.check(value) {
-            self.next_token();
+            let span = self.next_token().span;
 
-            return Ok(());
+            return Ok(span);
         }
 
         Err(self.unexpected_token())
@@ -60,7 +60,7 @@ impl<'source> TokenStream<'source> {
     }
 
     pub fn get_pos(&self) -> Pos {
-        self.current().pos
+        self.current().span.start()
     }
 
     pub fn is_end(&self) -> bool {

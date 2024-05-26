@@ -29,17 +29,21 @@ impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let var = env.variables.add_variable(self.id, self.ty)?;
 
-        let rhs = self.value.map(|expr| expr.check(env)).transpose()?;
+        let rhs = {
+            if let Some(ast::Spanned(rhs, span)) = self.value {
+                let rhs = rhs.check(env)?;
 
-        if let Some(expr) = &rhs {
-            expect_ty(expr, var.ty)?;
-        }
+                expect_ty(&rhs, var.ty, span)?;
 
-        let rhs = rhs.unwrap_or(Expr::Atom(Atom::Literal(match self.ty {
-            Type::Real => ast::Literal::Real(0.0),
-            Type::Int => ast::Literal::Int(0),
-            Type::Bool => ast::Literal::Bool(false),
-        })));
+                rhs
+            } else {
+                Expr::Atom(Atom::Literal(match self.ty {
+                    Type::Real => ast::Literal::Real(0.0),
+                    Type::Int => ast::Literal::Int(0),
+                    Type::Bool => ast::Literal::Bool(false),
+                }))
+            }
+        };
 
         Ok(ExprStatement::Assign { var, rhs })
     }
@@ -50,12 +54,16 @@ impl<'source> SemCheck<'source> for ast::ExprStatement<'source> {
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         match self {
-            ast::ExprStatement::Expr(expr) => expr.check(env).map(ExprStatement::Expr),
-            ast::ExprStatement::Assign { id, rhs: expr } => {
-                let var = env.variables.get(id)?;
-                let rhs = expr.check(env)?;
+            ast::ExprStatement::Expr(expr) => expr.0.check(env).map(ExprStatement::Expr),
 
-                expect_ty(&rhs, var.ty)?;
+            ast::ExprStatement::Assign {
+                id,
+                rhs: ast::Spanned(rhs, span),
+            } => {
+                let var = env.variables.get(id)?;
+                let rhs = rhs.check(env)?;
+
+                expect_ty(&rhs, var.ty, span)?;
 
                 Ok(ExprStatement::Assign { var, rhs })
             }
@@ -67,9 +75,10 @@ impl<'source> SemCheck<'source> for ast::IfStatement<'source> {
     type Checked = IfStatement;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let cond = self.cond.check(env)?;
+        let span = self.cond.span();
+        let cond = self.cond.0.check(env)?;
 
-        expect_ty(&cond, Type::Bool)?;
+        expect_ty(&cond, Type::Bool, span)?;
 
         let body = self.body.check(env)?;
         let else_body = self.else_body.map(|body| body.check(env)).transpose()?;
@@ -86,15 +95,21 @@ impl<'source> SemCheck<'source> for ast::ReturnStatement<'source> {
     type Checked = ReturnStatement;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let value = self.value.map(|expr| expr.check(env)).transpose()?;
+        let value = {
+            if let Some(ast::Spanned(expr, span)) = self.value {
+                let expr = expr.check(env)?;
 
-        if let Some(expr) = &value {
-            if let Some(ty) = env.current_fn.as_ref().unwrap().ret_ty {
-                expect_ty(expr, ty)?;
+                if let Some(ty) = env.current_fn.as_ref().unwrap().ret_ty {
+                    expect_ty(&expr, ty, span)?;
+                } else {
+                    return Err(SemError::wrong_ty(span, expr_ty(&expr), vec![]));
+                }
+
+                Some(expr)
             } else {
-                return Err(SemError::wrong_ty(expr_ty(expr), vec![]));
+                None
             }
-        }
+        };
 
         Ok(ReturnStatement { value })
     }
@@ -104,9 +119,10 @@ impl<'source> SemCheck<'source> for ast::WhileStatement<'source> {
     type Checked = WhileStatement;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let cond = self.cond.check(env)?;
+        let span = self.cond.span();
+        let cond = self.cond.0.check(env)?;
 
-        expect_ty(&cond, Type::Bool)?;
+        expect_ty(&cond, Type::Bool, span)?;
 
         let body = self.body.check(env)?;
 

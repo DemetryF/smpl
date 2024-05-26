@@ -1,14 +1,14 @@
 use std::fmt;
 
-use smplc_ast as ast;
-use smplc_hir::{FunRef, Pos, Type};
+use smplc_ast::{self as ast, Span};
+use smplc_hir::{FunRef, Type};
 
 pub type SemResult<'source, T> = Result<T, SemError<'source>>;
 
 #[derive(Debug)]
 pub struct SemError<'source> {
     pub kind: SemErrorKind<'source>,
-    pub pos: Pos,
+    pub span: Span,
 }
 
 #[derive(Debug, PartialEq)]
@@ -17,13 +17,13 @@ pub enum SemErrorKind<'source> {
     NonExistentVariable(&'source str),
 
     RedeclaringVariable {
-        name: &'source str,
-        first_declaration: Pos,
+        id: &'source str,
+        first_declaration: Span,
     },
 
     RedeclaringFunction {
-        name: &'source str,
-        first_declaration: Pos,
+        id: &'source str,
+        first_declaration: Span,
     },
 
     InvalidArgumentsCount {
@@ -42,69 +42,73 @@ pub enum SemErrorKind<'source> {
 
 impl<'source> SemError<'source> {
     pub fn non_existent_variable(id: ast::Id<'source>) -> Self {
-        let ast::Id { name, pos } = id;
+        let ast::Spanned(id, span) = id;
 
         Self {
-            kind: SemErrorKind::NonExistentVariable(name),
-            pos,
+            kind: SemErrorKind::NonExistentVariable(id),
+            span,
         }
     }
 
     pub fn non_existent_function(id: ast::Id<'source>) -> Self {
-        let ast::Id { name, pos } = id;
+        let ast::Spanned(id, span) = id;
 
         Self {
-            kind: SemErrorKind::NonExistentFunction(name),
-            pos,
+            kind: SemErrorKind::NonExistentFunction(id),
+            span,
         }
     }
 
-    pub fn redeclaring_variable(id: ast::Id<'source>, first_declaration: Pos) -> Self {
-        let ast::Id { name, pos } = id;
+    pub fn redeclaring_variable(id: ast::Id<'source>, first_declaration: Span) -> Self {
+        let ast::Spanned(id, span) = id;
 
         let kind = SemErrorKind::RedeclaringVariable {
-            name,
+            id,
             first_declaration,
         };
 
-        Self { kind, pos }
+        Self { kind, span }
     }
 
-    pub fn redeclaring_function(id: ast::Id<'source>, first_declaration: Pos) -> Self {
-        let ast::Id { name, pos } = id;
+    pub fn redeclaring_function(id: ast::Id<'source>, first_declaration: Span) -> Self {
+        let ast::Spanned(id, span) = id;
 
         let kind = SemErrorKind::RedeclaringFunction {
-            name,
+            id,
             first_declaration,
         };
 
-        Self { kind, pos }
+        Self { kind, span }
     }
 
-    pub fn invalid_arguments(pos: Pos, expected: usize, received: usize, fun_ref: FunRef) -> Self {
+    pub fn invalid_arguments_count(
+        span: Span,
+        expected: usize,
+        received: usize,
+        fun_ref: FunRef,
+    ) -> Self {
         let kind = SemErrorKind::InvalidArgumentsCount {
             expected,
             received,
             fun_ref,
         };
 
-        Self { kind, pos }
+        Self { kind, span }
     }
 
     pub fn duplicate_args_names(id: ast::Id<'source>) -> Self {
-        let ast::Id { name, pos } = id;
+        let ast::Spanned(id, span) = id;
 
         Self {
-            kind: SemErrorKind::DuplicateArgsNames(name),
-            pos,
+            kind: SemErrorKind::DuplicateArgsNames(id),
+            span,
         }
     }
 
-    pub fn wrong_ty(received: Type, expected: Vec<Type>) -> Self {
-        Self {
-            kind: SemErrorKind::WrongType { received, expected },
-            pos: Pos::default(),
-        }
+    pub fn wrong_ty(span: Span, received: Type, expected: Vec<Type>) -> Self {
+        let kind = SemErrorKind::WrongType { received, expected };
+
+        Self { kind, span }
     }
 }
 
@@ -112,7 +116,7 @@ impl fmt::Display for SemErrorKind<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             SemErrorKind::RedeclaringVariable {
-                name,
+                id: name,
                 first_declaration,
             } => write!(
                 f,
@@ -120,7 +124,7 @@ impl fmt::Display for SemErrorKind<'_> {
             ),
 
             SemErrorKind::RedeclaringFunction {
-                name,
+                id: name,
                 first_declaration,
             } => write!(
                 f,
@@ -155,10 +159,10 @@ impl fmt::Display for SemErrorKind<'_> {
                 match expected.as_slice() {
                     [] => Ok(()),
 
-                    [ty] => write!(f, "but expected {ty}"),
+                    [ty] => write!(f, ", but expected {ty}"),
 
                     [first, middle @ .., last] => {
-                        write!(f, "but expected {first}")?;
+                        write!(f, ", but expected {first}")?;
 
                         for ty in middle {
                             write!(f, ", {ty}")?;

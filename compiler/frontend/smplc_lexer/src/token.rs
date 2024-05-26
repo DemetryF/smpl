@@ -1,11 +1,11 @@
 use std::fmt::Display;
 
-use smplc_ast::{Literal, Pos, Type};
+use smplc_ast::{Literal, Span, Type};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Token<'source> {
     pub value: TokenValue<'source>,
-    pub pos: Pos,
+    pub span: Span,
 }
 
 #[derive(Clone, Debug, PartialEq, Copy)]

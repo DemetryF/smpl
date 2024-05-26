@@ -4,6 +4,7 @@ use std::{fs, process::Command};
 
 use clap::Parser;
 
+use smplc_ast::Span;
 use smplc_backend_x86::compile;
 use smplc_lexer::lex;
 use smplc_parse::{parse, TokenStream};
@@ -50,7 +51,7 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
         match lex(&code) {
             Ok(tokens) => tokens,
             Err(err) => {
-                output_error(&filename, &code, err.pos, err.char);
+                output_error(&filename, &code, Span::with_len(err.pos, 1), err.char);
                 return Err(());
             }
         }
@@ -61,7 +62,7 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
     let stmts = match parse(token_stream) {
         Ok(stmts) => stmts,
         Err(err) => {
-            output_error(&filename, &code, err.pos, err.kind);
+            output_error(&filename, &code, err.span, err.kind);
             return Err(());
         }
     };
@@ -69,7 +70,7 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
     let hir = match sem_check(stmts) {
         Ok(stmts) => stmts,
         Err(err) => {
-            output_error(&filename, &code, err.pos, err.kind);
+            output_error(&filename, &code, err.span, err.kind);
             return Err(());
         }
     };

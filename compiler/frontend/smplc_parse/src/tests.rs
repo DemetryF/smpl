@@ -4,68 +4,90 @@ use smplc_lexer::lex;
 use crate::{Parse, TokenStream};
 
 macro_rules! parse_test {
-    ($code:expr; $stmt:expr) => {
-        assert_eq!(
-            Declaration::parse(&mut TokenStream::new(lex($code).unwrap())).unwrap(),
-            $stmt
-        );
-    };
+    ($code:expr; $decl:pat $(=> $block:block)?) => {{
+        let mut token_stream = TokenStream::new(lex($code).unwrap());
+
+        let decl = Declaration::parse(&mut token_stream).unwrap();
+
+        match decl {
+            $decl => {
+                $(
+                    $block
+                )?
+            }
+            _ => panic!(),
+        }
+    }};
 }
 
-macro_rules! statement_test {
-    ($code:expr; $stmt:expr) => {
-        assert_eq!(
-            Statement::parse(&mut TokenStream::new(lex($code).unwrap())).unwrap(),
-            $stmt
-        );
-    };
+macro_rules! stmt_test {
+    ($code:expr; $stmt:pat $(=> $block:block)?) => {{
+        let mut token_stream = TokenStream::new(lex($code).unwrap());
+
+        let stmt = Statement::parse(&mut token_stream).unwrap();
+
+        match stmt {
+            $stmt => {
+                $(
+                    $block
+                )?
+            }
+            _ => panic!(),
+        }
+    }};
 }
 
 macro_rules! expr_test {
-    ($code:expr; $expr:expr) => {{
+    ($code:expr; $expr:pat $(=> $block:block)?) => {{
         let mut token_stream = TokenStream::new(lex($code).unwrap());
-        assert_eq!(Expr::parse(&mut token_stream).unwrap(), $expr);
+
+        let expr = Spanned::<Expr>::parse(&mut token_stream).unwrap().0;
+
+        match expr {
+            $expr => {
+                $(
+                    $block
+                )?
+            }
+            _ => panic!(),
+        }
     }};
 }
 
 #[test]
 pub fn declare_statement() {
-    statement_test!(
+    stmt_test!(
         "\
 let a: int;
         ";
         Statement::Declare(DeclareStatement {
-            id: Id::new("a".into(), Pos::new(1, 5, 4)),
+            id: Spanned("a", _),
             ty: Type::Int,
             value: None,
         })
     );
 
-    statement_test!(
+    stmt_test!(
         "\
 let a: real = a;
         ";
         Statement::Declare(DeclareStatement {
-            id: Id::new("a".into(), Pos::new(1, 5,  4)),
+            id: Spanned("a", _),
             ty: Type::Real,
-            value: Some(Expr::Atom(Atom::Id(Id::new(
-                "a".into(),
-                Pos::new(1, 15, 14),
-            )))),
+            value: Some(Spanned(Expr::Atom(Atom::Id(
+                Spanned("a", _)
+            )), _)),
         })
     );
 }
 
 #[test]
 pub fn expr_statement() {
-    statement_test!(
+    stmt_test!(
         "\
 a;
         ";
-        Statement::Expr(ExprStatement::Expr(Expr::Atom(Atom::Id(Id::new(
-            "a".into(),
-            Pos::new(1, 1, 0),
-        )))))
+        Statement::Expr(ExprStatement::Expr(Spanned(Expr::Atom(Atom::Id(Spanned("a", _))), _)))
     );
 }
 
@@ -76,11 +98,14 @@ pub fn function_statement() {
 fn name() {}
         ";
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4, 3)),
-            args: vec![],
+            id: Spanned("name", _),
+            args,
             ret_ty: None,
-            body: Block { statements: vec![] },
-        })
+            body: Block { statements },
+        }) => {
+            assert!(matches!(args.as_slice(), []));
+            assert!(matches!(statements.as_slice(), []));
+        }
     );
 
     parse_test!(
@@ -88,15 +113,20 @@ fn name() {}
 fn name(a: real) -> real {}
         ";
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4, 3)),
-            args: vec![FunctionArg {
-              id:  Id::new("a".into(), Pos::new(1, 9, 8)),
-              ty: Type::Real,
-            }
-            ],
+            id: Spanned("name", _),
+            args,
             ret_ty: Some(Type::Real),
-            body: Block { statements: vec![] },
-        })
+            body: Block { statements },
+        }) => {
+            assert!(matches!(args.as_slice(), [
+                FunctionArg {
+                    id:  Spanned("a", _),
+                    ty: Type::Real,
+                }
+            ]));
+
+            assert!(matches!(statements.as_slice(), []));
+        }
     );
 
     parse_test!(
@@ -104,48 +134,57 @@ fn name(a: real) -> real {}
 fn name(a: bool, b: bool) -> bool {}
         ";
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4,  3)),
-            args: vec![
+            id: Spanned("name", _),
+            args,
+            ret_ty: Some(Type::Bool),
+            body: Block { statements },
+        }) => {
+            assert!(matches!(args.as_slice(), [
                 FunctionArg {
-                    id: Id::new("a".into(), Pos::new(1, 9, 8)),
+                    id: Spanned("a", _),
                     ty: Type::Bool,
                 },
                 FunctionArg {
-                    id: Id::new("b".into(), Pos::new(1, 18, 17)),
+                    id: Spanned("b", _),
                     ty: Type::Bool,
                 }
-            ],
-            ret_ty: Some(Type::Bool),
-            body: Block { statements: vec![] },
-        })
+            ]));
+
+            assert!(matches!(statements.as_slice(), []))
+        }
     );
 }
 
 #[test]
 pub fn if_statement() {
-    statement_test!(
+    stmt_test!(
         "\
 if a { }
         ";
 
         Statement::If(IfStatement {
-            cond: Expr::Atom(Atom::Id(Id::new("a".into(), Pos::new(1, 4,  3)))),
-            body: Block { statements: vec![] },
+            cond: Spanned(Expr::Atom(Atom::Id(Spanned("a", _))), _),
+            body: Block { statements },
             else_body: None,
-        })
+        }) => {
+            assert!(matches!(statements.as_slice(), []))
+        }
     );
 
-    statement_test!(
+    stmt_test!(
         "\
 if a { }
 else { }
         ";
 
         Statement::If(IfStatement {
-            cond: Expr::Atom(Atom::Id(Id::new("a".into(), Pos::new(1, 4,  3)))),
-            body: Block { statements: vec![] },
-            else_body: Some(Block { statements: vec![] }),
-        })
+            cond: Spanned(Expr::Atom(Atom::Id(Spanned("a", _))), _),
+            body: Block { statements: body },
+            else_body: Some(Block { statements: else_stmts }),
+        }) => {
+            assert!(matches!(body.as_slice(), []));
+            assert!(matches!(else_stmts.as_slice(), []));
+        }
     );
 }
 
@@ -158,13 +197,18 @@ fn name() {
 }
         ";
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4, 3)),
-            args: vec![],
+            id: Spanned("name", _),
+            args,
             ret_ty: None,
             body: Block {
-                statements: vec![Statement::Return(ReturnStatement { value: None })],
+                statements,
             },
-        })
+        }) => {
+            assert!(matches!(args.as_slice(), []));
+            assert!(matches!(statements.as_slice(), [
+                Statement::Return(ReturnStatement { value: None })
+            ]));
+        }
     );
 
     parse_test!(
@@ -175,29 +219,36 @@ fn name() {
         ";
 
         Declaration::Function(FunctionDeclaration {
-            id: Id::new("name".into(), Pos::new(1, 4,  3)),
-            args: vec![],
+            id: Spanned("name", _),
+            args,
             ret_ty: None,
             body: Block {
-                statements: vec![Statement::Return(ReturnStatement { value: Some(Expr::Atom(
-                    Atom::Id(Id::new("a".into(), Pos::new(2, 12,  23))),
-                ))})],
+                statements,
             },
-        })
+        }) => {
+            assert!(matches!(args.as_slice(), []));
+            assert!(matches!(statements.as_slice(), [
+                Statement::Return(ReturnStatement {
+                    value: Some(Spanned(Expr::Atom(Atom::Id(Spanned("a", _))), _)),
+                })
+            ]));
+        }
     );
 }
 
 #[test]
 pub fn while_statement() {
-    statement_test!(
+    stmt_test!(
         "\
 while a {}
         ";
 
         Statement::While(WhileStatement {
-            cond: Expr::Atom(Atom::Id(Id::new("a".into(), Pos::new(1, 7,  6)))),
-            body: Block { statements: vec![] },
-        })
+            cond: Spanned(Expr::Atom(Atom::Id(Spanned("a", _))), _),
+            body: Block { statements },
+        }) => {
+            assert!(matches!(statements.as_slice(), []));
+        }
     );
 }
 
@@ -205,27 +256,33 @@ while a {}
 pub fn expr_call() {
     expr_test!(
         "call();";
-        Expr::Call(Call { id: Id::new("call".into(), Pos::default()), args: vec![] })
+        Expr::Call(Call { id: Spanned("call", _), args }) => {
+            assert!(matches!(args, _));
+        }
     );
 
     expr_test!(
         "call(1);";
         Expr::Call(Call {
-            id: Id::new("call".into(), Pos::default()),
-            args: vec![
-                Expr::Atom(Atom::Literal(Literal::Int(1)))
-            ],
-        })
+            id: Spanned("call", _),
+            args,
+        }) => {
+            assert!(matches!(args.as_slice(), [
+                Spanned(Expr::Atom(Atom::Literal(Literal::Int(1))), _)
+            ]))
+        }
     );
 
     expr_test!(
         "call(1, 2);";
         Expr::Call(Call {
-            id: Id::new("call".into(), Pos::default()),
-            args: vec![
-                Expr::Atom(Atom::Literal(Literal::Int(1))),
-                Expr::Atom(Atom::Literal(Literal::Int(2)))
-            ],
-        })
+            id: Spanned("call", _),
+            args,
+        }) => {
+            assert!(matches!(args.as_slice(), [
+                Spanned(Expr::Atom(Atom::Literal(Literal::Int(1))), _),
+                Spanned(Expr::Atom(Atom::Literal(Literal::Int(2))), _)
+            ]))
+        }
     );
 }

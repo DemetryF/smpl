@@ -1,4 +1,4 @@
-use crate::{Block, Expr, Id, Type};
+use crate::{Block, Expr, Id, Spanned, Type};
 
 #[derive(Debug, PartialEq)]
 pub enum Declaration<'source> {
@@ -24,5 +24,5 @@ pub struct FunctionArg<'source> {
 pub struct ConstantDeclaration<'source> {
     pub id: Id<'source>,
     pub ty: Type,
-    pub value: Expr<'source>,
+    pub value: Spanned<Expr<'source>>,
 }

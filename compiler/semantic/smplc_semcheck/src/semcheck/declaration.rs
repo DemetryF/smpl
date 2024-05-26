@@ -34,9 +34,11 @@ impl<'source> SemCheck<'source> for ConstantDeclaration<'source> {
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let data = env.variables.add_variable(self.id, self.ty)?;
-        let value = self.value.check(env)?;
 
-        expect_ty(&value, data.ty)?;
+        let span = self.value.span();
+        let value = self.value.0.check(env)?;
+
+        expect_ty(&value, data.ty, span)?;
 
         Ok(Constant { data, value })
     }

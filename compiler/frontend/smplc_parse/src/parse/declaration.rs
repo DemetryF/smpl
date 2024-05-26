@@ -27,7 +27,7 @@ impl<'source> Parse<'source> for ConstantDeclaration<'source> {
 
         token_stream.consume(TokenValue::Assign)?;
 
-        let value = Expr::parse(token_stream)?;
+        let value = Spanned::<Expr>::parse(token_stream)?;
 
         token_stream.consume(TokenValue::Semicolon)?;
 

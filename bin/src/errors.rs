@@ -1,20 +1,20 @@
 use std::fmt;
 
 use colored::Colorize;
-use smplc_ast::Pos;
+use smplc_ast::Span;
 
 struct Error<'source, K: fmt::Display> {
     pub filename: &'source str,
     pub code: &'source str,
 
-    pub pos: Pos,
+    pub span: Span,
     pub kind: K,
 }
 
 pub fn output_error<'source>(
     filename: &'source str,
     code: &'source str,
-    pos: Pos,
+    span: Span,
     kind: impl fmt::Display,
 ) {
     eprintln!(
@@ -22,7 +22,7 @@ pub fn output_error<'source>(
         Error {
             filename,
             code,
-            pos,
+            span,
             kind,
         }
     );
@@ -30,29 +30,28 @@ pub fn output_error<'source>(
 
 impl<'source, K: fmt::Display> fmt::Display for Error<'source, K> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}:{}:{}: ",
-            self.filename,
-            self.pos.line(),
-            self.pos.column()
-        )?;
+        write!(f, "{}:{}: ", self.filename, self.span)?;
 
         writeln!(f, "{} {}", "Error:".red(), self.kind)?;
 
-        let column_length = self.pos.line().ilog10() as usize + 1;
+        let column_length = self.span.start().line().ilog10() as usize + 1;
 
-        write!(f, " {} | ", self.pos.line())?;
+        write!(f, " {} | ", self.span.start().line())?;
         writeln!(f, "{}", self.get_line())?;
 
         write!(f, " {} | ", " ".repeat(column_length))?;
-        write!(f, "{}{}", " ".repeat(self.pos.column() - 1), "^".red())
+        write!(
+            f,
+            "{}{}",
+            " ".repeat(self.span.start().column() - 1),
+            "^".repeat(self.span.len()).red()
+        )
     }
 }
 
 impl<'source, K: fmt::Display> Error<'source, K> {
     pub fn get_line(&self) -> &'source str {
-        self.code[self.pos.line_start()..]
+        self.code[self.span.start().line_start()..]
             .lines()
             .next()
             .unwrap_or_default()

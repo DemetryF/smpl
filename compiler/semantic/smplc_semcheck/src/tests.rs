@@ -1,5 +1,6 @@
 use std::rc::Rc;
 
+use smplc_ast::Span;
 use smplc_hir::{FunData, Pos, Type};
 use smplc_lexer::lex;
 use smplc_parse::{parse, TokenStream};
@@ -38,8 +39,8 @@ pub fn non_existent_function() {
 pub fn redeclaring_variable() {
     semtest![
         "fn main() { let a: real; let a: real; }" => SemErrorKind::RedeclaringVariable {
-            name: "a",
-            first_declaration: Pos::new(1, 17, 16)
+            id: "a",
+            first_declaration: Span::with_len(Pos::new(1, 17, 16), 1)
         }
     ];
 }
@@ -48,8 +49,8 @@ pub fn redeclaring_variable() {
 pub fn redeclaring_function() {
     semtest![
         "fn a() {} fn a() {}" => SemErrorKind::RedeclaringFunction {
-            name: "a",
-            first_declaration: Pos::new(1, 4, 3)
+            id: "a",
+            first_declaration: Span::with_len(Pos::new(1, 4, 3), 1)
         }
     ];
 }
@@ -63,7 +64,7 @@ pub fn invalid_arguments() {
             expected: 0,
             received: 1,
             fun_ref: Rc::new(FunData {
-                declared_at: Pos::new(1, 4, 3),
+                declared_at: Span::with_len(Pos::new(1, 4, 3), 1),
                 id: "a".into(),
                 args: vec![],
                 ret_ty: None
@@ -76,7 +77,7 @@ pub fn invalid_arguments() {
             expected: 1,
             received: 0,
             fun_ref: Rc::new(FunData {
-                declared_at: Pos::new(1, 4, 3),
+                declared_at: Span::with_len(Pos::new(1, 4, 3), 1),
                 id: "a".into(),
                 args: vec![Type::Real],
                 ret_ty: None

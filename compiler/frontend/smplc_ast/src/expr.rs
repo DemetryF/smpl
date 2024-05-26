@@ -1,15 +1,15 @@
-use crate::{BinOp, Pos, UnOp};
+use crate::{BinOp, Spanned, UnOp};
 
 #[derive(Debug, PartialEq)]
 pub enum Expr<'source> {
     Prefix {
         op: UnOp,
-        rhs: Box<Self>,
+        rhs: Box<Spanned<Self>>,
     },
     Infix {
-        lhs: Box<Self>,
+        lhs: Box<Spanned<Self>>,
         op: BinOp,
-        rhs: Box<Self>,
+        rhs: Box<Spanned<Self>>,
     },
     Call(Call<'source>),
     Atom(Atom<'source>),
@@ -18,7 +18,7 @@ pub enum Expr<'source> {
 #[derive(Debug, PartialEq)]
 pub struct Call<'source> {
     pub id: Id<'source>,
-    pub args: Vec<Expr<'source>>,
+    pub args: Vec<Spanned<Expr<'source>>>,
 }
 
 #[derive(PartialEq, Debug)]
@@ -27,17 +27,7 @@ pub enum Atom<'source> {
     Literal(Literal),
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub struct Id<'source> {
-    pub name: &'source str,
-    pub pos: Pos,
-}
-
-impl<'source> Id<'source> {
-    pub fn new(name: &'source str, pos: Pos) -> Self {
-        Self { name, pos }
-    }
-}
+pub type Id<'source> = Spanned<&'source str>;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Literal {

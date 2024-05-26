@@ -1,4 +1,4 @@
-use smplc_ast::Pos;
+use smplc_ast::{Pos, Span};
 
 use crate::code_stream::CodeStream;
 use crate::comment_handler::CommentsHandler;
@@ -8,6 +8,7 @@ use crate::{LexError, Token, TokenValue};
 pub struct Lexer<'source> {
     code_stream: CodeStream<'source>,
     collectors: Vec<Box<dyn TokenCollector>>,
+
     ended: bool,
 }
 
@@ -27,12 +28,12 @@ impl<'source> Lexer<'source> {
     pub fn next_token(&mut self) -> Result<Token<'source>, LexError> {
         CommentsHandler::skip(&mut self.code_stream);
 
-        let pos = self.code_stream.get_pos();
+        let start = self.code_stream.get_pos();
 
         if self.code_stream.is_eof() {
             let eof_token = Token {
                 value: TokenValue::EOF,
-                pos,
+                span: Span::with_len(start, 1),
             };
 
             self.ended = true;
@@ -42,13 +43,13 @@ impl<'source> Lexer<'source> {
 
         for collector in self.collectors.iter_mut() {
             if let Some(value) = collector.try_collect(&mut self.code_stream) {
-                let new_token = Token { value, pos };
+                let span = Span::with_end(start, self.code_stream.index());
 
-                return Ok(new_token);
+                return Ok(Token { value, span });
             }
         }
 
-        Err(self.unexpected_char(pos))
+        Err(self.unexpected_char(start))
     }
 
     fn unexpected_char(&mut self, pos: Pos) -> LexError {
