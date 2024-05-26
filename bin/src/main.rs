@@ -87,18 +87,18 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
 pub fn assembly(assembly: String, output_filename: String) {
     fs::write("./temp.asm", assembly).unwrap();
 
-    dbg!(Command::new("nasm")
+    Command::new("nasm")
         .args(["-f", "elf64", "./temp.asm", "-o", "temp.o"])
-        .output())
-    .unwrap();
+        .output()
+        .unwrap();
 
-    dbg!(Command::new("gcc")
+    Command::new("gcc")
         .args(["-no-pie", "temp.o", &format!("-o{output_filename}")])
-        .output())
-    .unwrap();
+        .output()
+        .unwrap();
 
     Command::new("rm")
-        // .arg("./temp.asm")
+        .arg("./temp.asm")
         .arg("temp.o")
         .output()
         .unwrap();
