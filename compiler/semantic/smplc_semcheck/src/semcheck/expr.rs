@@ -1,3 +1,4 @@
+use ast::{Span, Spanned};
 use smplc_ast as ast;
 use smplc_hir::{ArithmOp, Atom, BinOp, Expr, NumberType, RelOp, Type, UnOp};
 
@@ -11,18 +12,22 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         match self {
             ast::Expr::Infix { lhs, op, rhs } => {
-                let lhs = Box::new(lhs.check(env)?);
-                let rhs = Box::new(rhs.check(env)?);
+                let lhs_span = lhs.span();
+                let rhs_span = rhs.span();
 
-                let op = inference_bin_op(&lhs, &rhs, op)?;
+                let lhs = Box::new(lhs.0.check(env)?);
+                let rhs = Box::new(rhs.0.check(env)?);
+
+                let op = inference_bin_op(&lhs, &rhs, op, lhs_span, rhs_span)?;
 
                 Ok(Expr::Binary { lhs, op, rhs })
             }
 
             ast::Expr::Prefix { op, rhs } => {
-                let rhs = Box::new(rhs.check(env)?);
+                let span = rhs.span();
+                let rhs = Box::new(rhs.0.check(env)?);
 
-                let op = inference_un_op(op, &rhs)?;
+                let op = inference_un_op(op, &rhs, span)?;
 
                 Ok(Expr::Unary { op, rhs })
             }
@@ -35,8 +40,8 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
                     let received = call.args.len();
 
                     if expected != received {
-                        return Err(SemError::invalid_arguments(
-                            call.id.pos,
+                        return Err(SemError::invalid_arguments_count(
+                            call.id.span(),
                             expected,
                             received,
                             fun_ref,
@@ -47,16 +52,15 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
                 let args = call
                     .args
                     .into_iter()
-                    .map(|arg| arg.check(env))
+                    .zip(fun_ref.args.iter())
+                    .map(|(Spanned(arg, span), &ty)| {
+                        let arg = arg.check(env)?;
+
+                        expect_ty(&arg, ty, span)?;
+
+                        Ok(arg)
+                    })
                     .collect::<Result<Vec<_>, _>>()?;
-
-                for (arg, &expected) in args.iter().zip(fun_ref.args.iter()) {
-                    let received = expr_ty(&arg);
-
-                    if received != expected {
-                        return Err(SemError::wrong_ty(received, vec![expected]));
-                    }
-                }
 
                 Ok(Expr::Call { fun_ref, args })
             }
@@ -69,21 +73,39 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
     }
 }
 
-fn inference_bin_op<'source>(lhs: &Expr, rhs: &Expr, op: ast::BinOp) -> SemResult<'source, BinOp> {
+fn inference_bin_op<'source>(
+    lhs: &Expr,
+    rhs: &Expr,
+    op: ast::BinOp,
+    lhs_span: Span,
+    rhs_span: Span,
+) -> SemResult<'source, BinOp> {
     let lhs_ty = expr_ty(&lhs);
     let rhs_ty = expr_ty(&rhs);
 
     if op.is_arithm() || op.is_rel() {
         let Ok(lhs_ty) = NumberType::try_from(lhs_ty) else {
-            return Err(SemError::wrong_ty(lhs_ty, vec![Type::Real, Type::Int]));
+            return Err(SemError::wrong_ty(
+                lhs_span,
+                lhs_ty,
+                vec![Type::Real, Type::Int],
+            ));
         };
 
         let Ok(rhs_ty) = NumberType::try_from(lhs_ty) else {
-            return Err(SemError::wrong_ty(rhs_ty, vec![Type::Real, Type::Int]));
+            return Err(SemError::wrong_ty(
+                rhs_span,
+                rhs_ty,
+                vec![Type::Real, Type::Int],
+            ));
         };
 
         if rhs_ty != lhs_ty {
-            return Err(SemError::wrong_ty(rhs_ty.into(), vec![lhs_ty.into()]));
+            return Err(SemError::wrong_ty(
+                rhs_span,
+                rhs_ty.into(),
+                vec![lhs_ty.into()],
+            ));
         }
 
         let ty = lhs_ty;
@@ -97,11 +119,11 @@ fn inference_bin_op<'source>(lhs: &Expr, rhs: &Expr, op: ast::BinOp) -> SemResul
         }
     } else {
         if lhs_ty != Type::Bool {
-            return Err(SemError::wrong_ty(lhs_ty, vec![Type::Bool]));
+            return Err(SemError::wrong_ty(lhs_span, lhs_ty, vec![Type::Bool]));
         }
 
         if rhs_ty != Type::Bool {
-            return Err(SemError::wrong_ty(rhs_ty, vec![Type::Bool]));
+            return Err(SemError::wrong_ty(rhs_span, rhs_ty, vec![Type::Bool]));
         }
 
         match op {
@@ -112,7 +134,7 @@ fn inference_bin_op<'source>(lhs: &Expr, rhs: &Expr, op: ast::BinOp) -> SemResul
     }
 }
 
-fn inference_un_op<'source>(op: ast::UnOp, rhs: &Expr) -> SemResult<'source, UnOp> {
+fn inference_un_op<'source>(op: ast::UnOp, rhs: &Expr, span: Span) -> SemResult<'source, UnOp> {
     let rhs_ty = expr_ty(rhs);
 
     match op {
@@ -120,7 +142,7 @@ fn inference_un_op<'source>(op: ast::UnOp, rhs: &Expr) -> SemResult<'source, UnO
             if rhs_ty == Type::Bool {
                 Ok(UnOp::Not)
             } else {
-                Err(SemError::wrong_ty(rhs_ty, vec![Type::Bool]))
+                Err(SemError::wrong_ty(span, rhs_ty, vec![Type::Bool]))
             }
         }
 
@@ -129,7 +151,11 @@ fn inference_un_op<'source>(op: ast::UnOp, rhs: &Expr) -> SemResult<'source, UnO
                 let ty = NumberType::try_from(rhs_ty).unwrap();
                 Ok(UnOp::Neg(ty))
             } else {
-                Err(SemError::wrong_ty(rhs_ty, vec![Type::Real, Type::Int]))
+                Err(SemError::wrong_ty(
+                    span,
+                    rhs_ty,
+                    vec![Type::Real, Type::Int],
+                ))
             }
         }
     }
@@ -161,11 +187,11 @@ pub fn expr_ty<'source>(expr: &Expr) -> Type {
     }
 }
 
-pub fn expect_ty<'source>(expr: &Expr, ty: Type) -> SemResult<'source, ()> {
+pub fn expect_ty<'source>(expr: &Expr, ty: Type, span: Span) -> SemResult<'source, ()> {
     let expr_ty = expr_ty(&expr);
 
     if expr_ty != ty {
-        Err(SemError::wrong_ty(expr_ty, vec![ty]))
+        Err(SemError::wrong_ty(span, expr_ty, vec![ty]))
     } else {
         Ok(())
     }

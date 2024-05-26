@@ -50,7 +50,7 @@ impl Translator {
 impl Variables {
     pub fn get_or_add(&mut self, var: VarRef) -> Id {
         self.data
-            .get(&var.declared_at)
+            .get(&var.declared_at.start())
             .cloned()
             .unwrap_or_else(|| self.add(var))
     }
@@ -58,7 +58,7 @@ impl Variables {
     pub fn add(&mut self, var: VarRef) -> Id {
         let id = self.next_id(NumberType::for_ir(var.ty));
 
-        self.data.insert(var.declared_at, id);
+        self.data.insert(var.declared_at.start(), id);
 
         self.types.insert(id, NumberType::for_ir(var.ty));
 
@@ -66,7 +66,7 @@ impl Variables {
     }
 
     pub fn get(&self, var: VarRef) -> Id {
-        self.data[&var.declared_at]
+        self.data[&var.declared_at.start()]
     }
 
     pub fn next_id(&mut self, ty: NumberType) -> Id {

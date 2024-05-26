@@ -1,6 +1,6 @@
 use std::fmt;
 
-use smplc_ast::Pos;
+use smplc_ast::Span;
 use smplc_lexer::{Token, TokenValue};
 
 pub type ParseResult<'source, T> = Result<T, ParseError<'source>>;
@@ -8,7 +8,7 @@ pub type ParseResult<'source, T> = Result<T, ParseError<'source>>;
 #[derive(Debug)]
 pub struct ParseError<'source> {
     pub kind: ParseErrorKind<'source>,
-    pub pos: Pos,
+    pub span: Span,
 }
 
 #[derive(Debug)]
@@ -19,10 +19,10 @@ pub enum ParseErrorKind<'source> {
 }
 
 impl<'source> ParseError<'source> {
-    pub fn unexpected_token(Token { value, pos }: Token<'source>) -> Self {
+    pub fn unexpected_token(Token { value, span }: Token<'source>) -> Self {
         let kind = ParseErrorKind::UnexpectedToken(value);
 
-        Self { kind, pos }
+        Self { kind, span }
     }
 }
 
