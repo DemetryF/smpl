@@ -10,7 +10,7 @@ pub struct Translator {
     pub variables: Variables,
 
     whiles_count: usize,
-    labels: usize,
+    labels_count: usize,
 }
 
 #[derive(Default)]
@@ -29,8 +29,8 @@ impl Translator {
 
     pub fn while_labels(&mut self) -> Option<(Label, Label)> {
         if self.whiles_count != 0 {
-            let start_label = Label(format!("while_start{}", self.whiles_count - 1));
-            let end_label = Label(format!("while_end{}", self.whiles_count - 1));
+            let start_label = Label::new(format!("while_start{}", self.whiles_count - 1));
+            let end_label = Label::new(format!("while_end{}", self.whiles_count - 1));
 
             Some((start_label, end_label))
         } else {
@@ -39,9 +39,9 @@ impl Translator {
     }
 
     pub fn next_label(&mut self) -> Label {
-        let label = Label(format!("label{}", self.labels));
+        let label = Label::new(format!("label{}", self.labels_count));
 
-        self.labels += 1;
+        self.labels_count += 1;
 
         label
     }

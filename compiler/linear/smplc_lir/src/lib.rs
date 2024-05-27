@@ -8,7 +8,13 @@ mod display;
 mod instructions;
 
 #[derive(Clone)]
-pub struct Label(pub String);
+pub struct Label(Rc<str>);
+
+impl Label {
+    pub fn new(name: impl Into<Rc<str>>) -> Self {
+        Self(name.into())
+    }
+}
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Id(usize);
