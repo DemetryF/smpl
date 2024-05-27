@@ -44,18 +44,15 @@ pub fn translate(hir: HIR) -> (Code, HashMap<Id, NumberType>) {
             .map(|var_ref| translator.variables.add(var_ref))
             .collect();
 
-        translator.code.add_function(CodeFunction {
-            id: FunctionId(function.data.id.clone()),
+        translator.code.add_function(CodeFunction::new(
+            FunctionId(function.data.id.clone()),
             args,
-            ..Default::default()
-        });
+        ));
 
         for stmt in function.body {
             stmt.translate(&mut translator)
         }
     }
-
-    // translator.code.push(Halt);
 
     (translator.code, translator.variables.types)
 }

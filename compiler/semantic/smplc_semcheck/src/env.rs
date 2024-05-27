@@ -103,7 +103,7 @@ impl<'source> Functions<'source> {
         } else {
             let fun_ref = Rc::new(FunData {
                 declared_at: id.span(),
-                id: id.0.to_owned(),
+                id: id.0.into(),
                 args,
                 ret_ty,
             });

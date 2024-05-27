@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 pub use code::{Code, CodeFunction, Number};
 pub use instructions::*;
 
@@ -17,8 +19,8 @@ impl From<usize> for Id {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
-pub struct FunctionId(pub String);
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct FunctionId(pub Rc<str>);
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Atom {
