@@ -33,7 +33,7 @@ pub enum Atom {
 #[derive(Debug, PartialEq)]
 pub struct FunData {
     pub declared_at: Span,
-    pub id: String,
+    pub id: Rc<str>,
     pub ret_ty: Option<Type>,
     pub args: Vec<Type>,
 }

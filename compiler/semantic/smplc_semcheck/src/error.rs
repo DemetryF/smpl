@@ -138,7 +138,7 @@ impl fmt::Display for SemErrorKind<'_> {
             } => write!(
                 f,
                 "function \"{}\" takes {expected}, but received {received}",
-                fun_ref.id
+                &fun_ref.id
             ),
 
             SemErrorKind::NonExistentVariable(name) => {

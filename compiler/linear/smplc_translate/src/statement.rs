@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use smplc_hir::{Expr, ExprStatement, IfStatement, ReturnStatement, Statement, WhileStatement};
 use smplc_lir::{Assign, FunctionId, Goto, Return};
 
@@ -106,7 +108,7 @@ impl Translate for ExprStatement {
             ExprStatement::Expr(Expr::Call { fun_ref, args }) => {
                 translate_call(
                     translator,
-                    FunctionId(fun_ref.id.clone()),
+                    FunctionId(Rc::clone(&fun_ref.id)),
                     args,
                     &fun_ref.args,
                 );

@@ -12,7 +12,6 @@ pub struct Code {
     pub constants: HashMap<Id, Number>,
 }
 
-#[derive(Default)]
 pub struct CodeFunction {
     pub id: FunctionId,
     pub args: Vec<Id>,
@@ -25,7 +24,8 @@ impl CodeFunction {
         Self {
             id,
             args,
-            ..Default::default()
+            instructions: Default::default(),
+            labels: Default::default(),
         }
     }
 
