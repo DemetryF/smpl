@@ -64,6 +64,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "smplc_lir"
+version = "0.1.0"
+
+[[package]]
 name = "smplc_macros"
 version = "0.1.0"
 dependencies = [

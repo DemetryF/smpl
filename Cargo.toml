@@ -7,6 +7,8 @@ members = [
     "compiler/semantic/smplc_hir",
     "compiler/semantic/smplc_semcheck",
 
+    "compiler/linear/smplc_lir",
+
     "utils/smplc_macros",
 ]
 
