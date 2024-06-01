@@ -91,6 +91,14 @@ impl Id {
     }
 }
 
+impl PartialEq for Id {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl Eq for Id {}
+
 #[derive(Clone)]
 pub struct FnId(Rc<str>, Option<Type>);
 
