@@ -6,11 +6,11 @@ impl fmt::Display for Instruction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Instruction::Assign { res, rhs } => {
-                write!(f, "{res} = {rhs}")
+                writeln!(f, "{res} = {rhs}")
             }
 
             Instruction::Goto(label) => {
-                write!(f, "goto {label}")
+                writeln!(f, "goto {label}")
             }
 
             Instruction::IfRel {
@@ -19,14 +19,10 @@ impl fmt::Display for Instruction {
                 lhs,
                 rhs,
                 label,
-            } => {
-                write!(f, "if {ty}.{op} {lhs}, {rhs} goto {label}")?;
-
-                Ok(())
-            }
+            } => writeln!(f, "if {ty}.{op} {lhs}, {rhs} goto {label}"),
 
             Instruction::Call(call) => {
-                return write!(f, "{call}");
+                return writeln!(f, "{call}");
             }
 
             Instruction::Ret(value) => {
@@ -36,7 +32,7 @@ impl fmt::Display for Instruction {
                     write!(f, " {value}")?;
                 }
 
-                Ok(())
+                writeln!(f)
             }
         }
     }
