@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum ArithmOp {
     Add,
     Sub,
@@ -8,7 +8,7 @@ pub enum ArithmOp {
     Div,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum RelOp {
     Eq,
     Ne,

@@ -99,6 +99,12 @@ impl PartialEq for Id {
 
 impl Eq for Id {}
 
+impl std::hash::Hash for Id {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.hash(state);
+    }
+}
+
 #[derive(Clone)]
 pub struct FnId(Rc<str>, Option<Type>);
 
@@ -116,11 +122,17 @@ impl FnId {
     }
 }
 
-#[derive(Clone, Copy)]
+impl PartialEq for FnId {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum Type {
     Real,
     Int,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Label(Rc<str>);

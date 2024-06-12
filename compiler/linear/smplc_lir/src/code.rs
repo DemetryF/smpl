@@ -1,10 +1,10 @@
-use std::collections::LinkedList;
+use std::collections::{linked_list, LinkedList};
 
 use crate::{instruction::Instruction, Label};
 
 #[derive(Default)]
 pub struct Code {
-    blocks: Vec<BasicBlock>,
+    pub blocks: Vec<BasicBlock>,
 }
 
 impl Code {
@@ -41,8 +41,8 @@ impl Code {
 
 #[derive(Default)]
 pub struct BasicBlock {
-    label: Option<Label>,
-    instructions: Instructions,
+    pub label: Option<Label>,
+    pub instructions: Instructions,
 }
 
 impl BasicBlock {
@@ -60,6 +60,15 @@ impl BasicBlock {
     pub fn is_empty(&self) -> bool {
         self.label.is_none() || self.instructions.is_empty()
     }
+
+    pub fn tail_jump_dst(&self) -> Option<&Label> {
+        match self.instructions.last() {
+            Some(Instruction::IfRel { label, .. }) => Some(label),
+            Some(Instruction::Goto(label)) => Some(label),
+
+            _ => None,
+        }
+    }
 }
 
 #[derive(Default)]
@@ -74,5 +83,27 @@ impl Instructions {
 
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
+    }
+
+    pub fn iter(&self) -> linked_list::Iter<Instruction> {
+        self.data.iter()
+    }
+
+    pub fn last(&self) -> Option<&Instruction> {
+        self.data.back()
+    }
+
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+}
+
+impl IntoIterator for Instructions {
+    type Item = Instruction;
+
+    type IntoIter = linked_list::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
     }
 }
