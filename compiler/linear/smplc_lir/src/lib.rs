@@ -1,3 +1,4 @@
+pub mod builder;
 mod code;
 mod instruction;
 
@@ -20,4 +21,5 @@ pub struct Function {
 
 pub struct FnExtern {
     pub id: FnId,
+    pub args: Vec<Type>,
 }

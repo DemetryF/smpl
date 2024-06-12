@@ -1,43 +1,10 @@
 use std::collections::{linked_list, LinkedList};
 
+use petgraph::Graph;
+
 use crate::{instruction::Instruction, Label};
 
-#[derive(Default)]
-pub struct Code {
-    pub blocks: Vec<BasicBlock>,
-}
-
-impl Code {
-    pub fn push_instr(&mut self, instr: Instruction) {
-        if matches!(instr, Instruction::Goto(_) | Instruction::IfRel { .. }) {
-            self.new_block()
-        }
-
-        self.last_block().push(instr)
-    }
-
-    pub fn push_label(&mut self, label: Label) {
-        if self.last_block().is_empty() {
-            self.last_block().label = Some(label);
-        } else {
-            self.blocks.push(BasicBlock::with_label(label));
-        }
-    }
-
-    fn last_block(&mut self) -> &mut BasicBlock {
-        if self.blocks.is_empty() {
-            self.new_block()
-        }
-
-        self.blocks.last_mut().unwrap()
-    }
-
-    fn new_block(&mut self) {
-        if self.blocks.is_empty() || !self.last_block().is_empty() {
-            self.blocks.push(BasicBlock::default())
-        }
-    }
-}
+pub type Code = Graph<BasicBlock, ()>;
 
 #[derive(Default)]
 pub struct BasicBlock {
@@ -58,7 +25,7 @@ impl BasicBlock {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.label.is_none() || self.instructions.is_empty()
+        self.label.is_none() && self.instructions.is_empty()
     }
 
     pub fn tail_jump_dst(&self) -> Option<&Label> {
