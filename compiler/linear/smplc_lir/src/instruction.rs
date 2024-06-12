@@ -35,9 +35,12 @@ pub enum AssignRhs {
         ty: Type,
         rhs: Operand,
     },
+    Phi {
+        branches: Vec<(Label, Operand)>,
+        else_value: Option<Operand>,
+    },
     Call(Call),
     Operand(Operand),
-    Phi(Vec<(Label, Operand)>),
 }
 
 impl AssignRhs {
@@ -47,7 +50,7 @@ impl AssignRhs {
             AssignRhs::Neg { ty, .. } => *ty,
             AssignRhs::Call(Call { id, .. }) => id.ret_ty().unwrap(),
             AssignRhs::Operand(op) => op.ty(),
-            AssignRhs::Phi(branches) => branches.first().unwrap().1.ty(),
+            AssignRhs::Phi { branches, .. } => branches.first().unwrap().1.ty(),
         }
     }
 }
