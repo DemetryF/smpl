@@ -1,4 +1,6 @@
 pub mod builder;
+pub mod yield_vars;
+
 mod code;
 mod instruction;
 
