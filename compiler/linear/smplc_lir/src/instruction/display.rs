@@ -19,7 +19,16 @@ impl fmt::Display for Instruction {
                 lhs,
                 rhs,
                 label,
-            } => writeln!(f, "if {ty}.{op} {lhs}, {rhs} goto {label}"),
+                else_label,
+            } => {
+                write!(f, "if {ty}.{op} {lhs}, {rhs} goto {label}")?;
+
+                if let Some(label) = else_label {
+                    write!(f, ", else {label}")?;
+                }
+
+                writeln!(f)
+            }
 
             Instruction::Call(call) => {
                 return writeln!(f, "{call}");

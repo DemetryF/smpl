@@ -18,6 +18,7 @@ pub enum Instruction {
         lhs: Operand,
         rhs: Operand,
         label: Label,
+        else_label: Option<Label>,
     },
 
     Call(Call),
