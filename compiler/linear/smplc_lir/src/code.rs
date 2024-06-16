@@ -63,6 +63,10 @@ impl Instructions {
     pub fn len(&self) -> usize {
         self.data.len()
     }
+
+    pub fn append(&mut self, other: &mut Instructions) {
+        self.data.append(&mut other.data)
+    }
 }
 
 impl IntoIterator for Instructions {
