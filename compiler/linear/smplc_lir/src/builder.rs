@@ -6,6 +6,12 @@ pub struct CodeBuilder {
 }
 
 impl CodeBuilder {
+    pub fn with_start_label(label: Label) -> Self {
+        Self {
+            blocks: vec![BasicBlock::with_label(label)],
+        }
+    }
+
     pub fn push_instr(&mut self, instr: Instruction) {
         if matches!(instr, Instruction::Goto(_) | Instruction::IfRel { .. }) {
             self.new_block()
@@ -46,7 +52,7 @@ impl CodeBuilder {
         let mut indices = graph.node_indices().peekable();
 
         while let Some(current_idx) = indices.next() {
-            if let Some(dst_label) = graph[current_idx].tail_jump_dst() {
+            if let Some(dst_label) = graph[current_idx].instructions.tail_jump_dst() {
                 for idx in graph.node_indices() {
                     if let Some(start_label) = &graph[idx].label {
                         if start_label == dst_label {

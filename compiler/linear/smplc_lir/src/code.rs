@@ -27,15 +27,6 @@ impl BasicBlock {
     pub fn is_empty(&self) -> bool {
         self.label.is_none() && self.instructions.is_empty()
     }
-
-    pub fn tail_jump_dst(&self) -> Option<&Label> {
-        match self.instructions.last() {
-            Some(Instruction::IfRel { label, .. }) => Some(label),
-            Some(Instruction::Goto(label)) => Some(label),
-
-            _ => None,
-        }
-    }
 }
 
 #[derive(Default)]
@@ -66,6 +57,15 @@ impl Instructions {
 
     pub fn append(&mut self, other: &mut Instructions) {
         self.data.append(&mut other.data)
+    }
+
+    pub fn tail_jump_dst(&self) -> Option<&Label> {
+        match self.last() {
+            Some(Instruction::IfRel { label, .. }) => Some(label),
+            Some(Instruction::Goto(label)) => Some(label),
+
+            _ => None,
+        }
     }
 }
 
