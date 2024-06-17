@@ -57,7 +57,8 @@ impl Instructions {
     }
 
     pub fn append(&mut self, other: &mut Instructions) {
-        self.data.append(&mut other.data)
+        self.phis.append(&mut other.phis);
+        self.data.append(&mut other.data);
     }
 
     pub fn tail_jump_dst(&self) -> Option<&Label> {
