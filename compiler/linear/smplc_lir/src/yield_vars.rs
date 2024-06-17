@@ -93,19 +93,6 @@ impl YieldVariables for AssignRhs {
             AssignRhs::Operand(op) => {
                 op.yield_vars(yield_fn)?;
             }
-
-            AssignRhs::Phi {
-                branches,
-                else_value,
-            } => {
-                for (_, op) in branches {
-                    op.yield_vars(yield_fn)?;
-                }
-
-                if let Some(op) = else_value {
-                    op.yield_vars(yield_fn)?;
-                }
-            }
         }
 
         Ok(())

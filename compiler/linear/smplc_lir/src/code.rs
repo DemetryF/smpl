@@ -2,7 +2,7 @@ use std::collections::{linked_list, LinkedList};
 
 use petgraph::Graph;
 
-use crate::{instruction::Instruction, Label};
+use crate::{instruction::Instruction, Id, Label};
 
 pub type Code = Graph<BasicBlock, ()>;
 
@@ -31,6 +31,7 @@ impl BasicBlock {
 
 #[derive(Default)]
 pub struct Instructions {
+    pub phis: Vec<Phi>,
     data: LinkedList<Instruction>,
 }
 
@@ -77,4 +78,9 @@ impl IntoIterator for Instructions {
     fn into_iter(self) -> Self::IntoIter {
         self.data.into_iter()
     }
+}
+
+pub struct Phi {
+    pub res: Id,
+    pub branches: Vec<(Id, Label)>,
 }

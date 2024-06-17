@@ -58,27 +58,6 @@ impl fmt::Display for AssignRhs {
                 write!(f, "{ty}.neg {rhs}")
             }
 
-            AssignRhs::Phi {
-                branches,
-                else_value,
-            } => {
-                write!(f, "phi ")?;
-
-                let mut branches = branches.iter();
-
-                if let Some((label, op)) = branches.next() {
-                    write!(f, "{label}: {op}")?;
-                }
-
-                branches.try_for_each(|(label, op)| write!(f, ", {label}: {op}"))?;
-
-                if let Some(else_value) = else_value {
-                    write!(f, ", {else_value}")?;
-                }
-
-                Ok(())
-            }
-
             AssignRhs::Call(call) => write!(f, "{call}"),
             AssignRhs::Operand(operand) => write!(f, "{operand}"),
         }
