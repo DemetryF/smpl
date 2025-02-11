@@ -14,6 +14,7 @@ pub struct ParseError<'source> {
 #[derive(Debug)]
 pub enum ParseErrorKind<'source> {
     UnexpectedToken(TokenValue<'source>),
+    UnexpectedChar(char),
     BreakOutsideLoop,
     ContinueOutsideLoop,
 }
@@ -40,6 +41,19 @@ impl fmt::Display for ParseErrorKind<'_> {
             Self::ContinueOutsideLoop => {
                 write!(f, "using continue outside loop")
             }
+
+            Self::UnexpectedChar(char) => {
+                write!(f, "unexpected char '{char}'")
+            }
+        }
+    }
+}
+
+impl<'source> From<smplc_lexer::LexError> for ParseError<'source> {
+    fn from(value: smplc_lexer::LexError) -> Self {
+        Self {
+            kind: ParseErrorKind::UnexpectedChar(value.char),
+            span: Span::with_len(value.pos, 1),
         }
     }
 }

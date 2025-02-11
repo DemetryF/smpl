@@ -1,11 +1,11 @@
 use smplc_ast::*;
-use smplc_lexer::lex;
+use smplc_lexer::Lexer;
 
 use crate::{Parse, TokenStream};
 
 macro_rules! parse_test {
     ($code:expr; $decl:pat $(=> $block:block)?) => {{
-        let mut token_stream = TokenStream::new(lex($code).unwrap());
+        let mut token_stream = TokenStream::new(Lexer::new($code)).unwrap();
 
         let decl = Declaration::parse(&mut token_stream).unwrap();
 
@@ -22,7 +22,7 @@ macro_rules! parse_test {
 
 macro_rules! stmt_test {
     ($code:expr; $stmt:pat $(=> $block:block)?) => {{
-        let mut token_stream = TokenStream::new(lex($code).unwrap());
+        let mut token_stream = TokenStream::new(Lexer::new($code)).unwrap();
 
         let stmt = Statement::parse(&mut token_stream).unwrap();
 
@@ -39,7 +39,7 @@ macro_rules! stmt_test {
 
 macro_rules! expr_test {
     ($code:expr; $expr:pat $(=> $block:block)?) => {{
-        let mut token_stream = TokenStream::new(lex($code).unwrap());
+        let mut token_stream = TokenStream::new(Lexer::new($code)).unwrap();
 
         let expr = Spanned::<Expr>::parse(&mut token_stream).unwrap().0;
 

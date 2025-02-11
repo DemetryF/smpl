@@ -1,26 +1,29 @@
 use smplc_ast::{Pos, Span};
-use smplc_lexer::{Token, TokenValue};
+use smplc_lexer::{LexError, Token, TokenValue};
 
 use crate::error::{ParseError, ParseResult};
 
-#[derive(Default)]
-pub struct TokenStream<'source> {
-    tokens: Vec<Token<'source>>,
-    index: usize,
+pub trait Tokens<'source>: Iterator<Item = Result<Token<'source>, LexError>> {}
+impl<'source, T: Iterator<Item = Result<Token<'source>, LexError>>> Tokens<'source> for T {}
+
+pub struct TokenStream<'source, TS: Tokens<'source>> {
+    tokens: TS,
+    current: Token<'source>,
 
     pub in_loop: bool,
 }
 
-impl<'source> TokenStream<'source> {
-    pub fn new(tokens: Vec<Token<'source>>) -> Self {
-        Self {
+impl<'source, TS: Tokens<'source>> TokenStream<'source, TS> {
+    pub fn new(mut tokens: TS) -> Result<Self, LexError> {
+        Ok(Self {
+            current: tokens.next().unwrap()?,
             tokens,
-            ..Default::default()
-        }
+            in_loop: false,
+        })
     }
 
     pub fn current(&self) -> Token<'source> {
-        self.tokens[self.index]
+        self.current
     }
 
     pub fn check(&self, value: TokenValue) -> bool {
@@ -29,7 +32,7 @@ impl<'source> TokenStream<'source> {
 
     pub fn consume(&mut self, value: TokenValue) -> ParseResult<'source, Span> {
         if self.check(value) {
-            let span = self.next_token().span;
+            let span = self.next_token()?.span;
 
             return Ok(span);
         }
@@ -37,22 +40,22 @@ impl<'source> TokenStream<'source> {
         Err(self.unexpected_token())
     }
 
-    pub fn try_consume(&mut self, value: TokenValue) -> bool {
+    pub fn try_consume(&mut self, value: TokenValue) -> ParseResult<'source, bool> {
         if self.check(value) {
-            self.index += 1;
+            self.next_token()?;
 
-            return true;
+            Ok(true)
+        } else {
+            Ok(false)
         }
-
-        false
     }
 
-    pub fn next_token(&mut self) -> Token<'source> {
+    pub fn next_token(&mut self) -> ParseResult<'source, Token<'source>> {
         let token = self.current();
 
-        self.index += 1;
+        self.current = self.tokens.next().unwrap()?;
 
-        token
+        Ok(token)
     }
 
     pub fn unexpected_token(&self) -> ParseError<'source> {

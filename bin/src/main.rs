@@ -4,10 +4,9 @@ use std::{fs, process::Command};
 
 use clap::Parser;
 
-use smplc_ast::Span;
 use smplc_backend_x86::compile;
-use smplc_lexer::lex;
-use smplc_parse::{parse, TokenStream};
+use smplc_lexer::Lexer;
+use smplc_parse::{parse, ParseError, TokenStream};
 use smplc_semcheck::sem_check;
 use smplc_translate::translate;
 
@@ -47,17 +46,15 @@ fn main() {
 }
 
 pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String, ()> {
-    let tokens = {
-        match lex(&code) {
-            Ok(tokens) => tokens,
-            Err(err) => {
-                output_error(&filename, &code, Span::with_len(err.pos, 1), err.char);
-                return Err(());
-            }
+    let tokens = Lexer::new(code);
+    let token_stream = match TokenStream::new(tokens) {
+        Ok(token_stream) => token_stream,
+        Err(err) => {
+            let err = ParseError::from(err);
+            output_error(&filename, &code, err.span, err.kind);
+            return Err(());
         }
     };
-
-    let token_stream = TokenStream::new(tokens);
 
     let stmts = match parse(token_stream) {
         Ok(stmts) => stmts,

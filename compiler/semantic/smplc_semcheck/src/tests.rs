@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use smplc_ast::Span;
 use smplc_hir::{FunData, Pos, Type};
-use smplc_lexer::lex;
+use smplc_lexer::Lexer;
 use smplc_parse::{parse, TokenStream};
 
 use crate::error::SemErrorKind;
@@ -10,8 +10,7 @@ use crate::sem_check;
 
 macro_rules! semtest {
     ($code:literal => $error:expr) => {
-        let tokens = lex($code).unwrap();
-        let token_stream = TokenStream::new(tokens);
+        let token_stream = TokenStream::new(Lexer::new($code)).unwrap();
         let ast = parse(token_stream).unwrap();
 
         match sem_check(ast) {

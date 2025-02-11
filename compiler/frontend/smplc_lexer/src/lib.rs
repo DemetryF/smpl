@@ -3,17 +3,16 @@ mod error;
 mod lexer;
 mod number;
 mod skip;
+mod specials;
 mod token;
 mod word;
 
-mod specials;
 #[cfg(test)]
 mod tests;
 
-pub use self::error::LexError;
-pub use self::token::{Token, TokenValue};
-
-use lexer::Lexer;
+pub use error::LexError;
+pub use lexer::Lexer;
+pub use token::{Token, TokenValue};
 
 pub fn lex(source: &str) -> Result<Vec<Token>, LexError> {
     let lexer = Lexer::new(source);

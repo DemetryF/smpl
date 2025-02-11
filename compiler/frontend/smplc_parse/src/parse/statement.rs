@@ -2,10 +2,13 @@ use smplc_ast::*;
 use smplc_lexer::TokenValue;
 
 use crate::error::{ParseError, ParseErrorKind, ParseResult};
+use crate::token_stream::Tokens;
 use crate::{Parse, TokenStream};
 
 impl<'source> Parse<'source> for Statement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<TS: Tokens<'source>>(
+        token_stream: &mut TokenStream<'source, TS>,
+    ) -> ParseResult<'source, Self> {
         match token_stream.current().value {
             TokenValue::Let => DeclareStatement::parse(token_stream).map(Self::Declare),
             TokenValue::If => IfStatement::parse(token_stream).map(Self::If),
@@ -20,7 +23,7 @@ impl<'source> Parse<'source> for Statement<'source> {
                     });
                 }
 
-                token_stream.next_token();
+                token_stream.next_token()?;
                 token_stream.consume(TokenValue::Semicolon)?;
 
                 Ok(Self::Continue)
@@ -34,7 +37,7 @@ impl<'source> Parse<'source> for Statement<'source> {
                     });
                 }
 
-                token_stream.next_token();
+                token_stream.next_token()?;
                 token_stream.consume(TokenValue::Semicolon)?;
 
                 Ok(Self::Break)
@@ -46,7 +49,9 @@ impl<'source> Parse<'source> for Statement<'source> {
 }
 
 impl<'source> Parse<'source> for DeclareStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<TS: Tokens<'source>>(
+        token_stream: &mut TokenStream<'source, TS>,
+    ) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::Let)?;
 
         let id = Id::parse(token_stream)?;
@@ -57,7 +62,7 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
 
         let value = {
             token_stream
-                .try_consume(TokenValue::Assign)
+                .try_consume(TokenValue::Assign)?
                 .then(|| Spanned::<Expr>::parse(token_stream))
                 .transpose()?
         };
@@ -69,11 +74,13 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
 }
 
 impl<'source> Parse<'source> for ExprStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<TS: Tokens<'source>>(
+        token_stream: &mut TokenStream<'source, TS>,
+    ) -> ParseResult<'source, Self> {
         let expr = Spanned::<Expr>::parse(token_stream)?;
 
         if let Expr::Atom(Atom::Id(id)) = expr.0 {
-            if token_stream.try_consume(TokenValue::Assign) {
+            if token_stream.try_consume(TokenValue::Assign)? {
                 let id = id;
 
                 let rhs = Spanned::<Expr>::parse(token_stream)?;
@@ -91,7 +98,9 @@ impl<'source> Parse<'source> for ExprStatement<'source> {
 }
 
 impl<'source> Parse<'source> for IfStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<TS: Tokens<'source>>(
+        token_stream: &mut TokenStream<'source, TS>,
+    ) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::If)?;
 
         let cond = Spanned::<Expr>::parse(token_stream)?;
@@ -99,7 +108,7 @@ impl<'source> Parse<'source> for IfStatement<'source> {
 
         let else_body = {
             token_stream
-                .try_consume(TokenValue::Else)
+                .try_consume(TokenValue::Else)?
                 .then(|| Block::parse(token_stream))
                 .transpose()?
         };
@@ -113,7 +122,9 @@ impl<'source> Parse<'source> for IfStatement<'source> {
 }
 
 impl<'source> Parse<'source> for ReturnStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<TS: Tokens<'source>>(
+        token_stream: &mut TokenStream<'source, TS>,
+    ) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::Return)?;
 
         let value = {
@@ -129,7 +140,9 @@ impl<'source> Parse<'source> for ReturnStatement<'source> {
 }
 
 impl<'source> Parse<'source> for WhileStatement<'source> {
-    fn parse(token_stream: &mut TokenStream<'source>) -> ParseResult<'source, Self> {
+    fn parse<TS: Tokens<'source>>(
+        token_stream: &mut TokenStream<'source, TS>,
+    ) -> ParseResult<'source, Self> {
         token_stream.consume(TokenValue::While)?;
 
         let cond = Spanned::<Expr>::parse(token_stream)?;
