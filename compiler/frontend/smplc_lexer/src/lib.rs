@@ -1,5 +1,5 @@
-mod code_stream;
 mod comment_handler;
+mod cursor;
 mod error;
 mod lexer;
 mod token;
@@ -11,7 +11,7 @@ mod tests;
 pub use self::error::LexError;
 pub use self::token::{Token, TokenValue};
 
-use code_stream::CodeStream;
+use cursor::Cursor;
 use lexer::Lexer;
 
 pub fn lex(code: &str) -> Result<Vec<Token>, LexError> {

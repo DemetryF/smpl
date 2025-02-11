@@ -1,6 +1,6 @@
 use smplc_ast::{Literal, Type};
 
-use crate::{CodeStream, TokenValue};
+use crate::{Cursor, TokenValue};
 
 use super::TokenCollector;
 
@@ -8,13 +8,13 @@ pub struct WordCollector;
 impl TokenCollector for WordCollector {
     fn try_collect<'source>(
         &mut self,
-        code_stream: &mut CodeStream<'source>,
+        cursor: &mut Cursor<'source>,
     ) -> Option<TokenValue<'source>> {
-        if !Self::is_word_char(code_stream) {
+        if !Self::is_word_char(cursor) {
             return None;
         }
 
-        let buffer = Self::word_literal(code_stream);
+        let buffer = Self::word_literal(cursor);
 
         Some(match buffer {
             "let" => TokenValue::Let,
@@ -41,23 +41,20 @@ impl TokenCollector for WordCollector {
 }
 
 impl WordCollector {
-    fn is_word_char(code_stream: &CodeStream) -> bool {
-        code_stream.current().is_ascii_alphabetic()
-            || code_stream.check('$')
-            || code_stream.check('_')
+    fn is_word_char(cursor: &Cursor) -> bool {
+        cursor.current().is_ascii_alphabetic() || cursor.check('$') || cursor.check('_')
     }
 
-    fn word_literal<'source>(code_stream: &mut CodeStream<'source>) -> &'source str {
-        let start = code_stream.index();
+    fn word_literal<'source>(cursor: &mut Cursor<'source>) -> &'source str {
+        let start = cursor.index();
 
-        while !code_stream.is_eof()
-            && (Self::is_word_char(code_stream) || code_stream.current().is_alphanumeric())
+        while !cursor.is_eof() && (Self::is_word_char(cursor) || cursor.current().is_alphanumeric())
         {
-            code_stream.next_ch();
+            cursor.next_ch();
         }
 
-        let end = code_stream.index();
+        let end = cursor.index();
 
-        code_stream.slice(start, end)
+        cursor.slice(start, end)
     }
 }

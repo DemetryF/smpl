@@ -1,20 +1,20 @@
 use smplc_ast::Pos;
 
-pub struct CodeStream<'source> {
-    code: &'source str,
+pub struct Cursor<'source> {
+    source: &'source str,
     pos: Pos,
 }
 
-impl<'source> CodeStream<'source> {
-    pub fn new(code: &'source str) -> Self {
+impl<'source> Cursor<'source> {
+    pub fn new(source: &'source str) -> Self {
         Self {
-            code,
+            source,
             pos: Pos::default(),
         }
     }
 
     pub fn current(&self) -> char {
-        self.code[self.pos.index()..].chars().next().unwrap()
+        self.source[self.pos.index()..].chars().next().unwrap()
     }
 
     pub fn next_ch(&mut self) -> char {
@@ -33,7 +33,7 @@ impl<'source> CodeStream<'source> {
         let start = self.index();
         let end = self.index() + str.len();
 
-        if end > self.code.len() {
+        if end > self.source.len() {
             return false;
         }
 
@@ -41,7 +41,7 @@ impl<'source> CodeStream<'source> {
     }
 
     pub fn slice(&self, start: usize, end: usize) -> &'source str {
-        self.code.get(start..end).unwrap_or_default()
+        self.source.get(start..end).unwrap_or_default()
     }
 
     pub fn slice_from_current(&self, len: usize) -> &'source str {
@@ -63,6 +63,6 @@ impl<'source> CodeStream<'source> {
     }
 
     pub fn is_eof(&self) -> bool {
-        self.pos.index() >= self.code.len()
+        self.pos.index() >= self.source.len()
     }
 }

@@ -1,6 +1,6 @@
 mod comment_type;
 
-use crate::CodeStream;
+use crate::Cursor;
 
 use self::comment_type::CommentType;
 
@@ -17,23 +17,23 @@ const COMMENTS: [CommentType; 2] = [
 
 pub struct CommentsHandler;
 impl CommentsHandler {
-    pub fn skip(code_stream: &mut CodeStream) {
-        Self::skip_spaces(code_stream);
+    pub fn skip(cursor: &mut Cursor) {
+        Self::skip_spaces(cursor);
 
         for comment_type in COMMENTS.iter() {
-            comment_type.try_skip(code_stream);
+            comment_type.try_skip(cursor);
         }
 
-        Self::skip_spaces(code_stream);
+        Self::skip_spaces(cursor);
 
-        if COMMENTS.into_iter().any(|c| c.is_begin(code_stream)) {
-            Self::skip(code_stream);
+        if COMMENTS.into_iter().any(|c| c.is_begin(cursor)) {
+            Self::skip(cursor);
         }
     }
 
-    pub fn skip_spaces(code_stream: &mut CodeStream) {
-        while !code_stream.is_eof() && code_stream.current().is_ascii_whitespace() {
-            code_stream.next_ch();
+    pub fn skip_spaces(cursor: &mut Cursor) {
+        while !cursor.is_eof() && cursor.current().is_ascii_whitespace() {
+            cursor.next_ch();
         }
     }
 }

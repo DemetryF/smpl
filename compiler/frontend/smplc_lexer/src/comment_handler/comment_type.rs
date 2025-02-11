@@ -1,4 +1,4 @@
-use crate::CodeStream;
+use crate::Cursor;
 
 pub struct CommentType {
     pub begin: &'static str,
@@ -6,25 +6,25 @@ pub struct CommentType {
 }
 
 impl CommentType {
-    pub fn is_begin(&self, code_stream: &CodeStream) -> bool {
-        code_stream.check_slice(self.begin)
+    pub fn is_begin(&self, cursor: &Cursor) -> bool {
+        cursor.check_slice(self.begin)
     }
 
-    fn is_end(&self, code_stream: &CodeStream) -> bool {
-        code_stream.check_slice(self.end)
+    fn is_end(&self, cursor: &Cursor) -> bool {
+        cursor.check_slice(self.end)
     }
 
-    pub fn try_skip(&self, code_stream: &mut CodeStream) {
-        if !self.is_begin(code_stream) {
+    pub fn try_skip(&self, cursor: &mut Cursor) {
+        if !self.is_begin(cursor) {
             return;
         }
 
-        code_stream.skip(self.begin.len());
+        cursor.skip(self.begin.len());
 
-        while !self.is_end(code_stream) && !code_stream.is_eof() {
-            code_stream.next_ch();
+        while !self.is_end(cursor) && !cursor.is_eof() {
+            cursor.next_ch();
         }
 
-        code_stream.skip(self.end.len());
+        cursor.skip(self.end.len());
     }
 }

@@ -1,4 +1,4 @@
-use crate::{CodeStream, TokenValue};
+use crate::{Cursor, TokenValue};
 
 use super::TokenCollector;
 
@@ -6,15 +6,15 @@ pub struct SpecialCollector;
 impl TokenCollector for SpecialCollector {
     fn try_collect<'source>(
         &mut self,
-        code_stream: &mut CodeStream<'source>,
+        cursor: &mut Cursor<'source>,
     ) -> Option<TokenValue<'source>> {
-        Self::double(code_stream).or(Self::single(code_stream))
+        Self::double(cursor).or(Self::single(cursor))
     }
 }
 
 impl SpecialCollector {
-    pub fn double<'source>(code_stream: &mut CodeStream<'source>) -> Option<TokenValue<'source>> {
-        let value = match code_stream.slice_from_current(2) {
+    pub fn double<'source>(cursor: &mut Cursor<'source>) -> Option<TokenValue<'source>> {
+        let value = match cursor.slice_from_current(2) {
             ">=" => TokenValue::Ge,
             "<=" => TokenValue::Le,
             "!=" => TokenValue::Ne,
@@ -24,13 +24,13 @@ impl SpecialCollector {
             _ => return None,
         };
 
-        code_stream.skip(2);
+        cursor.skip(2);
 
         Some(value)
     }
 
-    pub fn single<'source>(code_stream: &mut CodeStream<'source>) -> Option<TokenValue<'source>> {
-        let value = match code_stream.current() {
+    pub fn single<'source>(cursor: &mut Cursor<'source>) -> Option<TokenValue<'source>> {
+        let value = match cursor.current() {
             ';' => TokenValue::Semicolon,
             ',' => TokenValue::Comma,
             ':' => TokenValue::Colon,
@@ -52,7 +52,7 @@ impl SpecialCollector {
             _ => return None,
         };
 
-        code_stream.next_ch();
+        cursor.next_ch();
 
         Some(value)
     }

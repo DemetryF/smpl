@@ -1,7 +1,7 @@
 use parse_int::parse;
 use smplc_ast::Literal;
 
-use crate::{CodeStream, TokenValue};
+use crate::{Cursor, TokenValue};
 
 use super::TokenCollector;
 
@@ -11,25 +11,25 @@ pub struct NumberCollector;
 impl TokenCollector for NumberCollector {
     fn try_collect<'source>(
         &mut self,
-        code_stream: &mut CodeStream<'source>,
+        cursor: &mut Cursor<'source>,
     ) -> Option<TokenValue<'source>> {
-        if !Self::is_digit(code_stream, 10) {
+        if !Self::is_digit(cursor, 10) {
             return None;
         }
 
-        let start = code_stream.index();
+        let start = cursor.index();
         let mut is_float = false;
 
-        match code_stream.slice_from_current(RADIX_PREFIX_LENGTH) {
-            "0b" => Self::prefixed(code_stream, 2),
-            "0o" => Self::prefixed(code_stream, 8),
-            "0x" => Self::prefixed(code_stream, 16),
-            _ => Self::common_number(code_stream, &mut is_float),
+        match cursor.slice_from_current(RADIX_PREFIX_LENGTH) {
+            "0b" => Self::prefixed(cursor, 2),
+            "0o" => Self::prefixed(cursor, 8),
+            "0x" => Self::prefixed(cursor, 16),
+            _ => Self::common_number(cursor, &mut is_float),
         };
 
-        let end = code_stream.index();
+        let end = cursor.index();
 
-        let buffer = code_stream.slice(start, end);
+        let buffer = cursor.slice(start, end);
 
         match is_float {
             true => Some(TokenValue::Literal(Literal::Real(parse(buffer).unwrap()))),
@@ -39,51 +39,51 @@ impl TokenCollector for NumberCollector {
 }
 
 impl NumberCollector {
-    pub fn is_digit(code_stream: &CodeStream, radix: u32) -> bool {
-        code_stream.current().is_digit(radix)
+    pub fn is_digit(cursor: &Cursor, radix: u32) -> bool {
+        cursor.current().is_digit(radix)
     }
 
-    pub fn prefixed(code_stream: &mut CodeStream, radix: u32) {
-        code_stream.skip(RADIX_PREFIX_LENGTH);
-        Self::number_literal(code_stream, radix);
+    pub fn prefixed(cursor: &mut Cursor, radix: u32) {
+        cursor.skip(RADIX_PREFIX_LENGTH);
+        Self::number_literal(cursor, radix);
     }
 
-    pub fn common_number(code_stream: &mut CodeStream, is_float: &mut bool) {
-        Self::number_literal(code_stream, 10);
+    pub fn common_number(cursor: &mut Cursor, is_float: &mut bool) {
+        Self::number_literal(cursor, 10);
 
-        Self::fraction(code_stream, is_float);
-        Self::exponential_part(code_stream, is_float);
+        Self::fraction(cursor, is_float);
+        Self::exponential_part(cursor, is_float);
     }
 
-    pub fn fraction(code_stream: &mut CodeStream, is_float: &mut bool) {
-        if code_stream.check('.') {
+    pub fn fraction(cursor: &mut Cursor, is_float: &mut bool) {
+        if cursor.check('.') {
             *is_float = true;
 
-            code_stream.next_ch();
+            cursor.next_ch();
 
-            Self::number_literal(code_stream, 10);
+            Self::number_literal(cursor, 10);
         }
     }
 
-    pub fn exponential_part(code_stream: &mut CodeStream, is_float: &mut bool) {
-        if code_stream.check('e') || code_stream.check('E') {
+    pub fn exponential_part(cursor: &mut Cursor, is_float: &mut bool) {
+        if cursor.check('e') || cursor.check('E') {
             *is_float = true;
 
-            code_stream.next_ch();
+            cursor.next_ch();
 
-            if code_stream.check('-') || code_stream.check('+') {
-                code_stream.next_ch();
+            if cursor.check('-') || cursor.check('+') {
+                cursor.next_ch();
             }
 
-            Self::number_literal(code_stream, 10);
+            Self::number_literal(cursor, 10);
         }
     }
 
-    fn number_literal(code_stream: &mut CodeStream, radix: u32) {
-        while !code_stream.is_eof()
-            && (Self::is_digit(code_stream, radix) || code_stream.check('_'))
+    fn number_literal(cursor: &mut Cursor, radix: u32) {
+        while !cursor.is_eof()
+            && (Self::is_digit(cursor, radix) || cursor.check('_'))
         {
-            code_stream.next_ch();
+            cursor.next_ch();
         }
     }
 }
