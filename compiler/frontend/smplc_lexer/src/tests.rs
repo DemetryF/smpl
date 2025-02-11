@@ -1,6 +1,6 @@
 use smplc_ast::{Literal, Type};
 
-use super::{Lexer, TokenValue};
+use crate::{Lexer, TokenValue};
 
 macro_rules! lexer_test {
     (
@@ -17,7 +17,7 @@ macro_rules! lexer_test {
 }
 
 #[test]
-pub fn numbers() {
+fn numbers() {
     lexer_test![
         "
             384_400     /* common number */
@@ -36,7 +36,7 @@ pub fn numbers() {
 }
 
 #[test]
-pub fn bool() {
+fn bool() {
     lexer_test![
         "true false";
 
@@ -46,7 +46,7 @@ pub fn bool() {
 }
 
 #[test]
-pub fn keywords() {
+fn keywords() {
     lexer_test![
         "return while else let fn if continue break const int real bool";
 
@@ -67,7 +67,7 @@ pub fn keywords() {
 }
 
 #[test]
-pub fn id() {
+fn id() {
     lexer_test![
         "_name12$";
         TokenValue::Id("_name12$".into()),
@@ -75,7 +75,7 @@ pub fn id() {
 }
 
 #[test]
-pub fn specials() {
+fn specials() {
     lexer_test![
         "
             ;,(){}=

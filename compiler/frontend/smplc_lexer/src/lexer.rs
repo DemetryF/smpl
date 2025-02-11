@@ -1,32 +1,27 @@
 use smplc_ast::{Pos, Span};
 
-use crate::comment_handler::CommentsHandler;
 use crate::cursor::Cursor;
-use crate::token_collector::*;
+use crate::number::lex_number;
+use crate::skip::skip;
+use crate::specials::{one_char_specials, two_char_specials};
+use crate::word::lex_word;
 use crate::{LexError, Token, TokenValue};
 
 pub struct Lexer<'source> {
     cursor: Cursor<'source>,
-    collectors: Vec<Box<dyn TokenCollector>>,
-
     ended: bool,
 }
 
 impl<'source> Lexer<'source> {
-    pub fn new(code: &'source str) -> Self {
+    pub fn new(source: &'source str) -> Self {
         Self {
-            cursor: Cursor::new(code),
-            collectors: vec![
-                Box::new(NumberCollector),
-                Box::new(SpecialCollector),
-                Box::new(WordCollector),
-            ],
+            cursor: Cursor::new(source),
             ended: false,
         }
     }
 
     pub fn next_token(&mut self) -> Result<Token<'source>, LexError> {
-        CommentsHandler::skip(&mut self.cursor);
+        skip(&mut self.cursor);
 
         let start = self.cursor.get_pos();
 
@@ -41,15 +36,16 @@ impl<'source> Lexer<'source> {
             return Ok(eof_token);
         }
 
-        for collector in self.collectors.iter_mut() {
-            if let Some(value) = collector.try_collect(&mut self.cursor) {
-                let span = Span::with_end(start, self.cursor.index());
+        lex(&mut self.cursor)
+            .map(|value| {
+                let end = self.cursor.index();
 
-                return Ok(Token { value, span });
-            }
-        }
-
-        Err(self.unexpected_char(start))
+                Token {
+                    value,
+                    span: Span::with_end(start, end),
+                }
+            })
+            .ok_or_else(|| self.unexpected_char(start))
     }
 
     fn unexpected_char(&mut self, pos: Pos) -> LexError {
@@ -70,4 +66,11 @@ impl<'source> Iterator for Lexer<'source> {
 
         Some(self.next_token())
     }
+}
+
+pub fn lex<'source>(cursor: &mut Cursor<'source>) -> Option<TokenValue<'source>> {
+    lex_number(cursor)
+        .or_else(|| lex_word(cursor))
+        .or_else(|| two_char_specials(cursor))
+        .or_else(|| one_char_specials(cursor))
 }

@@ -14,7 +14,7 @@ impl<'source> Cursor<'source> {
     }
 
     pub fn current(&self) -> char {
-        self.source[self.pos.index()..].chars().next().unwrap()
+        self.source[self.index()..].chars().next().unwrap()
     }
 
     pub fn next_ch(&mut self) -> char {
