@@ -1,30 +1,30 @@
 use crate::{Block, Expr, VarRef};
 
-pub enum Statement {
-    Expr(ExprStatement),
-    If(IfStatement),
-    Return(ReturnStatement),
-    While(WhileStatement),
+pub enum Statement<'source> {
+    Expr(ExprStatement<'source>),
+    If(IfStatement<'source>),
+    Return(ReturnStatement<'source>),
+    While(WhileStatement<'source>),
     Break,
     Continue,
 }
 
-pub enum ExprStatement {
-    Assign { var: VarRef, rhs: Expr },
-    Expr(Expr),
+pub enum ExprStatement<'source> {
+    Assign { var: VarRef, rhs: Expr<'source> },
+    Expr(Expr<'source>),
 }
 
-pub struct IfStatement {
-    pub cond: Expr,
-    pub body: Block,
-    pub else_body: Option<Block>,
+pub struct IfStatement<'source> {
+    pub cond: Expr<'source>,
+    pub body: Block<'source>,
+    pub else_body: Option<Block<'source>>,
 }
 
-pub struct ReturnStatement {
-    pub value: Option<Expr>,
+pub struct ReturnStatement<'source> {
+    pub value: Option<Expr<'source>>,
 }
 
-pub struct WhileStatement {
-    pub cond: Expr,
-    pub body: Block,
+pub struct WhileStatement<'source> {
+    pub cond: Expr<'source>,
+    pub body: Block<'source>,
 }

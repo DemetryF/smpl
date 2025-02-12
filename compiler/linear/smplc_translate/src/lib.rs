@@ -4,7 +4,8 @@ mod translator;
 
 use std::collections::HashMap;
 
-use smplc_hir::{self as hir, ArithmOp, BinOp, Block, Expr, NumberType, RelOp, HIR};
+use smplc_hir as hir;
+use smplc_hir::{ArithmOp, BinOp, Block, Expr, NumberType, RelOp, HIR};
 use smplc_lir::{Code, CodeFunction, FunctionId, Id, Number};
 
 use translator::Translator;
@@ -13,7 +14,7 @@ trait Translate: Sized {
     fn translate(self, translator: &mut Translator);
 }
 
-impl Translate for Block {
+impl Translate for Block<'_> {
     fn translate(self, translator: &mut Translator) {
         self.statements
             .into_iter()

@@ -1,7 +1,7 @@
 use std::fmt;
 
 use smplc_ast::Span;
-use smplc_lexer::{Token, TokenValue};
+use smplc_lexer::{Token, TokenTag};
 
 pub type ParseResult<'source, T> = Result<T, ParseError<'source>>;
 
@@ -13,15 +13,15 @@ pub struct ParseError<'source> {
 
 #[derive(Debug)]
 pub enum ParseErrorKind<'source> {
-    UnexpectedToken(TokenValue<'source>),
+    UnexpectedToken(TokenTag, &'source str),
     UnexpectedChar(char),
     BreakOutsideLoop,
     ContinueOutsideLoop,
 }
 
 impl<'source> ParseError<'source> {
-    pub fn unexpected_token(Token { value, span }: Token<'source>) -> Self {
-        let kind = ParseErrorKind::UnexpectedToken(value);
+    pub fn unexpected_token(Token { tag, value, span }: Token<'source>) -> Self {
+        let kind = ParseErrorKind::UnexpectedToken(tag, value);
 
         Self { kind, span }
     }
@@ -30,8 +30,8 @@ impl<'source> ParseError<'source> {
 impl fmt::Display for ParseErrorKind<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::UnexpectedToken(token) => {
-                write!(f, "unexpected token \"{token}\"")
+            Self::UnexpectedToken(_, value) => {
+                write!(f, "unexpected token \"{value}\"")
             }
 
             Self::BreakOutsideLoop => {

@@ -2,7 +2,8 @@ mod display;
 
 use std::collections::HashMap;
 
-use smplc_hir::{self as hir};
+use smplc_ast::Type;
+use smplc_hir as hir;
 
 use crate::{FunctionId, Id, Instruction, Label};
 
@@ -72,12 +73,13 @@ impl Number {
     }
 }
 
-impl From<hir::Literal> for Number {
-    fn from(value: hir::Literal) -> Self {
-        match value {
-            hir::Literal::Real(num) => Self::Real(num),
-            hir::Literal::Int(num) => Self::Int(num),
-            hir::Literal::Bool(bool) => Self::Int(bool as i32),
+impl From<hir::Literal<'_>> for Number {
+    fn from(literal: hir::Literal) -> Self {
+        match literal.ty {
+            Type::Real => Self::Real(parse_int::parse(literal.value).unwrap()),
+            Type::Int => Self::Int(parse_int::parse(literal.value).unwrap()),
+
+            _ => todo!("make operations with bool as a number illegal"),
         }
     }
 }

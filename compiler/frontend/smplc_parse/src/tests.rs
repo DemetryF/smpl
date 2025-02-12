@@ -268,7 +268,7 @@ pub fn expr_call() {
             args,
         }) => {
             assert!(matches!(args.as_slice(), [
-                Spanned(Expr::Atom(Atom::Literal(Literal::Int(1))), _)
+                Spanned(Expr::Atom(Atom::Literal(Literal { value: "1", .. })), _)
             ]))
         }
     );
@@ -280,8 +280,8 @@ pub fn expr_call() {
             args,
         }) => {
             assert!(matches!(args.as_slice(), [
-                Spanned(Expr::Atom(Atom::Literal(Literal::Int(1))), _),
-                Spanned(Expr::Atom(Atom::Literal(Literal::Int(2))), _)
+                Spanned(Expr::Atom(Atom::Literal(Literal { value: "1",.. })), _),
+                Spanned(Expr::Atom(Atom::Literal(Literal { value: "2", .. })), _)
             ]))
         }
     );

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::fmt::{self, Write};
 
-use ir::{Number, NumberType};
 use smplc_lir as ir;
+use smplc_lir::{Number, NumberType};
 
 use builder::Builder;
 use compile::Compile;

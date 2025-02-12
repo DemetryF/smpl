@@ -1,38 +1,38 @@
 use crate::cursor::Cursor;
-use crate::TokenValue;
+use crate::TokenTag;
 
-pub fn two_char_specials<'source>(cursor: &mut Cursor<'source>) -> Option<TokenValue<'source>> {
+pub fn two_char_specials(cursor: &mut Cursor) -> Option<TokenTag> {
     match cursor.slice_from_current(2) {
-        ">=" => Some(TokenValue::Ge),
-        "<=" => Some(TokenValue::Le),
-        "!=" => Some(TokenValue::Ne),
-        "==" => Some(TokenValue::Eq),
-        "->" => Some(TokenValue::Arrow),
+        ">=" => Some(TokenTag::Ge),
+        "<=" => Some(TokenTag::Le),
+        "!=" => Some(TokenTag::Ne),
+        "==" => Some(TokenTag::Eq),
+        "->" => Some(TokenTag::Arrow),
 
         _ => None,
     }
     .inspect(|_| cursor.skip(2))
 }
 
-pub fn one_char_specials<'source>(cursor: &mut Cursor<'source>) -> Option<TokenValue<'source>> {
+pub fn one_char_specials(cursor: &mut Cursor) -> Option<TokenTag> {
     match cursor.current() {
-        ';' => Some(TokenValue::Semicolon),
-        ',' => Some(TokenValue::Comma),
-        ':' => Some(TokenValue::Colon),
-        '{' => Some(TokenValue::LBrace),
-        '}' => Some(TokenValue::RBrace),
-        '(' => Some(TokenValue::LParen),
-        ')' => Some(TokenValue::RParen),
-        '=' => Some(TokenValue::Assign),
-        '|' => Some(TokenValue::Or),
-        '&' => Some(TokenValue::And),
-        '>' => Some(TokenValue::Gt),
-        '<' => Some(TokenValue::Lt),
-        '+' => Some(TokenValue::Plus),
-        '-' => Some(TokenValue::Minus),
-        '*' => Some(TokenValue::Star),
-        '/' => Some(TokenValue::Slash),
-        '!' => Some(TokenValue::Not),
+        ';' => Some(TokenTag::Semicolon),
+        ',' => Some(TokenTag::Comma),
+        ':' => Some(TokenTag::Colon),
+        '{' => Some(TokenTag::LBrace),
+        '}' => Some(TokenTag::RBrace),
+        '(' => Some(TokenTag::LParen),
+        ')' => Some(TokenTag::RParen),
+        '=' => Some(TokenTag::Assign),
+        '|' => Some(TokenTag::Or),
+        '&' => Some(TokenTag::And),
+        '>' => Some(TokenTag::Gt),
+        '<' => Some(TokenTag::Lt),
+        '+' => Some(TokenTag::Plus),
+        '-' => Some(TokenTag::Minus),
+        '*' => Some(TokenTag::Star),
+        '/' => Some(TokenTag::Slash),
+        '!' => Some(TokenTag::Not),
 
         _ => None,
     }

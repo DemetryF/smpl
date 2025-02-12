@@ -7,7 +7,7 @@ use crate::error::{SemError, SemResult};
 use crate::SemCheck;
 
 impl<'source> SemCheck<'source> for ast::Expr<'source> {
-    type Checked = Expr;
+    type Checked = Expr<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         match self {
@@ -92,7 +92,7 @@ fn inference_bin_op<'source>(
             ));
         };
 
-        let Ok(rhs_ty) = NumberType::try_from(lhs_ty) else {
+        let Ok(rhs_ty) = NumberType::try_from(rhs_ty) else {
             return Err(SemError::wrong_ty(
                 rhs_span,
                 rhs_ty,
@@ -177,11 +177,7 @@ pub fn expr_ty<'source>(expr: &Expr) -> Type {
 
         Expr::Atom(atom) => match atom {
             Atom::Var(var_ref) => var_ref.ty,
-            Atom::Literal(literal) => match literal {
-                ast::Literal::Real(_) => Type::Real,
-                ast::Literal::Int(_) => Type::Int,
-                ast::Literal::Bool(_) => Type::Bool,
-            },
+            Atom::Literal(literal) => literal.ty,
         },
     }
 }

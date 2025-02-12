@@ -1,5 +1,5 @@
 use smplc_ast::{Block, Statement};
-use smplc_lexer::TokenValue;
+use smplc_lexer::TokenTag;
 
 use crate::error::ParseResult;
 use crate::token_stream::Tokens;
@@ -11,15 +11,15 @@ impl<'source> Parse<'source> for Block<'source> {
     ) -> ParseResult<'source, Self> {
         let mut statements = Vec::new();
 
-        token_stream.consume(TokenValue::LBrace)?;
+        token_stream.consume(TokenTag::LBrace)?;
 
-        while !token_stream.check(TokenValue::RBrace) {
+        while !token_stream.check(TokenTag::RBrace) {
             let next_stmt = Statement::parse(token_stream)?;
 
             statements.push(next_stmt);
         }
 
-        token_stream.consume(TokenValue::RBrace)?;
+        token_stream.consume(TokenTag::RBrace)?;
 
         Ok(Block { statements })
     }

@@ -10,7 +10,7 @@ mod word;
 mod tests;
 
 pub use error::LexError;
-pub use token::{Token, TokenValue};
+pub use token::{Token, TokenTag};
 
 use cursor::Cursor;
 use number::lex_number;
@@ -38,22 +38,22 @@ impl<'source> Lexer<'source> {
         let start = self.cursor.get_pos();
 
         if self.cursor.is_eof() {
-            let eof_token = Token {
-                value: TokenValue::EOF,
-                span: Span::with_len(start, 1),
-            };
-
             self.ended = true;
 
-            return Ok(eof_token);
+            return Ok(Token {
+                tag: TokenTag::EOF,
+                span: Span::with_len(start, 1),
+                value: "",
+            });
         }
 
         if let Some(value) = lex(&mut self.cursor) {
             let end = self.cursor.index();
 
             Ok(Token {
-                value,
+                tag: value,
                 span: Span::with_end(start, end),
+                value: self.cursor.slice(start.index(), end),
             })
         } else {
             Err(self.unexpected_char(start))
@@ -80,7 +80,7 @@ impl<'source> Iterator for Lexer<'source> {
     }
 }
 
-pub fn lex<'source>(cursor: &mut Cursor<'source>) -> Option<TokenValue<'source>> {
+pub fn lex<'source>(cursor: &mut Cursor<'source>) -> Option<TokenTag> {
     lex_number(cursor)
         .or_else(|| lex_word(cursor))
         .or_else(|| two_char_specials(cursor))

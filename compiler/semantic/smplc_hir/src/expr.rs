@@ -1,11 +1,12 @@
 use std::rc::Rc;
 
-use smplc_ast::Span;
 pub use smplc_ast::{Literal, Pos, Type};
+
+use smplc_ast::Span;
 
 use crate::{BinOp, UnOp};
 
-pub enum Expr {
+pub enum Expr<'source> {
     Binary {
         lhs: Box<Self>,
         op: BinOp,
@@ -19,15 +20,15 @@ pub enum Expr {
         fun_ref: FunRef,
         args: Vec<Self>,
     },
-    Atom(Atom),
+    Atom(Atom<'source>),
 }
 
 pub type FunRef = Rc<FunData>;
 pub type VarRef = Rc<VarData>;
 
-pub enum Atom {
+pub enum Atom<'source> {
     Var(VarRef),
-    Literal(Literal),
+    Literal(Literal<'source>),
 }
 
 #[derive(Debug, PartialEq)]

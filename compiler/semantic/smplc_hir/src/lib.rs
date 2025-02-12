@@ -7,22 +7,22 @@ pub use operators::*;
 pub use statement::*;
 
 #[derive(Default)]
-pub struct HIR {
-    pub constants: Vec<Constant>,
-    pub functions: Vec<Function>,
+pub struct HIR<'source> {
+    pub constants: Vec<Constant<'source>>,
+    pub functions: Vec<Function<'source>>,
 }
 
-pub struct Function {
+pub struct Function<'source> {
     pub data: FunRef,
     pub args: Vec<VarRef>,
-    pub body: Vec<Statement>,
+    pub body: Vec<Statement<'source>>,
 }
 
-pub struct Constant {
+pub struct Constant<'source> {
     pub data: VarRef,
-    pub value: Expr,
+    pub value: Expr<'source>,
 }
 
-pub struct Block {
-    pub statements: Vec<Statement>,
+pub struct Block<'source> {
+    pub statements: Vec<Statement<'source>>,
 }

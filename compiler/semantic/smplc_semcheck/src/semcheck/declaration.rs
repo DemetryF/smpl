@@ -8,7 +8,7 @@ use super::expr::expect_ty;
 use super::SemCheck;
 
 impl<'source> SemCheck<'source> for FunctionDeclaration<'source> {
-    type Checked = Function;
+    type Checked = Function<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let data = env.functions.get(self.id).unwrap();
@@ -30,7 +30,7 @@ impl<'source> SemCheck<'source> for FunctionDeclaration<'source> {
 }
 
 impl<'source> SemCheck<'source> for ConstantDeclaration<'source> {
-    type Checked = Constant;
+    type Checked = Constant<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let data = env.variables.add_variable(self.id, self.ty)?;

@@ -1,5 +1,5 @@
-use smplc_ast::{Atom, BinOp, Call, Expr, Id, MakeSpanned, Span, Spanned, UnOp};
-use smplc_lexer::{Token, TokenValue};
+use smplc_ast::*;
+use smplc_lexer::{Token, TokenTag};
 
 use crate::error::ParseResult;
 use crate::token_stream::Tokens;
@@ -46,13 +46,19 @@ fn expr_bp<'source, TS: Tokens<'source>>(
 fn parse_fact<'source, TS: Tokens<'source>>(
     token_stream: &mut TokenStream<'source, TS>,
 ) -> ParseResult<'source, Spanned<Expr<'source>>> {
-    let fact = match token_stream.current().value {
-        TokenValue::Id(_) => {
-            let id = Id::parse(token_stream)?;
+    let fact = match token_stream.current() {
+        Token {
+            tag: TokenTag::Id,
+            value,
+            span,
+        } => {
+            token_stream.next_token()?;
 
-            if token_stream.try_consume(TokenValue::LParen)? {
+            let id = Id::new(value, span);
+
+            if token_stream.try_consume(TokenTag::LParen)? {
                 let args = parse_call_args(token_stream)?;
-                let span = token_stream.consume(TokenValue::RParen)?;
+                let span = token_stream.consume(TokenTag::RParen)?;
 
                 let span = Span::unite(id.span(), span);
 
@@ -62,20 +68,27 @@ fn parse_fact<'source, TS: Tokens<'source>>(
             }
         }
 
-        TokenValue::LParen => {
-            let start_span = token_stream.consume(TokenValue::LParen)?;
+        Token {
+            tag: TokenTag::LParen,
+            ..
+        } => {
+            let start_span = token_stream.consume(TokenTag::LParen)?;
             let expr = Spanned::<Expr>::parse(token_stream)?;
-            let end_span = token_stream.consume(TokenValue::RParen)?;
+            let end_span = token_stream.consume(TokenTag::RParen)?;
 
             let span = Span::unite(start_span, end_span);
 
             expr.0.spanned(span)
         }
 
-        TokenValue::Literal(literal) => {
+        Token {
+            tag: TokenTag::Literal(ty),
+            value,
+            ..
+        } => {
             let span = token_stream.next_token()?.span;
 
-            Expr::Atom(Atom::Literal(literal)).spanned(span)
+            Expr::Atom(Atom::Literal(Literal { value, ty })).spanned(span)
         }
 
         _ => {
@@ -104,13 +117,13 @@ fn parse_call_args<'source, TS: Tokens<'source>>(
 ) -> ParseResult<'source, Vec<Spanned<Expr<'source>>>> {
     let mut args = Vec::new();
 
-    if token_stream.check(TokenValue::RParen) {
+    if token_stream.check(TokenTag::RParen) {
         return Ok(args);
     }
 
     args.push(Spanned::<Expr>::parse(token_stream)?);
 
-    while token_stream.try_consume(TokenValue::Comma)? {
+    while token_stream.try_consume(TokenTag::Comma)? {
         args.push(Spanned::<Expr>::parse(token_stream)?);
     }
 
@@ -124,7 +137,8 @@ impl<'source> Parse<'source> for Id<'source> {
         match token_stream.next_token()? {
             Token {
                 span,
-                value: TokenValue::Id(value),
+                tag: TokenTag::Id,
+                value,
             } => Ok(Id::new(value, span)),
 
             token => Err(ParseError::unexpected_token(token)),

@@ -1,17 +1,21 @@
-use smplc_ast::{Literal, Type};
+use smplc_ast::Type;
 
-use crate::{Lexer, TokenValue};
+use crate::{Lexer, TokenTag};
 
 macro_rules! lexer_test {
     (
-        $code:expr; $($value:expr),* $(,)?
+        $code:expr;
+        $($tag:expr $(, $value:literal)?;)*
     ) => {
         let mut lexer = Lexer::new($code);
         $(
-            assert_eq!(
-                lexer.next_token().unwrap().value,
-                $value
-            );
+            let token = lexer.next_token().unwrap();
+
+            assert_eq!(token.tag, $tag);
+
+            $(
+                assert_eq!(token.value, $value);
+            )?
         )*
     };
 }
@@ -27,11 +31,11 @@ fn numbers() {
             1E10        /* exponential notation (no)    */
         ";
 
-        TokenValue::Literal(Literal::Int(384400)),
-        TokenValue::Literal(Literal::Real(3.1415)),
-        TokenValue::Literal(Literal::Real(6.67e-11)),
-        TokenValue::Literal(Literal::Real(6.022e+23)),
-        TokenValue::Literal(Literal::Real(1e10))
+        TokenTag::Literal(Type::Int), "384_400";
+        TokenTag::Literal(Type::Real), "3.1415";
+        TokenTag::Literal(Type::Real), "6.67e-11";
+        TokenTag::Literal(Type::Real), "6.022e+23";
+        TokenTag::Literal(Type::Real), "1E10";
     ];
 }
 
@@ -40,8 +44,8 @@ fn bool() {
     lexer_test![
         "true false";
 
-        TokenValue::Literal(Literal::Bool(true)),
-        TokenValue::Literal(Literal::Bool(false)),
+        TokenTag::Literal(Type::Bool), "true";
+        TokenTag::Literal(Type::Bool), "false";
     ];
 }
 
@@ -50,19 +54,19 @@ fn keywords() {
     lexer_test![
         "return while else let fn if continue break const int real bool";
 
-        TokenValue::Return,
-        TokenValue::While,
-        TokenValue::Else,
-        TokenValue::Let,
-        TokenValue::Fn,
-        TokenValue::If,
-        TokenValue::Continue,
-        TokenValue::Break,
-        TokenValue::Const,
+        TokenTag::Return;
+        TokenTag::While;
+        TokenTag::Else;
+        TokenTag::Let;
+        TokenTag::Fn;
+        TokenTag::If;
+        TokenTag::Continue;
+        TokenTag::Break;
+        TokenTag::Const;
 
-        TokenValue::Type(Type::Int),
-        TokenValue::Type(Type::Real),
-        TokenValue::Type(Type::Bool),
+        TokenTag::Type(Type::Int);
+        TokenTag::Type(Type::Real);
+        TokenTag::Type(Type::Bool);
     ];
 }
 
@@ -70,7 +74,7 @@ fn keywords() {
 fn id() {
     lexer_test![
         "_name12$";
-        TokenValue::Id("_name12$".into()),
+        TokenTag::Id, "_name12$";
     ];
 }
 
@@ -83,28 +87,28 @@ fn specials() {
             | & !
             + - * /
         ";
-        TokenValue::Semicolon,
-        TokenValue::Comma,
-        TokenValue::LParen,
-        TokenValue::RParen,
-        TokenValue::LBrace,
-        TokenValue::RBrace,
-        TokenValue::Assign,
+        TokenTag::Semicolon;
+        TokenTag::Comma;
+        TokenTag::LParen;
+        TokenTag::RParen;
+        TokenTag::LBrace;
+        TokenTag::RBrace;
+        TokenTag::Assign;
 
-        TokenValue::Ne,
-        TokenValue::Ge,
-        TokenValue::Gt,
-        TokenValue::Le,
-        TokenValue::Lt,
-        TokenValue::Eq,
+        TokenTag::Ne;
+        TokenTag::Ge;
+        TokenTag::Gt;
+        TokenTag::Le;
+        TokenTag::Lt;
+        TokenTag::Eq;
 
-        TokenValue::Or,
-        TokenValue::And,
-        TokenValue::Not,
+        TokenTag::Or;
+        TokenTag::And;
+        TokenTag::Not;
 
-        TokenValue::Plus,
-        TokenValue::Minus,
-        TokenValue::Star,
-        TokenValue::Slash,
+        TokenTag::Plus;
+        TokenTag::Minus;
+        TokenTag::Star;
+        TokenTag::Slash;
     ];
 }

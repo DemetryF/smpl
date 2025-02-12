@@ -15,7 +15,7 @@ pub trait SemCheck<'source>: Sized {
 }
 
 impl<'source> SemCheck<'source> for ast::Block<'source> {
-    type Checked = Block;
+    type Checked = Block<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         env.variables.fork();

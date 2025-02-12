@@ -171,10 +171,10 @@ pub fn translate_args(
 pub fn translate_atom(translator: &mut Translator, atom: hir::Atom) -> Atom {
     match atom {
         hir::Atom::Var(var_ref) => Atom::Id(translator.variables.get(var_ref)),
-        hir::Atom::Literal(literal) => match literal {
-            hir::Literal::Real(num) => Atom::Real(num),
-            hir::Literal::Int(num) => Atom::Int(num),
-            hir::Literal::Bool(bool) => Atom::Int(bool as i32),
+        hir::Atom::Literal(literal) => match literal.ty {
+            hir::Type::Real => Atom::Real(parse_int::parse(literal.value).unwrap()),
+            hir::Type::Int => Atom::Real(parse_int::parse(literal.value).unwrap()),
+            hir::Type::Bool => Atom::Int(if literal.value == "true" { 1 } else { 0 }),
         },
     }
 }

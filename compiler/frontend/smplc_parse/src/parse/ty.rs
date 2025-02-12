@@ -1,5 +1,5 @@
 use smplc_ast::Type;
-use smplc_lexer::TokenValue;
+use smplc_lexer::TokenTag;
 
 use crate::error::ParseResult;
 use crate::token_stream::Tokens;
@@ -9,7 +9,7 @@ impl<'source> Parse<'source> for Type {
     fn parse<TS: Tokens<'source>>(
         token_stream: &mut TokenStream<'source, TS>,
     ) -> ParseResult<'source, Self> {
-        if let TokenValue::Type(ty) = token_stream.current().value {
+        if let TokenTag::Type(ty) = token_stream.current().tag {
             token_stream.next_token()?;
 
             Ok(ty)

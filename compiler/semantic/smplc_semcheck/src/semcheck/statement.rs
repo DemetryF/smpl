@@ -7,7 +7,7 @@ use crate::env::Env;
 use crate::error::{SemError, SemResult};
 
 impl<'source> SemCheck<'source> for ast::Statement<'source> {
-    type Checked = Statement;
+    type Checked = Statement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         match self {
@@ -24,7 +24,7 @@ impl<'source> SemCheck<'source> for ast::Statement<'source> {
 }
 
 impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
-    type Checked = ExprStatement;
+    type Checked = ExprStatement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let var = env.variables.add_variable(self.id, self.ty)?;
@@ -37,11 +37,13 @@ impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
 
                 rhs
             } else {
-                Expr::Atom(Atom::Literal(match self.ty {
-                    Type::Real => ast::Literal::Real(0.0),
-                    Type::Int => ast::Literal::Int(0),
-                    Type::Bool => ast::Literal::Bool(false),
-                }))
+                let value = match self.ty {
+                    Type::Real => "0.0",
+                    Type::Int => "0",
+                    Type::Bool => "false",
+                };
+
+                Expr::Atom(Atom::Literal(Literal { value, ty: self.ty }))
             }
         };
 
@@ -50,7 +52,7 @@ impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
 }
 
 impl<'source> SemCheck<'source> for ast::ExprStatement<'source> {
-    type Checked = ExprStatement;
+    type Checked = ExprStatement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         match self {
@@ -72,7 +74,7 @@ impl<'source> SemCheck<'source> for ast::ExprStatement<'source> {
 }
 
 impl<'source> SemCheck<'source> for ast::IfStatement<'source> {
-    type Checked = IfStatement;
+    type Checked = IfStatement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let span = self.cond.span();
@@ -92,7 +94,7 @@ impl<'source> SemCheck<'source> for ast::IfStatement<'source> {
 }
 
 impl<'source> SemCheck<'source> for ast::ReturnStatement<'source> {
-    type Checked = ReturnStatement;
+    type Checked = ReturnStatement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let value = {
@@ -116,7 +118,7 @@ impl<'source> SemCheck<'source> for ast::ReturnStatement<'source> {
 }
 
 impl<'source> SemCheck<'source> for ast::WhileStatement<'source> {
-    type Checked = WhileStatement;
+    type Checked = WhileStatement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         let span = self.cond.span();

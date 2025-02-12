@@ -7,7 +7,7 @@ use crate::expr::{atom_or_assign, translate_call, translate_expr, translate_logi
 use crate::translator::Translator;
 use crate::Translate;
 
-impl Translate for Statement {
+impl Translate for Statement<'_> {
     fn translate(self, translator: &mut Translator) {
         match self {
             Statement::Expr(expr_stmt) => expr_stmt.translate(translator),
@@ -30,7 +30,7 @@ impl Translate for Statement {
     }
 }
 
-impl Translate for IfStatement {
+impl Translate for IfStatement<'_> {
     fn translate(self, translator: &mut Translator) {
         let end_label = translator.next_label();
 
@@ -66,7 +66,7 @@ impl Translate for IfStatement {
     }
 }
 
-impl Translate for WhileStatement {
+impl Translate for WhileStatement<'_> {
     fn translate(self, translator: &mut Translator) {
         let (start_label, end_label) = translator.next_while_labels();
 
@@ -80,7 +80,7 @@ impl Translate for WhileStatement {
     }
 }
 
-impl Translate for ReturnStatement {
+impl Translate for ReturnStatement<'_> {
     fn translate(self, translator: &mut Translator) {
         let value = self
             .value
@@ -91,7 +91,7 @@ impl Translate for ReturnStatement {
     }
 }
 
-impl Translate for ExprStatement {
+impl Translate for ExprStatement<'_> {
     fn translate(self, translator: &mut Translator) {
         match self {
             ExprStatement::Assign { var, rhs } => {

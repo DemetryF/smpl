@@ -1,5 +1,5 @@
 use smplc_ast::*;
-use smplc_lexer::TokenValue;
+use smplc_lexer::TokenTag;
 
 use crate::error::{ParseError, ParseErrorKind, ParseResult};
 use crate::token_stream::Tokens;
@@ -9,13 +9,13 @@ impl<'source> Parse<'source> for Statement<'source> {
     fn parse<TS: Tokens<'source>>(
         token_stream: &mut TokenStream<'source, TS>,
     ) -> ParseResult<'source, Self> {
-        match token_stream.current().value {
-            TokenValue::Let => DeclareStatement::parse(token_stream).map(Self::Declare),
-            TokenValue::If => IfStatement::parse(token_stream).map(Self::If),
-            TokenValue::Return => ReturnStatement::parse(token_stream).map(Self::Return),
-            TokenValue::While => WhileStatement::parse(token_stream).map(Self::While),
+        match token_stream.current().tag {
+            TokenTag::Let => DeclareStatement::parse(token_stream).map(Self::Declare),
+            TokenTag::If => IfStatement::parse(token_stream).map(Self::If),
+            TokenTag::Return => ReturnStatement::parse(token_stream).map(Self::Return),
+            TokenTag::While => WhileStatement::parse(token_stream).map(Self::While),
 
-            TokenValue::Continue => {
+            TokenTag::Continue => {
                 if !token_stream.in_loop {
                     return Err(ParseError {
                         kind: ParseErrorKind::ContinueOutsideLoop,
@@ -24,12 +24,12 @@ impl<'source> Parse<'source> for Statement<'source> {
                 }
 
                 token_stream.next_token()?;
-                token_stream.consume(TokenValue::Semicolon)?;
+                token_stream.consume(TokenTag::Semicolon)?;
 
                 Ok(Self::Continue)
             }
 
-            TokenValue::Break => {
+            TokenTag::Break => {
                 if !token_stream.in_loop {
                     return Err(ParseError {
                         kind: ParseErrorKind::BreakOutsideLoop,
@@ -38,7 +38,7 @@ impl<'source> Parse<'source> for Statement<'source> {
                 }
 
                 token_stream.next_token()?;
-                token_stream.consume(TokenValue::Semicolon)?;
+                token_stream.consume(TokenTag::Semicolon)?;
 
                 Ok(Self::Break)
             }
@@ -52,22 +52,22 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
     fn parse<TS: Tokens<'source>>(
         token_stream: &mut TokenStream<'source, TS>,
     ) -> ParseResult<'source, Self> {
-        token_stream.consume(TokenValue::Let)?;
+        token_stream.consume(TokenTag::Let)?;
 
         let id = Id::parse(token_stream)?;
 
-        token_stream.consume(TokenValue::Colon)?;
+        token_stream.consume(TokenTag::Colon)?;
 
         let ty = Type::parse(token_stream)?;
 
         let value = {
             token_stream
-                .try_consume(TokenValue::Assign)?
+                .try_consume(TokenTag::Assign)?
                 .then(|| Spanned::<Expr>::parse(token_stream))
                 .transpose()?
         };
 
-        token_stream.consume(TokenValue::Semicolon)?;
+        token_stream.consume(TokenTag::Semicolon)?;
 
         Ok(DeclareStatement { id, ty, value })
     }
@@ -80,18 +80,18 @@ impl<'source> Parse<'source> for ExprStatement<'source> {
         let expr = Spanned::<Expr>::parse(token_stream)?;
 
         if let Expr::Atom(Atom::Id(id)) = expr.0 {
-            if token_stream.try_consume(TokenValue::Assign)? {
+            if token_stream.try_consume(TokenTag::Assign)? {
                 let id = id;
 
                 let rhs = Spanned::<Expr>::parse(token_stream)?;
 
-                token_stream.consume(TokenValue::Semicolon)?;
+                token_stream.consume(TokenTag::Semicolon)?;
 
                 return Ok(ExprStatement::Assign { id, rhs });
             }
         }
 
-        token_stream.consume(TokenValue::Semicolon)?;
+        token_stream.consume(TokenTag::Semicolon)?;
 
         Ok(ExprStatement::Expr(expr))
     }
@@ -101,14 +101,14 @@ impl<'source> Parse<'source> for IfStatement<'source> {
     fn parse<TS: Tokens<'source>>(
         token_stream: &mut TokenStream<'source, TS>,
     ) -> ParseResult<'source, Self> {
-        token_stream.consume(TokenValue::If)?;
+        token_stream.consume(TokenTag::If)?;
 
         let cond = Spanned::<Expr>::parse(token_stream)?;
         let body = Block::parse(token_stream)?;
 
         let else_body = {
             token_stream
-                .try_consume(TokenValue::Else)?
+                .try_consume(TokenTag::Else)?
                 .then(|| Block::parse(token_stream))
                 .transpose()?
         };
@@ -125,15 +125,15 @@ impl<'source> Parse<'source> for ReturnStatement<'source> {
     fn parse<TS: Tokens<'source>>(
         token_stream: &mut TokenStream<'source, TS>,
     ) -> ParseResult<'source, Self> {
-        token_stream.consume(TokenValue::Return)?;
+        token_stream.consume(TokenTag::Return)?;
 
         let value = {
-            (!token_stream.check(TokenValue::Semicolon))
+            (!token_stream.check(TokenTag::Semicolon))
                 .then(|| Spanned::<Expr>::parse(token_stream))
                 .transpose()?
         };
 
-        token_stream.consume(TokenValue::Semicolon)?;
+        token_stream.consume(TokenTag::Semicolon)?;
 
         Ok(ReturnStatement { value })
     }
@@ -143,7 +143,7 @@ impl<'source> Parse<'source> for WhileStatement<'source> {
     fn parse<TS: Tokens<'source>>(
         token_stream: &mut TokenStream<'source, TS>,
     ) -> ParseResult<'source, Self> {
-        token_stream.consume(TokenValue::While)?;
+        token_stream.consume(TokenTag::While)?;
 
         let cond = Spanned::<Expr>::parse(token_stream)?;
 

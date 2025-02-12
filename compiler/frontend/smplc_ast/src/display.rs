@@ -45,13 +45,9 @@ impl fmt::Display for UnOp {
     }
 }
 
-impl fmt::Display for Literal {
+impl<'source> fmt::Display for Literal<'source> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Literal::Real(num) => write!(f, "{num}"),
-            Literal::Int(num) => write!(f, "{num}"),
-            Literal::Bool(bool) => write!(f, "{bool}"),
-        }
+        write!(f, "{}", self.value)
     }
 }
 

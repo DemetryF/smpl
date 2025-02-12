@@ -1,23 +1,23 @@
 use smplc_ast::{BinOp, UnOp};
-use smplc_lexer::TokenValue;
+use smplc_lexer::TokenTag;
 
 use crate::{token_stream::Tokens, TokenStream, TryParse};
 
 impl<'source> TryParse<'source> for BinOp {
     fn try_parse<TS: Tokens<'source>>(token_stream: &mut TokenStream<'source, TS>) -> Option<Self> {
-        let op = match token_stream.current().value {
-            TokenValue::Or => Self::Or,
-            TokenValue::And => Self::And,
-            TokenValue::Ne => Self::Ne,
-            TokenValue::Eq => Self::Eq,
-            TokenValue::Ge => Self::Ge,
-            TokenValue::Gt => Self::Gt,
-            TokenValue::Le => Self::Le,
-            TokenValue::Lt => Self::Lt,
-            TokenValue::Plus => Self::Add,
-            TokenValue::Minus => Self::Sub,
-            TokenValue::Star => Self::Mul,
-            TokenValue::Slash => Self::Div,
+        let op = match token_stream.current().tag {
+            TokenTag::Or => Self::Or,
+            TokenTag::And => Self::And,
+            TokenTag::Ne => Self::Ne,
+            TokenTag::Eq => Self::Eq,
+            TokenTag::Ge => Self::Ge,
+            TokenTag::Gt => Self::Gt,
+            TokenTag::Le => Self::Le,
+            TokenTag::Lt => Self::Lt,
+            TokenTag::Plus => Self::Add,
+            TokenTag::Minus => Self::Sub,
+            TokenTag::Star => Self::Mul,
+            TokenTag::Slash => Self::Div,
 
             _ => return None,
         };
@@ -28,9 +28,9 @@ impl<'source> TryParse<'source> for BinOp {
 
 impl<'source> TryParse<'source> for UnOp {
     fn try_parse<TS: Tokens<'source>>(token_stream: &mut TokenStream<'source, TS>) -> Option<Self> {
-        let op = match token_stream.current().value {
-            TokenValue::Not => Self::Not,
-            TokenValue::Minus => Self::Neg,
+        let op = match token_stream.current().tag {
+            TokenTag::Not => Self::Not,
+            TokenTag::Minus => Self::Neg,
 
             _ => return None,
         };

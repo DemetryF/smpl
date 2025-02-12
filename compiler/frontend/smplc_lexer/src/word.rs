@@ -1,10 +1,9 @@
-use smplc_ast::Literal;
 use smplc_ast::Type;
 
 use crate::cursor::Cursor;
-use crate::TokenValue;
+use crate::TokenTag;
 
-pub fn lex_word<'source>(cursor: &mut Cursor<'source>) -> Option<TokenValue<'source>> {
+pub fn lex_word(cursor: &mut Cursor) -> Option<TokenTag> {
     if !(cursor.current().is_alphabetic() || cursor.current() == '_' || cursor.current() == '$') {
         return None;
     }
@@ -12,25 +11,25 @@ pub fn lex_word<'source>(cursor: &mut Cursor<'source>) -> Option<TokenValue<'sou
     let buffer = word_literal(cursor);
 
     let value = match buffer {
-        "let" => TokenValue::Let,
-        "else" => TokenValue::Else,
-        "fn" => TokenValue::Fn,
-        "if" => TokenValue::If,
-        "return" => TokenValue::Return,
-        "while" => TokenValue::While,
-        "const" => TokenValue::Const,
+        "let" => TokenTag::Let,
+        "else" => TokenTag::Else,
+        "fn" => TokenTag::Fn,
+        "if" => TokenTag::If,
+        "return" => TokenTag::Return,
+        "while" => TokenTag::While,
+        "const" => TokenTag::Const,
 
-        "continue" => TokenValue::Continue,
-        "break" => TokenValue::Break,
+        "continue" => TokenTag::Continue,
+        "break" => TokenTag::Break,
 
-        "true" => TokenValue::Literal(Literal::Bool(true)),
-        "false" => TokenValue::Literal(Literal::Bool(false)),
+        "true" => TokenTag::Literal(Type::Bool),
+        "false" => TokenTag::Literal(Type::Bool),
 
-        "real" => TokenValue::Type(Type::Real),
-        "int" => TokenValue::Type(Type::Int),
-        "bool" => TokenValue::Type(Type::Bool),
+        "real" => TokenTag::Type(Type::Real),
+        "int" => TokenTag::Type(Type::Int),
+        "bool" => TokenTag::Type(Type::Bool),
 
-        id => TokenValue::Id(id),
+        _ => TokenTag::Id,
     };
 
     Some(value)
