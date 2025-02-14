@@ -1,4 +1,4 @@
-use smplc_ast::{Pos, Span};
+use smplc_ast::{MakeSpanned, Pos, Span, Spanned};
 use smplc_lexer::{LexError, Token, TokenTag};
 
 use crate::error::{ParseError, ParseResult};
@@ -10,6 +10,8 @@ pub struct TokenStream<'source, TS: Tokens<'source>> {
     tokens: TS,
     current: Token<'source>,
 
+    prev_span: Span,
+
     pub in_loop: bool,
 }
 
@@ -18,6 +20,7 @@ impl<'source, TS: Tokens<'source>> TokenStream<'source, TS> {
         Ok(Self {
             current: tokens.next().unwrap()?,
             tokens,
+            prev_span: Span::default(),
             in_loop: false,
         })
     }
@@ -30,11 +33,11 @@ impl<'source, TS: Tokens<'source>> TokenStream<'source, TS> {
         !self.is_end() && self.current().tag == value
     }
 
-    pub fn consume(&mut self, value: TokenTag) -> ParseResult<'source, Span> {
+    pub fn consume(&mut self, value: TokenTag) -> ParseResult<'source, ()> {
         if self.check(value) {
-            let span = self.next_token()?.span;
+            self.next_token()?;
 
-            return Ok(span);
+            return Ok(());
         }
 
         Err(self.unexpected_token())
@@ -53,6 +56,8 @@ impl<'source, TS: Tokens<'source>> TokenStream<'source, TS> {
     pub fn next_token(&mut self) -> ParseResult<'source, Token<'source>> {
         let token = self.current();
 
+        self.prev_span = token.span;
+
         self.current = self.tokens.next().unwrap()?;
 
         Ok(token)
@@ -68,5 +73,16 @@ impl<'source, TS: Tokens<'source>> TokenStream<'source, TS> {
 
     pub fn is_end(&self) -> bool {
         self.current().tag == TokenTag::EOF
+    }
+
+    pub fn work<T>(
+        &mut self,
+        mut f: impl FnMut(&mut Self) -> ParseResult<'source, T>,
+    ) -> ParseResult<'source, Spanned<T>> {
+        let start = self.current.span;
+        let value = f(self);
+        let end = self.prev_span;
+
+        value.map(|value| value.spanned(Span::unite(start, end)))
     }
 }
