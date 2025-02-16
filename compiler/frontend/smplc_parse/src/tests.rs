@@ -62,7 +62,7 @@ let a: int;
         ";
         Statement::Declare(DeclareStatement {
             id: Spanned("a", _),
-            ty: Type::Int,
+            ty: Some(Type::Int),
             value: None,
         })
     );
@@ -73,7 +73,7 @@ let a: real = a;
         ";
         Statement::Declare(DeclareStatement {
             id: Spanned("a", _),
-            ty: Type::Real,
+            ty: Some(Type::Real),
             value: Some(Spanned(Expr::Atom(Atom::Id(
                 Spanned("a", _)
             )), _)),

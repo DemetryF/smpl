@@ -1,10 +1,11 @@
 use smplc_ast as ast;
 use smplc_hir::*;
 
-use super::expr::{expect_ty, expr_ty};
-use super::SemCheck;
 use crate::env::Env;
 use crate::error::{SemError, SemResult};
+
+use super::expr::{expect_ty, expr_ty};
+use super::SemCheck;
 
 impl<'source> SemCheck<'source> for ast::Statement<'source> {
     type Checked = Statement<'source>;
@@ -27,7 +28,7 @@ impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
     type Checked = ExprStatement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let var = env.variables.add_variable(self.id, self.ty)?;
+        let var = env.variables.add_variable(self.id, self.ty.unwrap())?;
 
         let rhs = {
             if let Some(ast::Spanned(rhs, span)) = self.value {
@@ -37,13 +38,16 @@ impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
 
                 rhs
             } else {
-                let value = match self.ty {
+                let value = match self.ty.unwrap() {
                     Type::Real => "0.0",
                     Type::Int => "0",
                     Type::Bool => "false",
                 };
 
-                Expr::Atom(Atom::Literal(Literal { value, ty: self.ty }))
+                Expr::Atom(Atom::Literal(Literal {
+                    value,
+                    ty: self.ty.unwrap(),
+                }))
             }
         };
 
