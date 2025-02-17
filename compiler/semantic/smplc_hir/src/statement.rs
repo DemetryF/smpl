@@ -10,7 +10,10 @@ pub enum Statement<'source> {
 }
 
 pub enum ExprStatement<'source> {
-    Assign { var: VarRef, rhs: Expr<'source> },
+    Assign {
+        var: VarRef<'source>,
+        rhs: Expr<'source>,
+    },
     Expr(Expr<'source>),
 }
 

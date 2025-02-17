@@ -1,9 +1,7 @@
 mod expr;
-mod operators;
 mod statement;
 
 pub use expr::*;
-pub use operators::*;
 pub use statement::*;
 
 #[derive(Default)]
@@ -13,13 +11,13 @@ pub struct HIR<'source> {
 }
 
 pub struct Function<'source> {
-    pub data: FunRef,
-    pub args: Vec<VarRef>,
+    pub data: FunRef<'source>,
+    pub args: Vec<VarRef<'source>>,
     pub body: Vec<Statement<'source>>,
 }
 
 pub struct Constant<'source> {
-    pub data: VarRef,
+    pub data: VarRef<'source>,
     pub value: Expr<'source>,
 }
 
