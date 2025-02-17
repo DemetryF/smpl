@@ -7,7 +7,7 @@ members = [
     "compiler/frontend/smplc_ast",
 
     "compiler/semantic/smplc_hir",
-    # "compiler/semantic/smplc_semcheck",
+    "compiler/semantic/smplc_semcheck",
 
     # "compiler/linear/smplc_lir",
     # "compiler/linear/smplc_translate",

@@ -29,7 +29,7 @@ pub enum SemErrorKind<'source> {
     InvalidArgumentsCount {
         expected: usize,
         received: usize,
-        fun_ref: FunRef,
+        fun_ref: FunRef<'source>,
     },
 
     DuplicateArgsNames(&'source str),
@@ -85,7 +85,7 @@ impl<'source> SemError<'source> {
         span: Span,
         expected: usize,
         received: usize,
-        fun_ref: FunRef,
+        fun_ref: FunRef<'source>,
     ) -> Self {
         let kind = SemErrorKind::InvalidArgumentsCount {
             expected,

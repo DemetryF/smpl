@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use smplc_ast::Span;
+use smplc_ast::{MakeSpanned, Span, Spanned};
 use smplc_hir::{FunData, Pos, Type};
 use smplc_lexer::Lexer;
 use smplc_parse::{parse, TokenStream};
@@ -63,23 +63,22 @@ pub fn invalid_arguments() {
             expected: 0,
             received: 1,
             fun_ref: Rc::new(FunData {
-                declared_at: Span::with_len(Pos::new(1, 4, 3), 1),
-                id: "a".into(),
-                args: vec![],
-                ret_ty: None
+                id: Spanned::new("a", Span::with_len(Pos::new(1, 4, 3), 1 )),
+                ret_ty: None,
+                args_types: vec![]
             })
         }
     ];
 
     semtest![
-        "fn a(b: real) {} fn main() { a(); }" => SemErrorKind::InvalidArgumentsCount {
+        "fn a(b: real) {}
+         fn main() { a(); }" => SemErrorKind::InvalidArgumentsCount {
             expected: 1,
             received: 0,
             fun_ref: Rc::new(FunData {
-                declared_at: Span::with_len(Pos::new(1, 4, 3), 1),
-                id: "a".into(),
-                args: vec![Type::Real],
-                ret_ty: None
+                id: "a".spanned(Span::with_len(Pos::new(1, 4, 3), 1)),
+                ret_ty: None,
+                args_types: vec![Type::Real],
             })
         }
     ];

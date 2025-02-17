@@ -10,17 +10,17 @@ pub struct Env<'source> {
     pub variables: Variables<'source>,
     pub functions: Functions<'source>,
 
-    pub current_fn: Option<FunRef>,
+    pub current_fn: Option<FunRef<'source>>,
 }
 
 #[derive(Default)]
 pub struct Variables<'source> {
-    data: Vec<Scope<'source, VarRef>>,
+    data: Vec<Scope<'source, VarRef<'source>>>,
 }
 
 #[derive(Default)]
 pub struct Functions<'source> {
-    data: Scope<'source, FunRef>,
+    data: Scope<'source, FunRef<'source>>,
 }
 
 pub struct Scope<'source, V: Clone> {
@@ -40,11 +40,11 @@ impl<'source> Variables<'source> {
         self.data.last().unwrap()
     }
 
-    fn last_mut(&mut self) -> &mut Scope<'source, VarRef> {
+    fn last_mut(&mut self) -> &mut Scope<'source, VarRef<'source>> {
         self.data.last_mut().unwrap()
     }
 
-    pub fn get(&self, id: ast::Id<'source>) -> SemResult<'source, VarRef> {
+    pub fn get(&self, id: ast::Id<'source>) -> SemResult<'source, VarRef<'source>> {
         for scope in self.data.iter().rev() {
             if let Some(var_ref) = scope.get(id.0) {
                 return Ok(var_ref);
@@ -54,14 +54,15 @@ impl<'source> Variables<'source> {
         Err(SemError::non_existent_variable(id))
     }
 
-    pub fn add_variable(&mut self, id: ast::Id<'source>, ty: Type) -> SemResult<'source, VarRef> {
+    pub fn add_variable(
+        &mut self,
+        id: ast::Id<'source>,
+        ty: Option<Type>,
+    ) -> SemResult<'source, VarRef<'source>> {
         if let Some(var_ref) = self.last().get(id.0) {
-            Err(SemError::redeclaring_variable(id, var_ref.declared_at))
+            Err(SemError::redeclaring_variable(id, var_ref.id.span()))
         } else {
-            let var_ref = Rc::new(VarData {
-                declared_at: id.span(),
-                ty,
-            });
+            let var_ref = Rc::new(VarData { id, ty });
 
             self.last_mut().add(id.0, Rc::clone(&var_ref));
 
@@ -69,13 +70,16 @@ impl<'source> Variables<'source> {
         }
     }
 
-    pub fn add_argument(&mut self, arg: ast::FunctionArg<'source>) -> SemResult<'source, VarRef> {
+    pub fn add_argument(
+        &mut self,
+        arg: ast::FunctionArg<'source>,
+    ) -> SemResult<'source, VarRef<'source>> {
         if self.last().has(&arg.id.0) {
             Err(SemError::duplicate_args_names(arg.id))
         } else {
             let var_ref = Rc::new(VarData {
-                declared_at: arg.id.span(),
-                ty: arg.ty,
+                id: arg.id,
+                ty: Some(arg.ty),
             });
 
             self.last_mut().add(&arg.id.0, Rc::clone(&var_ref));
@@ -86,7 +90,7 @@ impl<'source> Variables<'source> {
 }
 
 impl<'source> Functions<'source> {
-    pub fn get(&self, id: ast::Id<'source>) -> SemResult<'source, FunRef> {
+    pub fn get(&self, id: ast::Id<'source>) -> SemResult<'source, FunRef<'source>> {
         self.data
             .get(id.0)
             .ok_or_else(|| SemError::non_existent_function(id))
@@ -95,16 +99,15 @@ impl<'source> Functions<'source> {
     pub fn add(
         &mut self,
         id: ast::Id<'source>,
-        args: Vec<Type>,
+        args_types: Vec<Type>,
         ret_ty: Option<Type>,
-    ) -> SemResult<'source, FunRef> {
+    ) -> SemResult<'source, FunRef<'source>> {
         if let Some(fun_ref) = self.data.get(id.0) {
-            Err(SemError::redeclaring_function(id, fun_ref.declared_at))
+            Err(SemError::redeclaring_function(id, fun_ref.id.span()))
         } else {
             let fun_ref = Rc::new(FunData {
-                declared_at: id.span(),
-                id: id.0.into(),
-                args,
+                id,
+                args_types,
                 ret_ty,
             });
 

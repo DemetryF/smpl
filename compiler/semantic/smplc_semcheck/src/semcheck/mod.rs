@@ -24,6 +24,7 @@ impl<'source> SemCheck<'source> for ast::Block<'source> {
             .statements
             .into_iter()
             .map(|stmt| stmt.check(env))
+            .filter_map(Result::transpose)
             .collect::<Result<_, _>>()?;
 
         env.variables.exit();

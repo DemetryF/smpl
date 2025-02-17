@@ -4,7 +4,6 @@ use smplc_hir::{Constant, Function};
 use crate::env::Env;
 use crate::error::SemResult;
 
-use super::expr::expect_ty;
 use super::SemCheck;
 
 impl<'source> SemCheck<'source> for FunctionDeclaration<'source> {
@@ -33,12 +32,9 @@ impl<'source> SemCheck<'source> for ConstantDeclaration<'source> {
     type Checked = Constant<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let data = env.variables.add_variable(self.id, self.ty)?;
+        let data = env.variables.add_variable(self.id, Some(self.ty))?;
 
-        let span = self.value.span();
         let value = self.value.0.check(env)?;
-
-        expect_ty(&value, data.ty, span)?;
 
         Ok(Constant { data, value })
     }

@@ -2,11 +2,12 @@ pub mod error;
 
 mod env;
 mod semcheck;
+
 #[cfg(test)]
 mod tests;
 
-use ast::Span;
 use smplc_ast as ast;
+use smplc_ast::Span;
 use smplc_hir::{Type, HIR};
 
 use env::Env;
