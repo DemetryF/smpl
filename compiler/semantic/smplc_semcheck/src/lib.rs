@@ -8,7 +8,7 @@ mod tests;
 
 use smplc_ast as ast;
 use smplc_ast::Span;
-use smplc_hir::{Type, HIR};
+use smplc_hir::{Symbols, Type, HIR};
 
 use env::Env;
 use error::SemResult;
@@ -45,6 +45,11 @@ pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
             }
         }
     }
+
+    hir.symbols = Symbols {
+        functions: env.functions.symbols,
+        variables: env.variables.symbols,
+    };
 
     Ok(hir)
 }

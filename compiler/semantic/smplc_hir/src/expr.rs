@@ -1,8 +1,6 @@
-use std::rc::Rc;
-
-use smplc_ast as ast;
-
 pub use smplc_ast::{BinOp, Literal, Pos, Type, UnOp};
+
+use crate::{FunId, VarId};
 
 pub enum Expr<'source> {
     Binary {
@@ -15,29 +13,13 @@ pub enum Expr<'source> {
         rhs: Box<Self>,
     },
     Call {
-        fun_ref: FunRef<'source>,
+        fun: FunId,
         args: Vec<Self>,
     },
     Atom(Atom<'source>),
 }
 
-pub type FunRef<'source> = Rc<FunData<'source>>;
-pub type VarRef<'source> = Rc<VarData<'source>>;
-
 pub enum Atom<'source> {
-    Var(VarRef<'source>),
+    Var(VarId),
     Literal(Literal<'source>),
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct FunData<'source> {
-    pub id: ast::Id<'source>,
-    pub ret_ty: Option<Type>,
-    pub args_types: Vec<Type>,
-}
-
-#[derive(Hash)]
-pub struct VarData<'source> {
-    pub id: ast::Id<'source>,
-    pub ty: Option<Type>,
 }

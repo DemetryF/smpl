@@ -16,19 +16,19 @@ impl<'source> SemCheck<'source> for ast::Statement<'source> {
             }
 
             ast::Statement::If(if_stmt) => {
-                return if_stmt.check(env).map(Statement::If).map(Some);
+                return Ok(Some(Statement::If(if_stmt.check(env)?)));
             }
 
             ast::Statement::While(while_stmt) => {
-                return while_stmt.check(env).map(Statement::While).map(Some);
+                return Ok(Some(Statement::While(while_stmt.check(env)?)));
             }
 
             ast::Statement::Expr(expr_stmt) => {
-                return expr_stmt.check(env).map(Statement::Expr).map(Some);
+                return Ok(Some(Statement::Expr(expr_stmt.check(env)?)));
             }
 
             ast::Statement::Return(return_stmt) => {
-                return return_stmt.check(env).map(Statement::Return).map(Some);
+                return Ok(Some(Statement::Return(return_stmt.check(env)?)));
             }
 
             ast::Statement::Break => Ok(Some(Statement::Break)),
@@ -56,7 +56,9 @@ impl<'source> SemCheck<'source> for ast::ExprStatement<'source> {
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         match self {
-            ast::ExprStatement::Expr(expr) => expr.0.check(env).map(ExprStatement::Expr),
+            ast::ExprStatement::Expr(expr) => {
+                return Ok(ExprStatement::Expr(expr.0.check(env)?));
+            }
 
             ast::ExprStatement::Assign { id, rhs } => {
                 let var = env.variables.get(id)?;
@@ -75,6 +77,7 @@ impl<'source> SemCheck<'source> for ast::IfStatement<'source> {
         let cond = self.cond.0.check(env)?;
 
         let body = self.body.check(env)?;
+
         let else_body = self.else_body.map(|body| body.check(env)).transpose()?;
 
         Ok(IfStatement {

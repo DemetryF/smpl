@@ -1,4 +1,4 @@
-use crate::{Block, Expr, VarRef};
+use crate::{Block, Expr, VarId};
 
 pub enum Statement<'source> {
     Expr(ExprStatement<'source>),
@@ -10,10 +10,7 @@ pub enum Statement<'source> {
 }
 
 pub enum ExprStatement<'source> {
-    Assign {
-        var: VarRef<'source>,
-        rhs: Expr<'source>,
-    },
+    Assign { var: VarId, rhs: Expr<'source> },
     Expr(Expr<'source>),
 }
 
