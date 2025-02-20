@@ -91,6 +91,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "smplc_thir"
+version = "0.1.0"
+dependencies = [
+ "smplc_ast",
+ "smplc_hir",
+]
+
+[[package]]
 name = "syn"
 version = "2.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"

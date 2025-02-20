@@ -9,6 +9,8 @@ members = [
     "compiler/semantic/smplc_hir",
     "compiler/semantic/smplc_semcheck",
 
+    "compiler/typing/smplc_thir",
+
     # "compiler/linear/smplc_lir",
     # "compiler/linear/smplc_translate",
 
