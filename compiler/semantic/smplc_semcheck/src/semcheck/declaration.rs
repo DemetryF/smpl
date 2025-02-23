@@ -36,6 +36,10 @@ impl<'source> SemCheck<'source> for ConstantDeclaration<'source> {
 
         let value = self.value.0.check(env)?;
 
-        Ok(Constant { id, value })
+        Ok(Constant {
+            id,
+            ty: self.ty,
+            value,
+        })
     }
 }

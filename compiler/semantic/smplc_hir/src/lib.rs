@@ -22,6 +22,7 @@ pub struct Function<'source> {
 
 pub struct Constant<'source> {
     pub id: VarId,
+    pub ty: Type,
     pub value: Expr<'source>,
 }
 
