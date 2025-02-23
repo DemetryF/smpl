@@ -191,7 +191,7 @@ pub fn translate_atom(translator: &mut Translator, atom: thir::Atom) -> Atom {
         thir::Atom::Var(var_ref) => Atom::Id(translator.variables.get(var_ref)),
         thir::Atom::Literal(literal) => match literal.ty {
             thir::Type::Real => Atom::Real(parse_int::parse(literal.value).unwrap()),
-            thir::Type::Int => Atom::Real(parse_int::parse(literal.value).unwrap()),
+            thir::Type::Int => Atom::Int(parse_int::parse(literal.value).unwrap()),
             thir::Type::Bool => Atom::Int(if literal.value == "true" { 1 } else { 0 }),
         },
     }
