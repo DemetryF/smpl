@@ -10,7 +10,7 @@ use smplc_thir::{FunId, Symbols, VarData, VarId};
 
 pub use self::expr::infer_expr;
 
-use crate::error::{TypeError, TypeErrorType, TypeResult};
+use crate::error::{TypeError, TypeErrorKind, TypeResult};
 
 pub trait TypeInfer<'source> {
     fn infer(
@@ -99,7 +99,7 @@ impl TypeInferrer {
                     let var = symbols.variables[var].id;
 
                     TypeError {
-                        kind: TypeErrorType::CouldNotInfer {
+                        kind: TypeErrorKind::CouldNotInfer {
                             var_id: var.0,
                             type_var,
                         },
