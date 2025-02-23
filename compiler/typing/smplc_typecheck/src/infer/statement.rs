@@ -92,7 +92,7 @@ impl<'source> TypeInfer<'source> for hir::ReturnStatement<'source> {
         inferrer: &mut TypeInferrer,
         symbols: &hir::Symbols<'source>,
     ) -> TypeResult<'source, ()> {
-        let ret_ty = symbols.functions[inferrer.current_fn].ret_ty;
+        let ret_ty = symbols.functions[inferrer.current_fn.unwrap()].ret_ty;
         let ret_ty = ret_ty.map_or(TypeVar::None, TypeVar::Type);
 
         match &self.value {

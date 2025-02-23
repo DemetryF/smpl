@@ -1,11 +1,14 @@
 mod expr;
 mod statement;
 
-use std::{collections::HashMap, ops::Index};
+use std::collections::HashMap;
+use std::ops::Index;
 
 use smplc_hir as hir;
 use smplc_hir::Type;
-use smplc_thir::{FunId, VarId};
+use smplc_thir::{FunId, Symbols, VarData, VarId};
+
+pub use self::expr::infer_expr;
 
 use crate::error::{TypeError, TypeErrorType, TypeResult};
 
@@ -17,25 +20,17 @@ pub trait TypeInfer<'source> {
     ) -> TypeResult<'source, ()>;
 }
 
+#[derive(Default)]
 pub struct TypeInferrer {
     pub vars: HashMap<VarId, SetId>,
     pub sets: HashMap<SetId, TypeVar>,
 
-    counter: usize,
+    sets_counter: usize,
 
-    current_fn: FunId,
+    pub current_fn: Option<FunId>,
 }
 
 impl TypeInferrer {
-    pub fn new(current_fn: FunId) -> Self {
-        Self {
-            vars: Default::default(),
-            sets: Default::default(),
-            counter: Default::default(),
-            current_fn,
-        }
-    }
-
     pub fn set_var_ty(&mut self, var: VarId, ty: TypeVar) -> Result<SetId, (TypeVar, TypeVar)> {
         match self.vars.get(&var) {
             Some(&set) => {
@@ -83,12 +78,12 @@ impl TypeInferrer {
     }
 
     fn next_set_id(&mut self) -> SetId {
-        self.counter += 1;
+        self.sets_counter += 1;
 
-        SetId(self.counter)
+        SetId(self.sets_counter)
     }
 
-    pub fn infer(self, symbols: hir::Symbols) -> Result<TypesInfo, Vec<TypeError>> {
+    pub fn infer(self, symbols: hir::Symbols) -> Result<Symbols, Vec<TypeError>> {
         let no_all_infered = self
             .sets
             .iter()
@@ -113,11 +108,32 @@ impl TypeInferrer {
                 })
                 .collect())
         } else {
-            Ok(TypesInfo {
-                vars: self.vars,
-                sets: self.sets,
+            let variables = symbols
+                .variables
+                .into_iter()
+                .map(|(id, data)| {
+                    let var_data = VarData {
+                        id: data.id,
+                        ty: self.ty(id),
+                    };
+
+                    (id, var_data)
+                })
+                .collect();
+
+            Ok(Symbols {
+                functions: symbols.functions,
+                variables,
             })
         }
+    }
+
+    fn ty(&self, var: VarId) -> Type {
+        let TypeVar::Type(ty) = self.sets[&self.vars[&var]] else {
+            unreachable!()
+        };
+
+        ty
     }
 }
 
