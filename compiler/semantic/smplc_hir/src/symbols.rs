@@ -56,10 +56,24 @@ impl<K: Hash + Eq + From<usize> + Copy, V> SymbolsTable<K, V> {
         id
     }
 
+    pub fn into_iter(self) -> impl Iterator<Item = (K, V)> {
+        self.data.into_iter()
+    }
+
     fn next_id(&mut self) -> K {
         self.counter += 1;
 
         K::from(self.counter)
+    }
+}
+
+impl<K: Hash + Eq + From<usize> + Copy, V> FromIterator<(K, V)> for SymbolsTable<K, V> {
+    fn from_iter<T: IntoIterator<Item = (K, V)>>(iter: T) -> Self {
+        Self {
+            data: iter.into_iter().collect(),
+            // I hope no one will try to use SymbolsTable::add after making it from iterator
+            counter: 0,
+        }
     }
 }
 
