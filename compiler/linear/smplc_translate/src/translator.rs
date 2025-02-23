@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use smplc_ast::Pos;
-use smplc_hir::{NumberType, VarRef};
+use smplc_ast::Type;
 use smplc_lir::{Code, Id, Label};
+use smplc_thir::{NumberType, VarId};
 
 #[derive(Default)]
 pub struct Translator {
@@ -15,7 +15,7 @@ pub struct Translator {
 
 #[derive(Default)]
 pub struct Variables {
-    data: HashMap<Pos, Id>,
+    data: HashMap<VarId, Id>,
     ids_count: usize,
     pub types: HashMap<Id, NumberType>,
 }
@@ -48,25 +48,26 @@ impl Translator {
 }
 
 impl Variables {
-    pub fn get_or_add(&mut self, var: VarRef) -> Id {
+    pub fn get_or_add(&mut self, var: VarId, ty: Type) -> Id {
         self.data
-            .get(&var.declared_at.start())
+            .get(&var)
             .cloned()
-            .unwrap_or_else(|| self.add(var))
+            .unwrap_or_else(|| self.add(var, ty))
     }
 
-    pub fn add(&mut self, var: VarRef) -> Id {
-        let id = self.next_id(NumberType::for_ir(var.ty));
+    pub fn add(&mut self, var: VarId, ty: Type) -> Id {
+        let ty = NumberType::for_ir(ty);
 
-        self.data.insert(var.declared_at.start(), id);
+        let id = self.next_id(ty);
 
-        self.types.insert(id, NumberType::for_ir(var.ty));
+        self.data.insert(var, id);
+        self.types.insert(id, ty);
 
         id
     }
 
-    pub fn get(&self, var: VarRef) -> Id {
-        self.data[&var.declared_at.start()]
+    pub fn get(&self, var: VarId) -> Id {
+        self.data[&var]
     }
 
     pub fn next_id(&mut self, ty: NumberType) -> Id {

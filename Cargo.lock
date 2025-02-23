@@ -64,6 +64,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "smplc_lir"
+version = "0.1.0"
+dependencies = [
+ "parse_int",
+ "smplc_ast",
+ "smplc_macros",
+ "smplc_thir",
+]
+
+[[package]]
 name = "smplc_macros"
 version = "0.1.0"
 dependencies = [
@@ -96,6 +106,16 @@ version = "0.1.0"
 dependencies = [
  "smplc_ast",
  "smplc_hir",
+]
+
+[[package]]
+name = "smplc_translate"
+version = "0.1.0"
+dependencies = [
+ "parse_int",
+ "smplc_ast",
+ "smplc_lir",
+ "smplc_thir",
 ]
 
 [[package]]

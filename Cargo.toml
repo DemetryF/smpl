@@ -12,8 +12,8 @@ members = [
     "compiler/typing/smplc_thir",
     "compiler/typing/smplc_typecheck",
 
-    # "compiler/linear/smplc_lir",
-    # "compiler/linear/smplc_translate",
+    "compiler/linear/smplc_lir",
+    "compiler/linear/smplc_translate",
 
     # "compiler/smplc_backend_x86",
 

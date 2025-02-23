@@ -3,7 +3,6 @@ mod display;
 use std::collections::HashMap;
 
 use smplc_ast::Type;
-use smplc_hir as hir;
 
 use crate::{FunctionId, Id, Instruction, Label};
 
@@ -73,8 +72,8 @@ impl Number {
     }
 }
 
-impl From<hir::Literal<'_>> for Number {
-    fn from(literal: hir::Literal) -> Self {
+impl From<smplc_ast::Literal<'_>> for Number {
+    fn from(literal: smplc_ast::Literal) -> Self {
         match literal.ty {
             Type::Real => Self::Real(parse_int::parse(literal.value).unwrap()),
             Type::Int => Self::Int(parse_int::parse(literal.value).unwrap()),

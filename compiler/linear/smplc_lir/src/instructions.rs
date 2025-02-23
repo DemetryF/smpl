@@ -2,7 +2,7 @@ mod display;
 
 use smplc_macros::{display, EnumWrap};
 
-pub use smplc_hir::{ArithmOp, NumberType, RelOp, Type};
+pub use smplc_thir::{ArithmOp, NumberType, RelOp, Type};
 
 use crate::{Atom, FunctionId, Id, Label};
 
