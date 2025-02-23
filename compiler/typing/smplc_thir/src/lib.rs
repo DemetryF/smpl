@@ -1,3 +1,5 @@
+use std::fmt;
+
 use smplc_ast as ast;
 use smplc_hir::SymbolsTable;
 
@@ -82,6 +84,7 @@ pub enum Expr<'source> {
     Atom(Atom<'source>),
 }
 
+#[derive(PartialEq, Eq)]
 pub enum BinOp {
     Arithm(ArithmOp, NumberType),
     Rel(RelOp, NumberType),
@@ -89,11 +92,23 @@ pub enum BinOp {
     And,
 }
 
+#[derive(PartialEq, Eq)]
 pub enum ArithmOp {
     Add,
     Sub,
     Mul,
     Div,
+}
+
+impl fmt::Display for ArithmOp {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ArithmOp::Add => write!(f, "+"),
+            ArithmOp::Sub => write!(f, "-"),
+            ArithmOp::Mul => write!(f, "*"),
+            ArithmOp::Div => write!(f, "/"),
+        }
+    }
 }
 
 impl TryFrom<ast::BinOp> for ArithmOp {
@@ -110,6 +125,7 @@ impl TryFrom<ast::BinOp> for ArithmOp {
     }
 }
 
+#[derive(PartialEq, Eq)]
 pub enum RelOp {
     Eq,
     Ne,
@@ -117,6 +133,19 @@ pub enum RelOp {
     Ge,
     Lt,
     Le,
+}
+
+impl fmt::Display for RelOp {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            RelOp::Eq => write!(f, "=="),
+            RelOp::Ne => write!(f, "!="),
+            RelOp::Gt => write!(f, ">"),
+            RelOp::Ge => write!(f, ">="),
+            RelOp::Lt => write!(f, "<"),
+            RelOp::Le => write!(f, "<="),
+        }
+    }
 }
 
 impl TryFrom<ast::BinOp> for RelOp {
@@ -135,10 +164,28 @@ impl TryFrom<ast::BinOp> for RelOp {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum NumberType {
     Real,
     Int,
+}
+
+impl NumberType {
+    pub fn for_ir(ty: Type) -> Self {
+        match ty {
+            Type::Real => Self::Real,
+            Type::Int | Type::Bool => Self::Int,
+        }
+    }
+}
+
+impl fmt::Display for NumberType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            NumberType::Real => write!(f, "real"),
+            NumberType::Int => write!(f, "int"),
+        }
+    }
 }
 
 impl Into<Type> for NumberType {
@@ -162,6 +209,7 @@ impl TryInto<NumberType> for Type {
     }
 }
 
+#[derive(PartialEq, Eq)]
 pub enum UnOp {
     Neg(NumberType),
     Not,
