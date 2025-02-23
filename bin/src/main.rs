@@ -9,6 +9,7 @@ use smplc_lexer::Lexer;
 use smplc_parse::{parse, ParseError, TokenStream};
 use smplc_semcheck::sem_check;
 use smplc_translate::translate;
+use smplc_typecheck::typecheck;
 
 use errors::output_error;
 
@@ -72,7 +73,18 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
         }
     };
 
-    let (ir_code, types) = translate(hir);
+    let thir = match typecheck(hir) {
+        Ok(thir) => thir,
+        Err(errors) => {
+            for error in errors {
+                output_error(&filename, &code, error.span, error.kind);
+            }
+
+            return Err(());
+        }
+    };
+
+    let (ir_code, types) = translate(thir);
 
     if show_ir {
         println!("{ir_code}");
