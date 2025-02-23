@@ -11,7 +11,7 @@ fargs ::= id (',' id)*
 (* statements *)
 stmt ::= if | while | declare | return | exprstmt
 
-declare  ::= 'let' id ':' ty ('=' expr)? ';'
+declare  ::= 'let' id (':' ty)? ('=' expr)? ';'
 if       ::= 'if' expr block ('else' block)?
 while    ::= 'while' expr block
 return   ::= 'return' expr? ';'
