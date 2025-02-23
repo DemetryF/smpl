@@ -76,7 +76,7 @@ pub enum Expr<'source> {
         rhs: Box<Self>,
     },
     Call {
-        id: FunId,
+        fun: FunId,
         args: Vec<Self>,
     },
     Atom(Atom<'source>),
@@ -85,7 +85,8 @@ pub enum Expr<'source> {
 pub enum BinOp {
     Arithm(ArithmOp, NumberType),
     Rel(RelOp, NumberType),
-    Logic,
+    Or,
+    And,
 }
 
 pub enum ArithmOp {
@@ -93,6 +94,20 @@ pub enum ArithmOp {
     Sub,
     Mul,
     Div,
+}
+
+impl TryFrom<ast::BinOp> for ArithmOp {
+    type Error = ();
+
+    fn try_from(value: ast::BinOp) -> Result<Self, Self::Error> {
+        match value {
+            ast::BinOp::Add => Ok(Self::Add),
+            ast::BinOp::Sub => Ok(Self::Sub),
+            ast::BinOp::Mul => Ok(Self::Mul),
+            ast::BinOp::Div => Ok(Self::Div),
+            _ => Err(()),
+        }
+    }
 }
 
 pub enum RelOp {
@@ -104,9 +119,47 @@ pub enum RelOp {
     Le,
 }
 
+impl TryFrom<ast::BinOp> for RelOp {
+    type Error = ();
+
+    fn try_from(value: ast::BinOp) -> Result<Self, Self::Error> {
+        match value {
+            ast::BinOp::Ne => Ok(Self::Ne),
+            ast::BinOp::Eq => Ok(Self::Eq),
+            ast::BinOp::Ge => Ok(Self::Ge),
+            ast::BinOp::Gt => Ok(Self::Gt),
+            ast::BinOp::Le => Ok(Self::Le),
+            ast::BinOp::Lt => Ok(Self::Lt),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
 pub enum NumberType {
     Real,
     Int,
+}
+
+impl Into<Type> for NumberType {
+    fn into(self) -> Type {
+        match self {
+            NumberType::Real => Type::Real,
+            NumberType::Int => Type::Int,
+        }
+    }
+}
+
+impl TryInto<NumberType> for Type {
+    type Error = ();
+
+    fn try_into(self) -> Result<NumberType, Self::Error> {
+        match self {
+            Type::Real => Ok(NumberType::Real),
+            Type::Int => Ok(NumberType::Int),
+            Type::Bool => Err(()),
+        }
+    }
 }
 
 pub enum UnOp {
