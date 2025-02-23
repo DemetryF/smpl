@@ -99,6 +99,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "smplc_typecheck"
+version = "0.1.0"
+dependencies = [
+ "smplc_ast",
+ "smplc_hir",
+ "smplc_thir",
+]
+
+[[package]]
 name = "syn"
 version = "2.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
