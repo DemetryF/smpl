@@ -13,8 +13,8 @@ pub fn infer_expr<'source>(
     match expr {
         hir::Expr::Binary { lhs, op, rhs } => {
             // get inference information about lhs and rhs
-            let lhs_inference = infer_expr(lhs, inferrer, symbols)?;
-            let rhs_inference = infer_expr(rhs, inferrer, symbols)?;
+            let lhs_inference = infer_expr(&lhs.0, inferrer, symbols)?;
+            let rhs_inference = infer_expr(&rhs.0, inferrer, symbols)?;
 
             // calculate the most inferred type var of both
             let operands_ty = match TypeVar::max(lhs_inference.ty, rhs_inference.ty) {
@@ -67,7 +67,7 @@ pub fn infer_expr<'source>(
             let InferenceResult {
                 set,
                 ty: operand_ty,
-            } = infer_expr(rhs, inferrer, symbols)?;
+            } = infer_expr(&rhs.0, inferrer, symbols)?;
 
             let min_ty = match op {
                 hir::UnOp::Not => TypeVar::Type(Type::Bool),
@@ -84,7 +84,7 @@ pub fn infer_expr<'source>(
             let fun = &symbols.functions[fun_id];
 
             for (expr, &req_ty) in args.iter().zip(&fun.args_types) {
-                let InferenceResult { set, ty: arg_ty } = infer_expr(expr, inferrer, symbols)?;
+                let InferenceResult { set, ty: arg_ty } = infer_expr(&expr.0, inferrer, symbols)?;
 
                 if let Some(set) = set {
                     inferrer

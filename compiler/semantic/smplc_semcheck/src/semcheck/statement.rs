@@ -45,7 +45,7 @@ impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
 
         Ok(self
             .value
-            .map(|expr| expr.0.check(env))
+            .map(|expr| expr.check(env))
             .transpose()?
             .map(|rhs| ExprStatement::Assign { var, rhs }))
     }
@@ -62,7 +62,7 @@ impl<'source> SemCheck<'source> for ast::ExprStatement<'source> {
 
             ast::ExprStatement::Assign { id, rhs } => {
                 let var = env.variables.get(id)?;
-                let rhs = rhs.0.check(env)?;
+                let rhs = rhs.check(env)?;
 
                 Ok(ExprStatement::Assign { var, rhs })
             }
@@ -74,8 +74,7 @@ impl<'source> SemCheck<'source> for ast::IfStatement<'source> {
     type Checked = IfStatement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let cond = self.cond.0.check(env)?;
-
+        let cond = self.cond.check(env)?;
         let body = self.body.check(env)?;
 
         let else_body = self.else_body.map(|body| body.check(env)).transpose()?;
@@ -92,7 +91,7 @@ impl<'source> SemCheck<'source> for ast::ReturnStatement<'source> {
     type Checked = ReturnStatement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let value = self.value.map(|expr| expr.0.check(env)).transpose()?;
+        let value = self.value.map(|expr| expr.check(env)).transpose()?;
 
         Ok(ReturnStatement { value })
     }
@@ -102,7 +101,7 @@ impl<'source> SemCheck<'source> for ast::WhileStatement<'source> {
     type Checked = WhileStatement<'source>;
 
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let cond = self.cond.0.check(env)?;
+        let cond = self.cond.check(env)?;
         let body = self.body.check(env)?;
 
         Ok(WhileStatement { cond, body })

@@ -1,3 +1,5 @@
+use smplc_ast::Spanned;
+
 use crate::{Block, Expr, VarId};
 
 pub enum Statement<'source> {
@@ -10,21 +12,24 @@ pub enum Statement<'source> {
 }
 
 pub enum ExprStatement<'source> {
-    Assign { var: VarId, rhs: Expr<'source> },
+    Assign {
+        var: VarId,
+        rhs: Spanned<Expr<'source>>,
+    },
     Expr(Expr<'source>),
 }
 
 pub struct IfStatement<'source> {
-    pub cond: Expr<'source>,
+    pub cond: Spanned<Expr<'source>>,
     pub body: Block<'source>,
     pub else_body: Option<Block<'source>>,
 }
 
 pub struct ReturnStatement<'source> {
-    pub value: Option<Expr<'source>>,
+    pub value: Option<Spanned<Expr<'source>>>,
 }
 
 pub struct WhileStatement<'source> {
-    pub cond: Expr<'source>,
+    pub cond: Spanned<Expr<'source>>,
     pub body: Block<'source>,
 }

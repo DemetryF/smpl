@@ -18,7 +18,7 @@ impl<'source> Typed<'source> for hir::Statement<'source> {
 
             hir::Statement::If(if_statement) => {
                 return Statement::If(IfStatement {
-                    cond: if_statement.cond.typed(symbols),
+                    cond: if_statement.cond.0.typed(symbols),
                     body: if_statement.body.typed(symbols),
                     else_body: if_statement.else_body.map(|block| block.typed(symbols)),
                 });
@@ -26,13 +26,13 @@ impl<'source> Typed<'source> for hir::Statement<'source> {
 
             hir::Statement::Return(return_statement) => {
                 return Statement::Return(ReturnStatement {
-                    value: return_statement.value.map(|expr| expr.typed(symbols)),
+                    value: return_statement.value.map(|expr| expr.0.typed(symbols)),
                 });
             }
 
             hir::Statement::While(while_statement) => {
                 return Statement::While(WhileStatement {
-                    cond: while_statement.cond.typed(symbols),
+                    cond: while_statement.cond.0.typed(symbols),
                     body: while_statement.body.typed(symbols),
                 });
             }
@@ -50,7 +50,7 @@ impl<'source> Typed<'source> for hir::ExprStatement<'source> {
         match self {
             hir::ExprStatement::Assign { var, rhs } => ExprStatement::Assign {
                 var,
-                rhs: rhs.typed(symbols),
+                rhs: rhs.0.typed(symbols),
             },
 
             hir::ExprStatement::Expr(expr) => ExprStatement::Expr(expr.typed(symbols)),
@@ -78,8 +78,8 @@ impl<'source> Typed<'source> for hir::Expr<'source> {
     fn typed(self, symbols: &Symbols<'source>) -> Self::Typed {
         match self {
             hir::Expr::Binary { lhs, op, rhs } => {
-                let lhs = lhs.typed(symbols);
-                let rhs = rhs.typed(symbols);
+                let lhs = lhs.0.typed(symbols);
+                let rhs = rhs.0.typed(symbols);
 
                 let ty = expr_ty(&rhs, symbols);
 
@@ -91,7 +91,7 @@ impl<'source> Typed<'source> for hir::Expr<'source> {
             }
 
             hir::Expr::Unary { op, rhs } => {
-                let rhs = rhs.typed(symbols);
+                let rhs = rhs.0.typed(symbols);
 
                 let op = match op {
                     hir::UnOp::Not => UnOp::Not,
@@ -105,7 +105,7 @@ impl<'source> Typed<'source> for hir::Expr<'source> {
             }
 
             hir::Expr::Call { fun, args } => {
-                let args = args.into_iter().map(|expr| expr.typed(symbols)).collect();
+                let args = args.into_iter().map(|expr| expr.0.typed(symbols)).collect();
 
                 Expr::Call { fun, args }
             }

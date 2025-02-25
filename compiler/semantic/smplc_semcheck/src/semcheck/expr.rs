@@ -1,10 +1,18 @@
 use smplc_ast as ast;
-use smplc_ast::Call;
+use smplc_ast::{Call, Spanned};
 use smplc_hir::{Atom, Expr, FunData};
 
 use crate::env::Env;
 use crate::error::{SemError, SemResult};
 use crate::SemCheck;
+
+impl<'source> SemCheck<'source> for Spanned<ast::Expr<'source>> {
+    type Checked = Spanned<Expr<'source>>;
+
+    fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
+        self.map(|expr| expr.check(env)).transpose()
+    }
+}
 
 impl<'source> SemCheck<'source> for ast::Expr<'source> {
     type Checked = Expr<'source>;
@@ -12,31 +20,31 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
     fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
         match self {
             ast::Expr::Infix { lhs, op, rhs } => {
-                let lhs = Box::new(lhs.0.check(env)?);
-                let rhs = Box::new(rhs.0.check(env)?);
+                let lhs = Box::new(lhs.check(env)?);
+                let rhs = Box::new(rhs.check(env)?);
 
                 Ok(Expr::Binary { lhs, op, rhs })
             }
 
             ast::Expr::Prefix { op, rhs } => {
-                let rhs = Box::new(rhs.0.check(env)?);
+                let rhs = Box::new(rhs.check(env)?);
 
                 Ok(Expr::Unary { op, rhs })
             }
 
             ast::Expr::Call(call) => {
-                let fun_id = env.functions.get(call.id)?;
-                let fun_data = &env.functions.symbols[fun_id];
+                let fun = env.functions.get(call.id)?;
+                let fun_data = &env.functions.symbols[fun];
 
                 check_args_count(fun_data, &call)?;
 
                 let args = call
                     .args
                     .into_iter()
-                    .map(|arg| arg.0.check(env))
+                    .map(|arg| arg.check(env))
                     .collect::<Result<Vec<_>, _>>()?;
 
-                Ok(Expr::Call { fun: fun_id, args })
+                Ok(Expr::Call { fun, args })
             }
 
             ast::Expr::Atom(atom) => Ok(Expr::Atom(match atom {

@@ -1,20 +1,21 @@
+use smplc_ast::Spanned;
 pub use smplc_ast::{BinOp, Literal, Pos, Type, UnOp};
 
 use crate::{FunId, VarId};
 
 pub enum Expr<'source> {
     Binary {
-        lhs: Box<Self>,
+        lhs: Box<Spanned<Self>>,
         op: BinOp,
-        rhs: Box<Self>,
+        rhs: Box<Spanned<Self>>,
     },
     Unary {
         op: UnOp,
-        rhs: Box<Self>,
+        rhs: Box<Spanned<Self>>,
     },
     Call {
         fun: FunId,
-        args: Vec<Self>,
+        args: Vec<Spanned<Self>>,
     },
     Atom(Atom<'source>),
 }
