@@ -1,8 +1,8 @@
 mod expr;
 mod statement;
 
-use std::collections::HashMap;
 use std::ops::Index;
+use std::{collections::HashMap, fmt};
 
 use smplc_hir as hir;
 use smplc_hir::Type;
@@ -52,12 +52,12 @@ impl TypeInferrer {
         }
     }
 
-    pub fn set_set_ty(&mut self, set: SetId, ty: TypeVar) -> Result<TypeVar, (TypeVar, TypeVar)> {
+    pub fn set_set_ty(&mut self, set: SetId, ty: TypeVar) -> Result<(), (TypeVar, TypeVar)> {
         let new_ty = TypeVar::max(self.sets[&set], ty)?;
 
         self.sets.insert(set, new_ty);
 
-        Ok(new_ty)
+        Ok(())
     }
 
     pub fn unite(&mut self, a: SetId, b: SetId) -> Result<SetId, (TypeVar, TypeVar)> {
@@ -176,6 +176,17 @@ impl TypeVar {
             | (res @ Self::Type(Type::Int | Type::Real), Self::Number) => Ok(res),
 
             _ => Err((a, b)),
+        }
+    }
+}
+
+impl fmt::Display for TypeVar {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TypeVar::Type(ty) => write!(f, "{ty}"),
+            TypeVar::Number => write!(f, "AmbiguousNumber"),
+            TypeVar::Unknown => write!(f, "Unknown"),
+            TypeVar::None => write!(f, "None"),
         }
     }
 }

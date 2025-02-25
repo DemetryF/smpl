@@ -1,7 +1,7 @@
 use smplc_hir as hir;
 use smplc_hir::Type;
 
-use crate::error::TypeResult;
+use crate::error::{TypeError, TypeResult};
 
 use super::expr::{infer_expr, InferenceResult};
 use super::{TypeInfer, TypeInferrer, TypeVar};
@@ -36,16 +36,22 @@ impl<'source> TypeInfer<'source> for hir::ExprStatement<'source> {
                     ty: value_ty,
                 } = infer_expr(&rhs.0, inferrer, symbols)?;
 
-                let var_ty = symbols.variables[var]
-                    .ty
-                    .map_or(TypeVar::Unknown, TypeVar::Type);
+                let var_set = if let Some(ty) = symbols.variables[var].ty {
+                    TypeVar::max(TypeVar::Type(ty), value_ty).map_err(|(required, got)| {
+                        TypeError::mismatched_types(required, got, rhs.span())
+                    })?;
 
-                let var_ty = TypeVar::max(var_ty, value_ty).expect("make TypeError");
+                    if let Some(set) = value_set {
+                        inferrer.set_set_ty(set, TypeVar::Type(ty)).unwrap();
+                    }
 
-                let var_set = inferrer.set_var_ty(var, var_ty).expect("make TypeError");
+                    inferrer.set_var_ty(var, TypeVar::Type(ty)).unwrap()
+                } else {
+                    inferrer.set_var_ty(var, value_ty).unwrap()
+                };
 
                 if let Some(value_set) = value_set {
-                    inferrer.unite(var_set, value_set).expect("make TypeError");
+                    inferrer.unite(var_set, value_set).unwrap();
                 }
 
                 Ok(())
@@ -68,12 +74,12 @@ impl<'source> TypeInfer<'source> for hir::IfStatement<'source> {
     ) -> TypeResult<'source, ()> {
         let InferenceResult { set, ty } = infer_expr(&self.cond.0, inferrer, symbols)?;
 
+        TypeVar::max(ty, TypeVar::Type(Type::Bool)).map_err(|(got, required)| {
+            TypeError::mismatched_types(required, got, self.cond.span())
+        })?;
+
         if let Some(set) = set {
-            inferrer
-                .set_set_ty(set, TypeVar::Type(Type::Bool))
-                .expect("make TypeError");
-        } else {
-            TypeVar::max(ty, TypeVar::Type(Type::Bool)).expect("make TypeError");
+            inferrer.set_set_ty(set, TypeVar::Type(Type::Bool)).unwrap();
         }
 
         self.body.infer(inferrer, symbols)?;
@@ -99,15 +105,17 @@ impl<'source> TypeInfer<'source> for hir::ReturnStatement<'source> {
             Some(value) => {
                 let InferenceResult { set, ty } = infer_expr(&value.0, inferrer, symbols)?;
 
+                TypeVar::max(ty, ret_ty).map_err(|(got, required)| {
+                    TypeError::mismatched_types(required, got, value.span())
+                })?;
+
                 if let Some(set) = set {
-                    inferrer.set_set_ty(set, ret_ty).expect("make TypeError");
-                } else {
-                    TypeVar::max(ty, ret_ty).expect("make TypeError");
+                    inferrer.set_set_ty(set, ret_ty).unwrap();
                 }
             }
 
             None if ret_ty != TypeVar::None => {
-                todo!("make TypeError")
+                todo!("make Type Error")
             }
 
             _ => {}
@@ -125,12 +133,12 @@ impl<'source> TypeInfer<'source> for hir::WhileStatement<'source> {
     ) -> TypeResult<'source, ()> {
         let InferenceResult { set, ty } = infer_expr(&self.cond.0, inferrer, symbols)?;
 
+        TypeVar::max(ty, TypeVar::Type(Type::Bool)).map_err(|(got, required)| {
+            TypeError::mismatched_types(required, got, self.cond.span())
+        })?;
+
         if let Some(set) = set {
-            inferrer
-                .set_set_ty(set, TypeVar::Type(Type::Bool))
-                .expect("make TypeError");
-        } else {
-            TypeVar::max(ty, TypeVar::Type(Type::Bool)).expect("make TypeError");
+            inferrer.set_set_ty(set, TypeVar::Type(Type::Bool)).unwrap();
         }
 
         self.body.infer(inferrer, symbols)?;
