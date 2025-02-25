@@ -15,6 +15,16 @@ impl<T> Spanned<T> {
     pub fn span(&self) -> Span {
         self.1
     }
+
+    pub fn map<U>(self, f: impl FnOnce(T) -> U) -> Spanned<U> {
+        Spanned(f(self.0), self.1)
+    }
+}
+
+impl<T, E> Spanned<Result<T, E>> {
+    pub fn transpose(self) -> Result<Spanned<T>, E> {
+        self.0.map(|node| Spanned(node, self.1))
+    }
 }
 
 impl<T: Hash> Hash for Spanned<T> {
