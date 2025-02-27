@@ -1,11 +1,13 @@
 pub mod error;
 
 mod env;
+mod inited;
 mod semcheck;
 
 #[cfg(test)]
 mod tests;
 
+use inited::GeneralInited;
 use smplc_ast as ast;
 use smplc_ast::Span;
 use smplc_hir::{Symbols, Type, HIR};
@@ -32,16 +34,18 @@ pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
         }
     }
 
+    let mut inited = GeneralInited::default();
+
     for declaration in ast {
         match declaration {
             ast::Declaration::Function(function) => {
                 env.current_fn = Some(env.functions.get(function.id).unwrap());
 
-                hir.functions.push(function.check(&mut env)?);
+                hir.functions.push(function.check(&mut env, &mut inited)?);
             }
 
             ast::Declaration::Constant(constant) => {
-                hir.constants.push(constant.check(&mut env)?);
+                hir.constants.push(constant.check(&mut env, &mut inited)?);
             }
         }
     }

@@ -4,30 +4,39 @@ use smplc_hir::{Atom, Expr, FunData};
 
 use crate::env::Env;
 use crate::error::{SemError, SemResult};
+use crate::inited::Inited;
 use crate::SemCheck;
 
 impl<'source> SemCheck<'source> for Spanned<ast::Expr<'source>> {
     type Checked = Spanned<Expr<'source>>;
 
-    fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        self.map(|expr| expr.check(env)).transpose()
+    fn check(
+        self,
+        env: &mut Env<'source>,
+        inited: &mut impl Inited,
+    ) -> SemResult<'source, Self::Checked> {
+        self.map(|expr| expr.check(env, inited)).transpose()
     }
 }
 
 impl<'source> SemCheck<'source> for ast::Expr<'source> {
     type Checked = Expr<'source>;
 
-    fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
+    fn check(
+        self,
+        env: &mut Env<'source>,
+        inited: &mut impl Inited,
+    ) -> SemResult<'source, Self::Checked> {
         match self {
             ast::Expr::Infix { lhs, op, rhs } => {
-                let lhs = Box::new(lhs.check(env)?);
-                let rhs = Box::new(rhs.check(env)?);
+                let lhs = Box::new(lhs.check(env, inited)?);
+                let rhs = Box::new(rhs.check(env, inited)?);
 
                 Ok(Expr::Binary { lhs, op, rhs })
             }
 
             ast::Expr::Prefix { op, rhs } => {
-                let rhs = Box::new(rhs.check(env)?);
+                let rhs = Box::new(rhs.check(env, inited)?);
 
                 Ok(Expr::Unary { op, rhs })
             }
@@ -41,14 +50,23 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
                 let args = call
                     .args
                     .into_iter()
-                    .map(|arg| arg.check(env))
-                    .collect::<Result<Vec<_>, _>>()?;
+                    .map(|arg| arg.check(env, inited))
+                    .collect::<Result<_, _>>()?;
 
                 Ok(Expr::Call { fun, args })
             }
 
             ast::Expr::Atom(atom) => Ok(Expr::Atom(match atom {
-                ast::Atom::Id(id) => Atom::Var(env.variables.get(id)?),
+                ast::Atom::Id(id) => {
+                    let var = env.variables.get(id)?;
+
+                    if !inited.is_inited(var) {
+                        return Err(SemError::using_uninited(id));
+                    }
+
+                    Atom::Var(var)
+                }
+
                 ast::Atom::Literal(literal) => Atom::Literal(literal),
             })),
         }

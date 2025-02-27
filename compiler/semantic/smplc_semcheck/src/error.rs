@@ -16,6 +16,7 @@ pub enum SemErrorKind<'source> {
     NonExistentFunction(&'source str),
     NonExistentVariable(&'source str),
     DuplicateArgsNames(&'source str),
+    UsingUninitedVar(&'source str),
 
     RedeclaringVariable {
         id: &'source str,
@@ -96,6 +97,15 @@ impl<'source> SemError<'source> {
             span,
         }
     }
+
+    pub fn using_uninited(id: ast::Id<'source>) -> Self {
+        let ast::Spanned(id, span) = id;
+
+        Self {
+            kind: SemErrorKind::UsingUninitedVar(id),
+            span,
+        }
+    }
 }
 
 impl fmt::Display for SemErrorKind<'_> {
@@ -140,6 +150,10 @@ impl fmt::Display for SemErrorKind<'_> {
 
             SemErrorKind::DuplicateArgsNames(name) => {
                 write!(f, "two arguments with same name: {name}")
+            }
+
+            SemErrorKind::UsingUninitedVar(id) => {
+                write!(f, "variable \"{id}\" isn't initialized")
             }
         }
     }

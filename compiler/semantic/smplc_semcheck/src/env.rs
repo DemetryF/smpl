@@ -20,17 +20,6 @@ pub struct Variables<'source> {
     pub symbols: SymbolsTable<VarId, VarData<'source>>,
 }
 
-#[derive(Default)]
-pub struct Functions<'source> {
-    data: Scope<'source, FunId>,
-
-    pub symbols: SymbolsTable<FunId, FunData<'source>>,
-}
-
-pub struct Scope<'source, V: Clone> {
-    data: HashMap<&'source str, V>,
-}
-
 impl<'source> Variables<'source> {
     pub fn fork(&mut self) {
         self.data.push(Scope::default());
@@ -95,6 +84,13 @@ impl<'source> Variables<'source> {
     }
 }
 
+#[derive(Default)]
+pub struct Functions<'source> {
+    data: Scope<'source, FunId>,
+
+    pub symbols: SymbolsTable<FunId, FunData<'source>>,
+}
+
 impl<'source> Functions<'source> {
     pub fn get(&self, id: ast::Id<'source>) -> SemResult<'source, FunId> {
         self.data
@@ -126,6 +122,10 @@ impl<'source> Functions<'source> {
             Ok(fun_id)
         }
     }
+}
+
+pub struct Scope<'source, V: Clone> {
+    data: HashMap<&'source str, V>,
 }
 
 impl<'source, V: Clone> Scope<'source, V> {
