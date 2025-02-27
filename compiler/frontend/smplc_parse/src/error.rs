@@ -49,7 +49,7 @@ impl fmt::Display for ParseErrorKind<'_> {
     }
 }
 
-impl<'source> From<smplc_lexer::LexError> for ParseError<'source> {
+impl From<smplc_lexer::LexError> for ParseError<'_> {
     fn from(value: smplc_lexer::LexError) -> Self {
         Self {
             kind: ParseErrorKind::UnexpectedChar(value.char),

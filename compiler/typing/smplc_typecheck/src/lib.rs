@@ -10,7 +10,7 @@ pub mod error;
 mod infer;
 mod typed;
 
-pub fn typecheck<'source>(hir: HIR<'source>) -> Result<THIR<'source>, Vec<TypeError<'source>>> {
+pub fn typecheck(hir: HIR) -> Result<THIR, Vec<TypeError>> {
     let mut inferrer = TypeInferrer::default();
 
     for function in &hir.functions {

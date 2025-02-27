@@ -52,7 +52,7 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
         Ok(token_stream) => token_stream,
         Err(err) => {
             let err = ParseError::from(err);
-            output_error(&filename, &code, err.span, err.kind);
+            output_error(filename, code, err.span, err.kind);
             return Err(());
         }
     };
@@ -60,7 +60,7 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
     let stmts = match parse(token_stream) {
         Ok(stmts) => stmts,
         Err(err) => {
-            output_error(&filename, &code, err.span, err.kind);
+            output_error(filename, code, err.span, err.kind);
             return Err(());
         }
     };
@@ -68,7 +68,7 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
     let hir = match sem_check(stmts) {
         Ok(stmts) => stmts,
         Err(err) => {
-            output_error(&filename, &code, err.span, err.kind);
+            output_error(filename, code, err.span, err.kind);
             return Err(());
         }
     };
@@ -77,7 +77,7 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
         Ok(thir) => thir,
         Err(errors) => {
             for error in errors {
-                output_error(&filename, &code, error.span, error.kind);
+                output_error(filename, code, error.span, error.kind);
             }
 
             return Err(());

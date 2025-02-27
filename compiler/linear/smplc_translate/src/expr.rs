@@ -219,7 +219,7 @@ pub fn atom_or_assign(translator: &mut Translator, rhs: AssignRhs) -> Atom {
     if let AssignRhs::Atom(atom) = rhs {
         atom
     } else {
-        let result = translator.variables.next_id(rhs_ty(&rhs, &translator));
+        let result = translator.variables.next_id(rhs_ty(&rhs, translator));
 
         translator.code.push(Assign { lhs: result, rhs });
 

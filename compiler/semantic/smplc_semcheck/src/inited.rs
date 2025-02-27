@@ -27,7 +27,7 @@ impl<'parent> GeneralInited<'parent> {
     }
 }
 
-impl<'parent> Inited for GeneralInited<'parent> {
+impl Inited for GeneralInited<'_> {
     fn add(&mut self, vars: HashSet<VarId>) {
         self.inited.extend(vars);
     }
@@ -70,7 +70,7 @@ impl<'parent> AndInited<'parent> {
     }
 }
 
-impl<'parent> Inited for AndInited<'parent> {
+impl Inited for AndInited<'_> {
     fn add(&mut self, vars: HashSet<VarId>) {
         if let Some(first) = &mut self.first {
             first.retain(|var| vars.contains(var));
@@ -121,7 +121,7 @@ impl<'parent> NothingInited<'parent> {
     }
 }
 
-impl<'parent> Inited for NothingInited<'parent> {
+impl Inited for NothingInited<'_> {
     fn add(&mut self, vars: HashSet<VarId>) {
         self.inited.extend(vars);
     }

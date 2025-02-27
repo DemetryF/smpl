@@ -9,7 +9,7 @@ pub struct TypeError<'source> {
     pub span: Span,
 }
 
-impl<'source> TypeError<'source> {
+impl TypeError<'_> {
     pub fn mismatched_types(required: TypeVar, got: TypeVar, span: Span) -> Self {
         Self {
             kind: TypeErrorKind::MismatchedTypes { required, got },

@@ -45,7 +45,7 @@ impl fmt::Display for UnOp {
     }
 }
 
-impl<'source> fmt::Display for Literal<'source> {
+impl fmt::Display for Literal<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.value)
     }

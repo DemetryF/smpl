@@ -25,15 +25,15 @@ impl<'source> SemCheck<'source> for ast::Statement<'source> {
             }
 
             ast::Statement::While(while_stmt) => {
-                return Ok(Some(Statement::While(while_stmt.check(env, inited)?)));
+                Ok(Some(Statement::While(while_stmt.check(env, inited)?)))
             }
 
             ast::Statement::Expr(expr_stmt) => {
-                return Ok(Some(Statement::Expr(expr_stmt.check(env, inited)?)));
+                Ok(Some(Statement::Expr(expr_stmt.check(env, inited)?)))
             }
 
             ast::Statement::Return(return_stmt) => {
-                return Ok(Some(Statement::Return(return_stmt.check(env, inited)?)));
+                Ok(Some(Statement::Return(return_stmt.check(env, inited)?)))
             }
 
             ast::Statement::Break => Ok(Some(Statement::Break)),

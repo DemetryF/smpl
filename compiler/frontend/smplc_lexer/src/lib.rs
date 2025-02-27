@@ -80,7 +80,7 @@ impl<'source> Iterator for Lexer<'source> {
     }
 }
 
-pub fn lex<'source>(cursor: &mut Cursor<'source>) -> Option<TokenTag> {
+pub fn lex(cursor: &mut Cursor) -> Option<TokenTag> {
     lex_number(cursor)
         .or_else(|| lex_word(cursor))
         .or_else(|| two_char_specials(cursor))

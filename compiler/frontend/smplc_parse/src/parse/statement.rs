@@ -84,8 +84,6 @@ impl<'source> Parse<'source> for ExprStatement<'source> {
 
         if let Expr::Atom(Atom::Id(id)) = expr.0 {
             if token_stream.try_consume(TokenTag::Assign)? {
-                let id = id;
-
                 let rhs = Spanned::<Expr>::parse(token_stream)?;
 
                 token_stream.consume(TokenTag::Semicolon)?;

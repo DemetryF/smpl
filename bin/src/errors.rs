@@ -28,7 +28,7 @@ pub fn output_error<'source>(
     );
 }
 
-impl<'source, K: fmt::Display> fmt::Display for Error<'source, K> {
+impl<K: fmt::Display> fmt::Display for Error<'_, K> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}:{}: ", self.filename, self.span)?;
 

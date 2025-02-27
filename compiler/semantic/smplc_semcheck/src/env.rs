@@ -67,7 +67,7 @@ impl<'source> Variables<'source> {
     }
 
     pub fn add_argument(&mut self, arg: ast::FunctionArg<'source>) -> SemResult<'source, VarId> {
-        if self.last().has(&arg.id.0) {
+        if self.last().has(arg.id.0) {
             Err(SemError::duplicate_args_names(arg.id))
         } else {
             let var_data = VarData {
@@ -77,7 +77,7 @@ impl<'source> Variables<'source> {
 
             let var_id = self.symbols.add(var_data);
 
-            self.last_mut().add(&arg.id.0, var_id);
+            self.last_mut().add(arg.id.0, var_id);
 
             Ok(var_id)
         }

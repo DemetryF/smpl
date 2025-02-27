@@ -6,7 +6,7 @@ use crate::TokenTag;
 const RADIX_PREFIX_LENGTH: usize = 2;
 
 pub fn lex_number(cursor: &mut Cursor) -> Option<TokenTag> {
-    if !cursor.current().is_digit(10) {
+    if !cursor.current().is_ascii_digit() {
         return None;
     }
 
