@@ -12,7 +12,7 @@ fn main() {
             break;
         }
 
-        print(n);
+        printi(n);
     }
 
     return;
