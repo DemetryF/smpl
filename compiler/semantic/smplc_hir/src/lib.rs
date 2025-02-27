@@ -3,6 +3,7 @@ mod statement;
 mod symbols;
 
 pub use expr::*;
+use smplc_ast::Spanned;
 pub use statement::*;
 pub use symbols::*;
 
@@ -23,7 +24,7 @@ pub struct Function<'source> {
 pub struct Constant<'source> {
     pub id: VarId,
     pub ty: Type,
-    pub value: Expr<'source>,
+    pub value: Spanned<Expr<'source>>,
 }
 
 pub struct Block<'source> {

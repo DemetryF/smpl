@@ -50,7 +50,7 @@ impl<'source> SemCheck<'source> for ConstantDeclaration<'source> {
 
         inited.init(id);
 
-        let value = self.value.0.check(env, inited)?;
+        let value = self.value.check(env, inited)?;
 
         Ok(Constant {
             id,
