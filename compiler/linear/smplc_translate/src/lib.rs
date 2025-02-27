@@ -4,36 +4,39 @@ mod translator;
 
 use std::collections::HashMap;
 
-use smplc_hir as hir;
-use smplc_hir::{ArithmOp, BinOp, Block, Expr, NumberType, RelOp, HIR};
 use smplc_lir::{Code, CodeFunction, FunctionId, Id, Number};
+use smplc_thir::{self as thir, Symbols};
+use smplc_thir::{ArithmOp, BinOp, Block, Expr, NumberType, RelOp, THIR};
 
 use translator::Translator;
 
 trait Translate: Sized {
-    fn translate(self, translator: &mut Translator);
+    fn translate(self, translator: &mut Translator, symbols: &Symbols);
 }
 
 impl Translate for Block<'_> {
-    fn translate(self, translator: &mut Translator) {
+    fn translate(self, translator: &mut Translator, symbols: &Symbols) {
         self.statements
             .into_iter()
-            .for_each(|stmt| stmt.translate(translator))
+            .for_each(|stmt| stmt.translate(translator, symbols))
     }
 }
 
-pub fn translate(hir: HIR) -> (Code, HashMap<Id, NumberType>) {
-    let HIR {
+pub fn translate(thir: THIR) -> (Code, HashMap<Id, NumberType>) {
+    let THIR {
         constants,
         functions,
-    } = hir;
+        symbols,
+    } = thir;
 
     let mut translator = Translator::default();
 
     for constant in constants {
         let value = eval_constant_expr(constant.value, &translator);
 
-        let id = translator.variables.add(constant.data);
+        let id = translator
+            .variables
+            .add(constant.id, symbols.variables[constant.id].ty);
 
         translator.code.constants.insert(id, value);
     }
@@ -42,16 +45,16 @@ pub fn translate(hir: HIR) -> (Code, HashMap<Id, NumberType>) {
         let args = function
             .args
             .into_iter()
-            .map(|var_ref| translator.variables.add(var_ref))
+            .map(|var| translator.variables.add(var, symbols.variables[var].ty))
             .collect();
 
         translator.code.add_function(CodeFunction::new(
-            FunctionId(function.data.id.clone()),
+            FunctionId(symbols.functions[function.id].id.0.into()),
             args,
         ));
 
-        for stmt in function.body {
-            stmt.translate(&mut translator)
+        for stmt in function.body.statements {
+            stmt.translate(&mut translator, &symbols)
         }
     }
 
@@ -149,8 +152,8 @@ fn eval_constant_expr(expr: Expr, translator: &Translator) -> Number {
             let rhs = eval_constant_expr(*rhs, translator);
 
             match op {
-                hir::UnOp::Not => Number::Int((rhs != Number::Int(0)) as i32),
-                hir::UnOp::Neg(ty) => match ty {
+                thir::UnOp::Not => Number::Int((rhs != Number::Int(0)) as i32),
+                thir::UnOp::Neg(ty) => match ty {
                     NumberType::Real => Number::Real(-rhs.real()),
                     NumberType::Int => Number::Int(-rhs.int()),
                 },
@@ -160,13 +163,13 @@ fn eval_constant_expr(expr: Expr, translator: &Translator) -> Number {
         Expr::Call { .. } => panic!("function call in constant expression"),
 
         Expr::Atom(atom) => match atom {
-            smplc_hir::Atom::Var(var_ref) => {
+            thir::Atom::Var(var_ref) => {
                 let id = translator.variables.get(var_ref);
 
                 *translator.code.constants.get(&id).unwrap()
             }
 
-            smplc_hir::Atom::Literal(literal) => Number::from(literal),
+            thir::Atom::Literal(literal) => Number::from(literal),
         },
     }
 }

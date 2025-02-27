@@ -11,6 +11,7 @@ smplc_lexer = { path = "../compiler/frontend/smplc_lexer" }
 smplc_ast = { path = "../compiler/frontend/smplc_ast" }
 
 smplc_semcheck = { path = "../compiler/semantic/smplc_semcheck" }
+smplc_typecheck = { path = "../compiler/typing/smplc_typecheck" }
 smplc_translate = { path = "../compiler/linear/smplc_translate" }
 
 smplc_backend_x86 = { path = "../compiler/smplc_backend_x86" }

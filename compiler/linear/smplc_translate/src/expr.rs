@@ -1,16 +1,21 @@
-use smplc_hir::{self as hir, NumberType};
 use smplc_lir::{Assign, AssignRhs, Atom, Call, FunctionId, Goto, If, Label};
+use smplc_thir::NumberType;
+use smplc_thir::{self as thir, Symbols};
 
 use crate::translator::Translator;
 
-pub fn translate_expr(expr: hir::Expr, translator: &mut Translator) -> AssignRhs {
+pub fn translate_expr(
+    expr: thir::Expr,
+    translator: &mut Translator,
+    symbols: &Symbols,
+) -> AssignRhs {
     match expr {
-        hir::Expr::Binary { lhs, op, rhs } => {
-            if let hir::BinOp::Arithm(op, ty) = op {
-                let rhs = translate_expr(*rhs, translator);
+        thir::Expr::Binary { lhs, op, rhs } => {
+            if let thir::BinOp::Arithm(op, ty) = op {
+                let rhs = translate_expr(*rhs, translator, symbols);
                 let rhs = atom_or_assign(translator, rhs);
 
-                let lhs = translate_expr(*lhs, translator);
+                let lhs = translate_expr(*lhs, translator, symbols);
                 let lhs = atom_or_assign(translator, lhs);
 
                 AssignRhs::Binary { lhs, op, rhs, ty }
@@ -19,9 +24,15 @@ pub fn translate_expr(expr: hir::Expr, translator: &mut Translator) -> AssignRhs
                 let false_label = translator.next_label();
                 let end_label = translator.next_label();
 
-                let expr = hir::Expr::Binary { lhs, op, rhs };
+                let expr = thir::Expr::Binary { lhs, op, rhs };
 
-                translate_logic_expr(expr, translator, true_label.clone(), false_label.clone());
+                translate_logic_expr(
+                    expr,
+                    translator,
+                    symbols,
+                    true_label.clone(),
+                    false_label.clone(),
+                );
 
                 let result = translator.variables.next_id(NumberType::Int);
 
@@ -49,45 +60,48 @@ pub fn translate_expr(expr: hir::Expr, translator: &mut Translator) -> AssignRhs
             }
         }
 
-        hir::Expr::Unary { op, rhs } => match op {
-            hir::UnOp::Not => todo!(),
-            hir::UnOp::Neg(ty) => {
-                let rhs = translate_expr(*rhs, translator);
+        thir::Expr::Unary { op, rhs } => match op {
+            thir::UnOp::Not => todo!(),
+            thir::UnOp::Neg(ty) => {
+                let rhs = translate_expr(*rhs, translator, symbols);
                 let rhs = atom_or_assign(translator, rhs);
 
                 AssignRhs::Neg { rhs, ty }
             }
         },
 
-        hir::Expr::Call { fun_ref, args } => {
-            let args = translate_args(translator, args, &fun_ref.args);
+        thir::Expr::Call { fun: fun_id, args } => {
+            let fun = &symbols.functions[fun_id];
+
+            let args = translate_args(translator, symbols, args, &fun.args_types);
 
             AssignRhs::Call(
                 Call {
-                    id: FunctionId(fun_ref.id.clone()),
+                    id: FunctionId(fun.id.0.into()),
                     args,
                 },
-                NumberType::for_ir(fun_ref.ret_ty.unwrap()),
+                NumberType::for_ir(fun.ret_ty.unwrap()),
             )
         }
 
-        hir::Expr::Atom(atom) => AssignRhs::Atom(translate_atom(translator, atom)),
+        thir::Expr::Atom(atom) => AssignRhs::Atom(translate_atom(translator, atom)),
     }
 }
 
 pub fn translate_logic_expr(
-    expr: hir::Expr,
+    expr: thir::Expr,
     translator: &mut Translator,
+    symbols: &Symbols,
     true_label: Label,
     false_label: Label,
 ) {
     match expr {
-        hir::Expr::Binary { lhs, op, rhs } => {
-            if let hir::BinOp::Rel(op, ty) = op {
-                let lhs = translate_expr(*lhs, translator);
+        thir::Expr::Binary { lhs, op, rhs } => {
+            if let thir::BinOp::Rel(op, ty) = op {
+                let lhs = translate_expr(*lhs, translator, symbols);
                 let lhs = atom_or_assign(translator, lhs);
 
-                let rhs = translate_expr(*rhs, translator);
+                let rhs = translate_expr(*rhs, translator, symbols);
                 let rhs = atom_or_assign(translator, rhs);
 
                 translator.code.push(If {
@@ -98,40 +112,42 @@ pub fn translate_logic_expr(
                     then_label: Some(true_label),
                     else_label: Some(false_label),
                 })
-            } else if op == hir::BinOp::And {
+            } else if op == thir::BinOp::And {
                 let lhs_false_label = translator.next_label();
 
                 translate_logic_expr(
                     *lhs,
                     translator,
+                    symbols,
                     true_label.clone(),
                     lhs_false_label.clone(),
                 );
 
                 translator.code.add_label(lhs_false_label);
 
-                translate_logic_expr(*rhs, translator, true_label, false_label);
-            } else if op == hir::BinOp::Or {
+                translate_logic_expr(*rhs, translator, symbols, true_label, false_label);
+            } else if op == thir::BinOp::Or {
                 let lhs_true_label = translator.next_label();
 
                 translate_logic_expr(
                     *lhs,
                     translator,
+                    symbols,
                     lhs_true_label.clone(),
                     false_label.clone(),
                 );
 
                 translator.code.add_label(lhs_true_label);
 
-                translate_logic_expr(*rhs, translator, true_label, false_label);
+                translate_logic_expr(*rhs, translator, symbols, true_label, false_label);
             } else {
                 panic!("non bool expression in translate_logic_expr fn");
             }
         }
 
-        hir::Expr::Unary { op, rhs } => {
-            if op == hir::UnOp::Not {
-                translate_logic_expr(*rhs, translator, false_label, true_label);
+        thir::Expr::Unary { op, rhs } => {
+            if op == thir::UnOp::Not {
+                translate_logic_expr(*rhs, translator, symbols, false_label, true_label);
             } else {
                 panic!("non bool expression in translate_logic_expr fn");
             }
@@ -143,24 +159,26 @@ pub fn translate_logic_expr(
 
 pub fn translate_call(
     translator: &mut Translator,
+    symbols: &Symbols,
     id: FunctionId,
-    args: Vec<hir::Expr>,
-    args_types: &Vec<hir::Type>,
+    args: Vec<thir::Expr>,
+    args_types: &Vec<thir::Type>,
 ) {
-    let args = translate_args(translator, args, args_types);
+    let args = translate_args(translator, symbols, args, args_types);
 
     translator.code.push(Call { id, args })
 }
 
 pub fn translate_args(
     translator: &mut Translator,
-    args: Vec<hir::Expr>,
-    args_types: &Vec<hir::Type>,
+    symbols: &Symbols,
+    args: Vec<thir::Expr>,
+    args_types: &Vec<thir::Type>,
 ) -> Vec<(Atom, NumberType)> {
     args.into_iter()
         .zip(args_types)
         .map(|(arg, &ty)| {
-            let arg = translate_expr(arg, translator);
+            let arg = translate_expr(arg, translator, symbols);
             let arg = atom_or_assign(translator, arg);
 
             (arg, NumberType::for_ir(ty))
@@ -168,13 +186,13 @@ pub fn translate_args(
         .collect()
 }
 
-pub fn translate_atom(translator: &mut Translator, atom: hir::Atom) -> Atom {
+pub fn translate_atom(translator: &mut Translator, atom: thir::Atom) -> Atom {
     match atom {
-        hir::Atom::Var(var_ref) => Atom::Id(translator.variables.get(var_ref)),
-        hir::Atom::Literal(literal) => match literal.ty {
-            hir::Type::Real => Atom::Real(parse_int::parse(literal.value).unwrap()),
-            hir::Type::Int => Atom::Real(parse_int::parse(literal.value).unwrap()),
-            hir::Type::Bool => Atom::Int(if literal.value == "true" { 1 } else { 0 }),
+        thir::Atom::Var(var_ref) => Atom::Id(translator.variables.get(var_ref)),
+        thir::Atom::Literal(literal) => match literal.ty {
+            thir::Type::Real => Atom::Real(parse_int::parse(literal.value).unwrap()),
+            thir::Type::Int => Atom::Int(parse_int::parse(literal.value).unwrap()),
+            thir::Type::Bool => Atom::Int(if literal.value == "true" { 1 } else { 0 }),
         },
     }
 }

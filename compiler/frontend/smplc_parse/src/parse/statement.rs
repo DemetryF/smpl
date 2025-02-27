@@ -56,9 +56,12 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
 
         let id = Id::parse(token_stream)?;
 
-        token_stream.consume(TokenTag::Colon)?;
-
-        let ty = Type::parse(token_stream)?;
+        let ty = {
+            token_stream
+                .try_consume(TokenTag::Colon)?
+                .then(|| Type::parse(token_stream))
+                .transpose()?
+        };
 
         let value = {
             token_stream

@@ -1,4 +1,6 @@
-use std::{fmt, ops::Index};
+use std::fmt;
+use std::hash::Hash;
+use std::ops::Index;
 
 use crate::Pos;
 
@@ -13,7 +15,26 @@ impl<T> Spanned<T> {
     pub fn span(&self) -> Span {
         self.1
     }
+
+    pub fn map<U>(self, f: impl FnOnce(T) -> U) -> Spanned<U> {
+        Spanned(f(self.0), self.1)
+    }
 }
+
+impl<T, E> Spanned<Result<T, E>> {
+    pub fn transpose(self) -> Result<Spanned<T>, E> {
+        self.0.map(|node| Spanned(node, self.1))
+    }
+}
+
+impl<T: Hash> Hash for Spanned<T> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.hash(state);
+        self.1.hash(state);
+    }
+}
+
+impl<T: Eq> Eq for Spanned<T> {}
 
 pub trait MakeSpanned: Sized {
     fn spanned(self, span: Span) -> Spanned<Self> {

@@ -3,15 +3,19 @@ use smplc_hir::{Constant, Function};
 
 use crate::env::Env;
 use crate::error::SemResult;
+use crate::inited::Inited;
 
-use super::expr::expect_ty;
 use super::SemCheck;
 
 impl<'source> SemCheck<'source> for FunctionDeclaration<'source> {
     type Checked = Function<'source>;
 
-    fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let data = env.functions.get(self.id).unwrap();
+    fn check(
+        self,
+        env: &mut Env<'source>,
+        inited: &mut impl Inited,
+    ) -> SemResult<'source, Self::Checked> {
+        let id = env.functions.get(self.id).unwrap();
 
         env.variables.fork();
 
@@ -19,27 +23,39 @@ impl<'source> SemCheck<'source> for FunctionDeclaration<'source> {
             .args
             .into_iter()
             .map(|id| env.variables.add_argument(id))
+            .inspect(|maybe_var| {
+                if let &Ok(var) = maybe_var {
+                    inited.init(var);
+                }
+            })
             .collect::<Result<Vec<_>, _>>()?;
 
-        let body = self.body.check(env)?.statements;
+        let body = self.body.check(env, inited)?;
 
         env.variables.exit();
 
-        Ok(Function { data, args, body })
+        Ok(Function { id, args, body })
     }
 }
 
 impl<'source> SemCheck<'source> for ConstantDeclaration<'source> {
     type Checked = Constant<'source>;
 
-    fn check(self, env: &mut Env<'source>) -> SemResult<'source, Self::Checked> {
-        let data = env.variables.add_variable(self.id, self.ty)?;
+    fn check(
+        self,
+        env: &mut Env<'source>,
+        inited: &mut impl Inited,
+    ) -> SemResult<'source, Self::Checked> {
+        let id = env.variables.add_variable(self.id, Some(self.ty))?;
 
-        let span = self.value.span();
-        let value = self.value.0.check(env)?;
+        inited.init(id);
 
-        expect_ty(&value, data.ty, span)?;
+        let value = self.value.check(env, inited)?;
 
-        Ok(Constant { data, value })
+        Ok(Constant {
+            id,
+            ty: self.ty,
+            value,
+        })
     }
 }

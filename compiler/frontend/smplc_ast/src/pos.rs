@@ -27,7 +27,7 @@ impl Pos {
 
     #[inline(always)]
     pub fn line_start(self) -> usize {
-        self.index - self.column + 1
+        self.index + 1 - self.column
     }
 
     #[inline(always)]

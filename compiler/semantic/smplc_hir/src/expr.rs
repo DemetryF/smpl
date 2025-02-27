@@ -1,46 +1,26 @@
-use std::rc::Rc;
+use smplc_ast::Spanned;
+pub use smplc_ast::{BinOp, Literal, Pos, Type, UnOp};
 
-pub use smplc_ast::{Literal, Pos, Type};
-
-use smplc_ast::Span;
-
-use crate::{BinOp, UnOp};
+use crate::{FunId, VarId};
 
 pub enum Expr<'source> {
     Binary {
-        lhs: Box<Self>,
+        lhs: Box<Spanned<Self>>,
         op: BinOp,
-        rhs: Box<Self>,
+        rhs: Box<Spanned<Self>>,
     },
     Unary {
         op: UnOp,
-        rhs: Box<Self>,
+        rhs: Box<Spanned<Self>>,
     },
     Call {
-        fun_ref: FunRef,
-        args: Vec<Self>,
+        fun: FunId,
+        args: Vec<Spanned<Self>>,
     },
     Atom(Atom<'source>),
 }
 
-pub type FunRef = Rc<FunData>;
-pub type VarRef = Rc<VarData>;
-
 pub enum Atom<'source> {
-    Var(VarRef),
+    Var(VarId),
     Literal(Literal<'source>),
-}
-
-#[derive(Debug, PartialEq)]
-pub struct FunData {
-    pub declared_at: Span,
-    pub id: Rc<str>,
-    pub ret_ty: Option<Type>,
-    pub args: Vec<Type>,
-}
-
-#[derive(Hash)]
-pub struct VarData {
-    pub declared_at: Span,
-    pub ty: Type,
 }

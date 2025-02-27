@@ -1,5 +1,5 @@
 fn module(x: int, d: int) -> int {
-    let a: int = 0;
+    let a = 0;
 
     while (a < d) {
         a = a + d;
