@@ -1,4 +1,4 @@
-use infer::{infer_expr, TypeInfer, TypeInferrer};
+use infer::{infer_expr, TypeInfer, TypeInferrer, TypeVar};
 use smplc_hir::HIR;
 use smplc_thir::{Constant, Function, THIR};
 
@@ -23,7 +23,14 @@ pub fn typecheck<'source>(hir: HIR<'source>) -> Result<THIR<'source>, Vec<TypeEr
     }
 
     for constant in &hir.constants {
-        infer_expr(&constant.value, &mut inferrer, &hir.symbols).map_err(|x| vec![x])?;
+        let inference =
+            infer_expr(&constant.value.0, &mut inferrer, &hir.symbols).map_err(|x| vec![x])?;
+
+        TypeVar::max(TypeVar::Type(constant.ty), inference.ty)
+            .map_err(|(required, got)| {
+                TypeError::mismatched_types(required, got, constant.value.span())
+            })
+            .map_err(|err| vec![err])?;
     }
 
     let symbols = inferrer.infer(hir.symbols)?;
@@ -44,7 +51,7 @@ pub fn typecheck<'source>(hir: HIR<'source>) -> Result<THIR<'source>, Vec<TypeEr
         .map(|constant| Constant {
             id: constant.id,
             ty: constant.ty,
-            value: constant.value.typed(&symbols),
+            value: constant.value.0.typed(&symbols),
         })
         .collect();
 
