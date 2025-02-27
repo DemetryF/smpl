@@ -1,4 +1,4 @@
-use smplc_lir::{Assign, AssignRhs, Atom, Call, FunctionId, Goto, If, Label};
+use smplc_lir::{Assign, AssignRhs, Atom, Call, FunctionId, Goto, If, Label, RelOp};
 use smplc_thir::NumberType;
 use smplc_thir::{self as thir, Symbols};
 
@@ -151,6 +151,24 @@ pub fn translate_logic_expr(
             } else {
                 panic!("non bool expression in translate_logic_expr fn");
             }
+        }
+
+        thir::Expr::Atom(thir::Atom::Literal(lit)) => match lit.value {
+            "true" => translator.code.push(Goto { label: true_label }),
+            "false" => translator.code.push(Goto { label: true_label }),
+
+            _ => unreachable!(),
+        },
+
+        thir::Expr::Atom(thir::Atom::Var(var)) => {
+            translator.code.push(If {
+                lhs: Atom::Id(translator.variables.get(var)),
+                op: RelOp::Eq,
+                ty: NumberType::Int,
+                rhs: Atom::Int(1),
+                then_label: Some(true_label),
+                else_label: Some(false_label),
+            });
         }
 
         _ => unreachable!(),
