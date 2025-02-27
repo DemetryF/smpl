@@ -94,21 +94,28 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
 }
 
 pub fn assembly(assembly: String, output_filename: String) {
-    fs::write("./temp.asm", assembly).unwrap();
+    if let Err(err) = fs::write("./temp.asm", assembly) {
+        eprintln!("Error: {err}");
+        return;
+    }
 
-    Command::new("nasm")
+    if let Err(err) = Command::new("nasm")
         .args(["-f", "elf64", "./temp.asm", "-o", "temp.o"])
         .output()
-        .unwrap();
+    {
+        eprintln!("Error: {err}");
+        return;
+    }
 
-    Command::new("gcc")
+    if let Err(err) = Command::new("gcc")
         .args(["-no-pie", "temp.o", &format!("-o{output_filename}")])
         .output()
-        .unwrap();
+    {
+        eprintln!("Error: {err}");
+        return;
+    }
 
-    Command::new("rm")
-        .arg("./temp.asm")
-        .arg("temp.o")
-        .output()
-        .unwrap();
+    if let Err(err) = Command::new("rm").arg("./temp.asm").arg("temp.o").output() {
+        eprintln!("Error: {err}");
+    }
 }
