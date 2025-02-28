@@ -12,3 +12,4 @@ smplc_ast = { path = "../../frontend/smplc_ast" }
 smplc_thir = { path = "../../typing/smplc_thir" }
 
 smplc_macros = { path = "../../../utils/smplc_macros" }
+petgraph = "0.7.1"
