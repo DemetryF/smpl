@@ -15,7 +15,7 @@ members = [
     "compiler/linear/smplc_lir",
     # "compiler/linear/smplc_translate",
 
-    # "compiler/smplc_backend_x86",
+    "compiler/smplc_backend_x86",
 
     "utils/smplc_macros",
 ]
