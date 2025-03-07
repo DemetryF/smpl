@@ -1,12 +1,15 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-use ir::NumberType;
 use smplc_lir as ir;
+use smplc_lir::{Label, Phi, Type};
 
 pub struct Env<'a> {
+    pub functions: &'a HashMap<ir::FunId, String>,
+    pub labels: &'a HashMap<Label, String>,
+    pub phis: &'a Vec<Phi>,
     constants: &'a HashMap<ir::Id, String>,
-    types: &'a HashMap<ir::Id, NumberType>,
+    id_types: &'a HashMap<ir::Id, Type>,
 
     addresses: HashMap<ir::Id, isize>,
     vars_count: usize,
@@ -15,11 +18,17 @@ pub struct Env<'a> {
 impl<'a> Env<'a> {
     pub fn new(
         constants: &'a HashMap<ir::Id, String>,
-        types: &'a HashMap<ir::Id, NumberType>,
+        labels: &'a HashMap<Label, String>,
+        phis: &'a Vec<Phi>,
+        functions: &'a HashMap<ir::FunId, String>,
+        id_types: &'a HashMap<ir::Id, Type>,
     ) -> Self {
         Self {
+            functions,
+            labels,
+            phis,
             constants,
-            types,
+            id_types,
             addresses: Default::default(),
             vars_count: Default::default(),
         }
@@ -60,7 +69,7 @@ impl<'a> Env<'a> {
         self.vars_count * 8
     }
 
-    pub fn ty(&self, id: ir::Id) -> NumberType {
-        self.types[&id]
+    pub fn ty(&self, id: ir::Id) -> Type {
+        self.id_types[&id]
     }
 }

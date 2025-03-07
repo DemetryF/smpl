@@ -1,4 +1,5 @@
-use std::fmt::{self, Write};
+use std::fmt;
+use std::fmt::Write;
 
 #[derive(Default)]
 pub struct Builder {
