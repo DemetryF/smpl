@@ -3,9 +3,7 @@ use std::fmt::Write;
 use smplc_lir as lir;
 use smplc_lir::{ControlFlow, Type};
 
-use crate::builder::Builder;
-use crate::compile::to_asm_with_ty;
-use crate::env::Env;
+use crate::{builder::Builder, env::Env};
 
 use super::{to_asm, Compile};
 
@@ -61,7 +59,8 @@ impl Compile for ControlFlow {
 
             ControlFlow::Return { value } => {
                 if let Some(operand) = value {
-                    let (operand, ty) = to_asm_with_ty(env, builder, operand);
+                    let ty = operand.ty();
+                    let operand = to_asm(env, builder, operand);
 
                     match ty {
                         Type::Real => {

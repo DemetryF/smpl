@@ -1,6 +1,9 @@
+mod display;
 pub mod instruction;
 
 use std::collections::HashMap;
+
+pub use smplc_thir::FunId;
 
 pub use instruction::*;
 
@@ -17,11 +20,30 @@ pub enum Number {
     Int(i32),
 }
 
+impl Number {
+    pub fn int(self) -> i32 {
+        let Number::Int(value) = self else {
+            unreachable!()
+        };
+
+        value
+    }
+
+    pub fn real(self) -> f32 {
+        let Number::Real(value) = self else {
+            unreachable!()
+        };
+
+        value
+    }
+}
+
 pub struct CodeFunction {
     pub args: Vec<Id>,
     pub code: Code,
 }
 
+#[derive(Default)]
 pub struct Code {
     pub blocks: Vec<BasicBlock>,
     pub phis: Vec<Phi>,
@@ -40,6 +62,10 @@ impl Code {
             }
 
             Instruction::Sequental(instr) => {
+                if self.blocks.is_empty() {
+                    self.blocks.push(Default::default());
+                }
+
                 self.blocks.last_mut().unwrap().instructions.push(instr);
             }
         }
@@ -53,6 +79,11 @@ impl Code {
         if last_block.label.is_none() && last_block.is_empty() {
             last_block.label = Some(label);
         }
+    }
+
+    pub fn append(&mut self, mut other: Self) {
+        self.blocks.append(&mut other.blocks);
+        self.phis.append(&mut other.phis);
     }
 }
 

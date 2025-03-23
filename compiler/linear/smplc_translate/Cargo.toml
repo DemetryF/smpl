@@ -1,0 +1,9 @@
+[package]
+name = "smplc_translate"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+parse_int = "0.6.0"
+smplc_lir = { path = "../smplc_lir" }
+smplc_thir = { path = "../../typing/smplc_thir" }

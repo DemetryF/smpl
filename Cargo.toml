@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    # "bin",
+    "bin",
 
     "compiler/frontend/smplc_lexer",
     "compiler/frontend/smplc_parse",
@@ -13,7 +13,7 @@ members = [
     "compiler/typing/smplc_typecheck",
 
     "compiler/linear/smplc_lir",
-    # "compiler/linear/smplc_translate",
+    "compiler/linear/smplc_translate",
 
     "compiler/smplc_backend_x86",
 

@@ -1,11 +1,13 @@
 use std::fmt;
 use std::fmt::Write;
 
-use smplc_lir::{BinOp, Sequental, Type, UnOp};
+use smplc_lir::{BinOp, Id, Sequental, Type, UnOp};
 
-use crate::builder::Builder;
-use crate::compile::to_asm;
-use crate::env::Env;
+use crate::{
+    builder::Builder,
+    compile::to_asm,
+    env::{address2str, Env},
+};
 
 use super::Compile;
 
@@ -24,7 +26,7 @@ impl Compile for Sequental {
 
                 let value = to_asm(env, builder, value);
 
-                match env.ty(dst) {
+                match dst.ty() {
                     Type::Real => {
                         writeln!(builder, "movss xmm0, {value}")?;
                         writeln!(builder, "movss {result_ptr}, xmm0")?;
@@ -141,21 +143,15 @@ impl Compile for Sequental {
         if let Some(dst) = dst {
             let dst_address = env.get(dst);
 
-            for phi in env.phis {
-                if !phi.branches.iter().any(|&(_, id)| id == dst) {
-                    continue;
-                }
-
-                let phi_dst_ptr = env.get_or_add(phi.dst);
-
+            if let Some(phi_dst_ptr) = add_phi(dst, env, None) {
                 match dst.ty() {
                     Type::Real => {
-                        write!(builder, "movss xmm0, {dst_address}")?;
-                        write!(builder, "movss {phi_dst_ptr}, xmm0")?;
+                        writeln!(builder, "movss xmm0, {dst_address}")?;
+                        writeln!(builder, "movss {phi_dst_ptr}, xmm0")?;
                     }
                     Type::Int => {
-                        write!(builder, "mov eax, {dst_address}")?;
-                        write!(builder, "mov {phi_dst_ptr}, eax")?;
+                        writeln!(builder, "mov eax, {dst_address}")?;
+                        writeln!(builder, "mov {phi_dst_ptr}, eax")?;
                     }
                 }
             }
@@ -163,4 +159,31 @@ impl Compile for Sequental {
 
         Ok(())
     }
+}
+
+fn add_phi(dst: Id, env: &mut Env, mut address: Option<isize>) -> Option<String> {
+    for phi in env.phis {
+        if !phi.branches.iter().any(|&id| id == dst) {
+            continue;
+        }
+
+        if env.has(phi.dst) {
+            address = Some(env.addr(phi.dst));
+            continue;
+        }
+
+        match address {
+            Some(address) => {
+                env.set(phi.dst, address);
+            }
+            None => {
+                env.get_or_add(phi.dst);
+                address = Some(env.addr(phi.dst))
+            }
+        }
+
+        add_phi(phi.dst, env, address);
+    }
+
+    address.map(address2str)
 }

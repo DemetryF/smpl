@@ -1,20 +1,18 @@
 use std::collections::HashMap;
-use std::fmt;
-use std::fmt::Write;
+use std::fmt::{self, Write};
 
 use smplc_lir as ir;
-use smplc_lir::{Number, Type};
-
-use compile::Compile;
-use env::Env;
+use smplc_lir::Number;
 
 use builder::Builder;
+use compile::Compile;
+use env::Env;
 
 mod builder;
 mod compile;
 mod env;
 
-pub fn compile(lir: ir::LIR, types: HashMap<ir::Id, Type>) -> Result<String, fmt::Error> {
+pub fn compile(lir: ir::LIR) -> Result<String, fmt::Error> {
     let mut builder = Builder::default();
 
     let constants = lir
@@ -92,7 +90,7 @@ printb_L2:
     sub rsp, 8
     call printf
     add rsp, 8
-printb_L3:\
+printb_L3:
     ret"
     )?;
 
@@ -102,11 +100,9 @@ printb_L3:\
             &lir.labels,
             &function.code.phis,
             &lir.function_names,
-            &types,
         );
 
         writeln!(builder, "{}:", lir.function_names[&id])?;
-
         writeln!(builder, "push rbp")?;
         writeln!(builder, "mov rbp, rsp")?;
 
@@ -116,14 +112,18 @@ printb_L3:\
 
         for block in function.code.blocks {
             if let Some(label) = block.label {
-                writeln!(builder, "{}", lir.labels[&label])?;
+                write!(builder, "{}:", lir.labels[&label])?;
             }
 
             for instr in block.instructions {
+                write!(builder, "; {}", &instr)?;
+
                 instr.compile(&mut env, &mut builder)?;
             }
 
             if let Some(end) = block.end {
+                write!(builder, "; {}", &end)?;
+
                 end.compile(&mut env, &mut builder)?;
             }
         }

@@ -1,4 +1,6 @@
 use smplc_macros::EnumWrap;
+use smplc_thir as thir;
+use smplc_thir::FunId;
 
 pub use smplc_thir::{ArithmOp as BinOp, RelOp};
 
@@ -36,10 +38,10 @@ pub enum Sequental {
     },
 }
 
+#[derive(Debug)]
 pub struct Phi {
     pub dst: Id,
-    pub branches: Vec<(Label, Id)>,
-    pub else_value: Option<Id>,
+    pub branches: Vec<Id>,
 }
 
 #[derive(Clone, Copy)]
@@ -65,10 +67,28 @@ pub enum UnOp {
     Neg,
 }
 
-#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub enum Type {
     Real,
     Int,
+}
+
+impl From<thir::Type> for Type {
+    fn from(value: thir::Type) -> Self {
+        match value {
+            thir::Type::Real => Type::Real,
+            thir::Type::Int | thir::Type::Bool => Type::Int,
+        }
+    }
+}
+
+impl From<thir::NumberType> for Type {
+    fn from(value: thir::NumberType) -> Self {
+        match value {
+            thir::NumberType::Real => Type::Real,
+            thir::NumberType::Int => Type::Int,
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -77,16 +97,33 @@ pub enum Atom {
     Id(Id),
 }
 
-#[derive(Clone, Copy, Hash, PartialEq, Eq)]
-pub struct FunId(usize);
+impl Atom {
+    pub fn ty(self) -> Type {
+        match self {
+            Atom::Number(Number::Real(_)) => Type::Real,
+            Atom::Number(Number::Int(_)) => Type::Int,
+            Atom::Id(id) => id.ty(),
+        }
+    }
+}
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
-pub struct Label(usize);
+pub struct Label(pub(crate) usize);
 
-#[derive(Clone, Copy, Hash, PartialEq, Eq)]
-pub struct Id(usize, Type);
+impl Label {
+    pub fn new(id: usize) -> Self {
+        Label(id)
+    }
+}
+
+#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
+pub struct Id(pub(crate) usize, Type);
 
 impl Id {
+    pub fn new(id: usize, ty: Type) -> Self {
+        Self(id, ty)
+    }
+
     pub fn ty(self) -> Type {
         self.1
     }
