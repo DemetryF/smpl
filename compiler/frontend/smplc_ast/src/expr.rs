@@ -37,6 +37,7 @@ pub struct Literal<'source> {
 
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum LiteralType {
+    Complex,
     Real,
     Int,
     Bool,

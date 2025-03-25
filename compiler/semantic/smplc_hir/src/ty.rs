@@ -37,6 +37,7 @@ impl From<LiteralType> for Type {
             LiteralType::Real => Self::Real,
             LiteralType::Int => Self::Int,
             LiteralType::Bool => Self::Bool,
+            LiteralType::Complex => Self::Complex,
         }
     }
 }

@@ -33,8 +33,11 @@ pub fn decimal(cursor: &mut Cursor) -> LiteralType {
 
     let has_fraction = fraction(cursor);
     let has_exponential = exponential_part(cursor);
+    let is_complex = complex_postfix(cursor);
 
-    if has_fraction || has_exponential {
+    if is_complex {
+        LiteralType::Complex
+    } else if has_fraction || has_exponential {
         LiteralType::Real
     } else {
         LiteralType::Int
@@ -62,6 +65,16 @@ pub fn exponential_part(cursor: &mut Cursor) -> bool {
         }
 
         literal(cursor, 10);
+
+        true
+    } else {
+        false
+    }
+}
+
+pub fn complex_postfix(cursor: &mut Cursor) -> bool {
+    if cursor.check('i') {
+        cursor.next_ch();
 
         true
     } else {
