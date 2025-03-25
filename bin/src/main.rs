@@ -84,13 +84,13 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
         }
     };
 
-    let (ir_code, types) = translate(thir);
+    let ir_code = translate(thir);
 
     if show_ir {
-        println!("{ir_code}");
+        todo!()
     }
 
-    compile(ir_code, types).map_err(|_| ())
+    compile(ir_code).map_err(|_| ())
 }
 
 pub fn assembly(assembly: String, output_filename: String) {

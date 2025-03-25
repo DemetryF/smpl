@@ -1,36 +1,108 @@
-use std::rc::Rc;
-
-pub use code::{Code, CodeFunction, Number};
-pub use instructions::*;
-
-mod code;
 mod display;
-mod instructions;
+pub mod instruction;
 
-#[derive(Clone)]
-pub struct Label(Rc<str>);
+use std::collections::HashMap;
 
-impl Label {
-    pub fn new(name: impl Into<Rc<str>>) -> Self {
-        Self(name.into())
-    }
+pub use smplc_thir::FunId;
+
+pub use instruction::*;
+
+pub struct LIR {
+    pub functions: HashMap<FunId, CodeFunction>,
+    pub function_names: HashMap<FunId, String>,
+    pub constants: HashMap<Id, Number>,
+    pub labels: HashMap<Label, String>,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-pub struct Id(usize);
-
-impl From<usize> for Id {
-    fn from(value: usize) -> Self {
-        Self(value)
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct FunctionId(pub Rc<str>);
-
-#[derive(Clone, Copy, PartialEq)]
-pub enum Atom {
+#[derive(Clone, Copy)]
+pub enum Number {
     Real(f32),
     Int(i32),
-    Id(Id),
+}
+
+impl Number {
+    pub fn int(self) -> i32 {
+        let Number::Int(value) = self else {
+            unreachable!()
+        };
+
+        value
+    }
+
+    pub fn real(self) -> f32 {
+        let Number::Real(value) = self else {
+            unreachable!()
+        };
+
+        value
+    }
+}
+
+pub struct CodeFunction {
+    pub args: Vec<Id>,
+    pub code: Code,
+}
+
+#[derive(Default)]
+pub struct Code {
+    pub blocks: Vec<BasicBlock>,
+    pub phis: Vec<Phi>,
+}
+
+impl Code {
+    pub fn push(&mut self, instr: impl Into<Instruction>) {
+        match instr.into() {
+            Instruction::ControlFlow(instr) => {
+                self.blocks.last_mut().unwrap().end = Some(instr);
+                self.blocks.push(Default::default());
+            }
+
+            Instruction::Phi(phi) => {
+                self.phis.push(phi);
+            }
+
+            Instruction::Sequental(instr) => {
+                if self.blocks.is_empty() {
+                    self.blocks.push(Default::default());
+                }
+
+                self.blocks.last_mut().unwrap().instructions.push(instr);
+            }
+        }
+    }
+
+    pub fn label(&mut self, label: Label) {
+        self.blocks.push(BasicBlock::with_label(label));
+
+        let last_block = self.blocks.last_mut().unwrap();
+
+        if last_block.label.is_none() && last_block.is_empty() {
+            last_block.label = Some(label);
+        }
+    }
+
+    pub fn append(&mut self, mut other: Self) {
+        self.blocks.append(&mut other.blocks);
+        self.phis.append(&mut other.phis);
+    }
+}
+
+#[derive(Default)]
+pub struct BasicBlock {
+    pub label: Option<Label>,
+    pub instructions: Vec<Sequental>,
+    pub end: Option<ControlFlow>,
+}
+
+impl BasicBlock {
+    pub fn with_label(label: Label) -> Self {
+        Self {
+            label: Some(label),
+            ..Default::default()
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.end.is_none() && self.instructions.is_empty()
+    }
 }

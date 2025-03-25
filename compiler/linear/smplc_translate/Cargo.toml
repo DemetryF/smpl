@@ -3,11 +3,7 @@ name = "smplc_translate"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 parse_int = "0.6.0"
-
-smplc_ast = { path = "../../frontend/smplc_ast" }
-smplc_thir = { path = "../../typing/smplc_thir" }
 smplc_lir = { path = "../smplc_lir" }
+smplc_thir = { path = "../../typing/smplc_thir" }

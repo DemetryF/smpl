@@ -1,12 +1,14 @@
 use std::cmp::Ordering;
 use std::collections::HashMap;
 
-use ir::NumberType;
 use smplc_lir as ir;
+use smplc_lir::{Label, Phi};
 
 pub struct Env<'a> {
+    pub functions: &'a HashMap<ir::FunId, String>,
+    pub labels: &'a HashMap<Label, String>,
+    pub phis: &'a Vec<Phi>,
     constants: &'a HashMap<ir::Id, String>,
-    types: &'a HashMap<ir::Id, NumberType>,
 
     addresses: HashMap<ir::Id, isize>,
     vars_count: usize,
@@ -15,11 +17,15 @@ pub struct Env<'a> {
 impl<'a> Env<'a> {
     pub fn new(
         constants: &'a HashMap<ir::Id, String>,
-        types: &'a HashMap<ir::Id, NumberType>,
+        labels: &'a HashMap<Label, String>,
+        phis: &'a Vec<Phi>,
+        functions: &'a HashMap<ir::FunId, String>,
     ) -> Self {
         Self {
+            functions,
+            labels,
+            phis,
             constants,
-            types,
             addresses: Default::default(),
             vars_count: Default::default(),
         }
@@ -30,17 +36,15 @@ impl<'a> Env<'a> {
             return address.clone();
         }
 
-        let address = self.addresses[&id] * 8;
+        address2str(self.addresses[&id])
+    }
 
-        let ordering = address.cmp(&0);
-        let address = address.abs();
+    pub fn has(&self, id: ir::Id) -> bool {
+        self.addresses.contains_key(&id)
+    }
 
-        match ordering {
-            Ordering::Less => format!("DWORD [rbp+{address}]"),
-            Ordering::Greater => format!("DWORD [rbp-{address}]"),
-
-            _ => unreachable!(),
-        }
+    pub fn addr(&self, id: ir::Id) -> isize {
+        self.addresses[&id]
     }
 
     pub fn set(&mut self, id: ir::Id, address: isize) {
@@ -59,8 +63,17 @@ impl<'a> Env<'a> {
     pub fn stack_size(&self) -> usize {
         self.vars_count * 8
     }
+}
 
-    pub fn ty(&self, id: ir::Id) -> NumberType {
-        self.types[&id]
+pub fn address2str(address: isize) -> String {
+    let address = address * 8;
+    let ordering = address.cmp(&0);
+    let address = address.abs();
+
+    match ordering {
+        Ordering::Less => format!("DWORD [rbp+{address}]"),
+        Ordering::Greater => format!("DWORD [rbp-{address}]"),
+
+        _ => unreachable!(),
     }
 }

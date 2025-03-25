@@ -125,7 +125,7 @@ impl TryFrom<ast::BinOp> for ArithmOp {
     }
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub enum RelOp {
     Eq,
     Ne,
