@@ -1,12 +1,14 @@
 mod expr;
 mod statement;
 mod symbols;
+mod ty;
 
 use smplc_ast::Spanned;
 
 pub use expr::*;
 pub use statement::*;
 pub use symbols::*;
+pub use ty::Type;
 
 #[derive(Default)]
 pub struct HIR<'source> {
@@ -30,25 +32,4 @@ pub struct Constant<'source> {
 
 pub struct Block<'source> {
     pub statements: Vec<Statement<'source>>,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
-pub enum Type {
-    Real,
-    Int,
-    Bool,
-}
-
-impl TryFrom<&str> for Type {
-    type Error = ();
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
-            "real" => Ok(Self::Real),
-            "int" => Ok(Self::Int),
-            "bool" => Ok(Self::Bool),
-
-            _ => Err(()),
-        }
-    }
 }

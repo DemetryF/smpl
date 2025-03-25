@@ -110,7 +110,7 @@ pub fn translate_expr(
 pub fn translate_atom(atom: thir::Atom, idents: &mut BaseIdents) -> Atom {
     match atom {
         thir::Atom::Var(var) => Atom::Id(idents.get(var)),
-        thir::Atom::Literal(literal) => Atom::Number(match literal.ty {
+        thir::Atom::Literal(literal) => Atom::Number(match literal.ty.into() {
             thir::Type::Real => Number::Real(parse_int::parse(literal.value).unwrap()),
             thir::Type::Int => Number::Int(parse_int::parse(literal.value).unwrap()),
             thir::Type::Bool => Number::Int(if literal.value == "true" { 1 } else { 0 }),

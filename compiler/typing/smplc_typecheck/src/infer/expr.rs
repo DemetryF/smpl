@@ -134,7 +134,7 @@ pub fn infer_expr<'source>(
 
         hir::Expr::Atom(hir::Atom::Literal(lit)) => Ok(InferenceResult {
             set: None,
-            ty: TypeVar::Type(lit.ty),
+            ty: TypeVar::Type(lit.ty.into()),
         }),
     }
 }

@@ -67,7 +67,7 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Number {
         thir::Expr::Call { .. } => panic!("there's no const fn lol"),
         thir::Expr::Atom(atom) => match atom {
             thir::Atom::Var(var) => idents.constants[&idents.get(var)],
-            thir::Atom::Literal(literal) => match literal.ty {
+            thir::Atom::Literal(literal) => match literal.ty.into() {
                 thir::Type::Real => Number::Real(parse_int::parse(literal.value).unwrap()),
                 thir::Type::Int => Number::Int(parse_int::parse(literal.value).unwrap()),
                 thir::Type::Bool => Number::Int(if literal.value == "true" {

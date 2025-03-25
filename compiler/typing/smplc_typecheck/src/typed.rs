@@ -1,4 +1,3 @@
-use smplc_ast::Type;
 use smplc_hir as hir;
 use smplc_hir::Atom;
 use smplc_thir::*;
@@ -129,7 +128,7 @@ fn expr_ty(expr: &Expr, symbols: &Symbols) -> Type {
 
         &Expr::Call { fun: id, .. } => symbols.functions[id].ret_ty.unwrap(),
 
-        Expr::Atom(Atom::Literal(lit)) => lit.ty,
+        Expr::Atom(Atom::Literal(lit)) => lit.ty.into(),
 
         &Expr::Atom(Atom::Var(id)) => symbols.variables[id].ty,
     }
