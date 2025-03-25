@@ -1,13 +1,18 @@
 mod declaration;
 mod expr;
 mod statement;
+mod ty;
 
 use smplc_ast as ast;
 use smplc_hir::Block;
 
-use crate::error::SemResult;
-use crate::inited::{GeneralInited, Inited};
-use crate::Env;
+use crate::{
+    error::SemResult,
+    inited::{GeneralInited, Inited},
+    Env,
+};
+
+pub use ty::RawType;
 
 pub trait SemCheck<'source>: Sized {
     type Checked;
@@ -39,7 +44,6 @@ impl<'source> SemCheck<'source> for ast::Block<'source> {
             .collect::<Result<_, _>>()?;
 
         env.variables.exit();
-
         inited.exit();
 
         Ok(Block { statements })

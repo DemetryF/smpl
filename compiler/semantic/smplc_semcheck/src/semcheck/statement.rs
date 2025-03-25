@@ -1,11 +1,13 @@
 use smplc_ast as ast;
 use smplc_hir::*;
 
-use crate::env::Env;
-use crate::error::SemResult;
-use crate::inited::{AndInited, GeneralInited, Inited, NothingInited};
+use crate::{
+    env::Env,
+    error::SemResult,
+    inited::{AndInited, GeneralInited, Inited, NothingInited},
+};
 
-use super::SemCheck;
+use super::{RawType, SemCheck};
 
 impl<'source> SemCheck<'source> for ast::Statement<'source> {
     type Checked = Option<Statement<'source>>;
@@ -50,7 +52,8 @@ impl<'source> SemCheck<'source> for ast::DeclareStatement<'source> {
         env: &mut Env<'source>,
         inited: &mut impl Inited,
     ) -> SemResult<'source, Self::Checked> {
-        let var = env.variables.add_variable(self.id, self.ty)?;
+        let ty = self.ty.map(RawType).map(RawType::checked).transpose()?;
+        let var = env.variables.add_variable(self.id, ty)?;
 
         if let Some(value) = self.value {
             let rhs = value.check(env, inited)?;
@@ -105,10 +108,11 @@ impl<'source> SemCheck<'source> for ast::IfStatement<'source> {
 
         let mut else_inited = GeneralInited::with_parent(&mut inited);
 
-        let else_body = self
-            .else_body
-            .map(|body| body.check(env, &mut else_inited))
-            .transpose()?;
+        let else_body = {
+            self.else_body
+                .map(|body| body.check(env, &mut else_inited))
+                .transpose()?
+        };
 
         else_inited.exit();
 

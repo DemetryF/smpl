@@ -17,6 +17,7 @@ pub enum SemErrorKind<'source> {
     NonExistentVariable(&'source str),
     DuplicateArgsNames(&'source str),
     UsingUninitedVar(&'source str),
+    UnknownType(&'source str),
 
     RedeclaringVariable {
         id: &'source str,
@@ -106,6 +107,15 @@ impl<'source> SemError<'source> {
             span,
         }
     }
+
+    pub fn unknown_type(ty: ast::Id<'source>) -> Self {
+        let ast::Spanned(id, span) = ty;
+
+        Self {
+            kind: SemErrorKind::UnknownType(id),
+            span,
+        }
+    }
 }
 
 impl fmt::Display for SemErrorKind<'_> {
@@ -154,6 +164,10 @@ impl fmt::Display for SemErrorKind<'_> {
 
             SemErrorKind::UsingUninitedVar(id) => {
                 write!(f, "variable \"{id}\" isn't initialized")
+            }
+
+            SemErrorKind::UnknownType(ty) => {
+                write!(f, "unknow type: \"{ty}\"")
             }
         }
     }

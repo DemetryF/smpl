@@ -7,14 +7,14 @@ mod semcheck;
 #[cfg(test)]
 mod tests;
 
-use inited::GeneralInited;
 use smplc_ast as ast;
 use smplc_ast::Span;
 use smplc_hir::{Symbols, Type, HIR};
 
 use env::Env;
 use error::SemResult;
-use semcheck::SemCheck;
+use inited::GeneralInited;
+use semcheck::{RawType, SemCheck};
 
 pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
     let mut env = Env::default();
@@ -26,11 +26,18 @@ pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
 
     for declaration in ast.iter() {
         if let ast::Declaration::Function(function) = declaration {
-            env.functions.add(
-                function.id,
-                function.args.iter().map(|arg| arg.ty).collect(),
-                function.ret_ty,
-            )?;
+            let args_types = function
+                .args
+                .iter()
+                .map(|arg| RawType(arg.ty).checked())
+                .collect::<Result<_, _>>()?;
+
+            let ret_ty = function
+                .ret_ty
+                .map(|arg| RawType(arg).checked())
+                .transpose()?;
+
+            env.functions.add(function.id, args_types, ret_ty)?;
         }
     }
 

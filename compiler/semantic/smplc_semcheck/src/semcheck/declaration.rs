@@ -1,11 +1,9 @@
 use smplc_ast::{ConstantDeclaration, FunctionDeclaration};
 use smplc_hir::{Constant, Function};
 
-use crate::env::Env;
-use crate::error::SemResult;
-use crate::inited::Inited;
+use crate::{env::Env, error::SemResult, inited::Inited};
 
-use super::SemCheck;
+use super::{RawType, SemCheck};
 
 impl<'source> SemCheck<'source> for FunctionDeclaration<'source> {
     type Checked = Function<'source>;
@@ -23,12 +21,11 @@ impl<'source> SemCheck<'source> for FunctionDeclaration<'source> {
             .args
             .into_iter()
             .map(|id| env.variables.add_argument(id))
-            .inspect(|maybe_var| {
-                if let &Ok(var) = maybe_var {
-                    inited.init(var);
-                }
-            })
-            .collect::<Result<Vec<_>, _>>()?;
+            .collect::<Result<_, _>>()?;
+
+        for &arg in &args {
+            inited.init(arg);
+        }
 
         let body = self.body.check(env, inited)?;
 
@@ -46,16 +43,12 @@ impl<'source> SemCheck<'source> for ConstantDeclaration<'source> {
         env: &mut Env<'source>,
         inited: &mut impl Inited,
     ) -> SemResult<'source, Self::Checked> {
-        let id = env.variables.add_variable(self.id, Some(self.ty))?;
+        let ty = RawType(self.ty).checked()?;
+        let id = env.variables.add_variable(self.id, Some(ty))?;
+        let value = self.value.check(env, inited)?;
 
         inited.init(id);
 
-        let value = self.value.check(env, inited)?;
-
-        Ok(Constant {
-            id,
-            ty: self.ty,
-            value,
-        })
+        Ok(Constant { id, ty, value })
     }
 }

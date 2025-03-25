@@ -1,7 +1,8 @@
 use smplc_ast::Spanned;
-pub use smplc_ast::{BinOp, Literal, Pos, Type, UnOp};
 
 use crate::{FunId, VarId};
+
+pub use smplc_ast::{BinOp, Literal, Pos, UnOp};
 
 pub enum Expr<'source> {
     Binary {
