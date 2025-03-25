@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use smplc_ast::{Span, Type};
+use smplc_ast::{LiteralType, Span};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Token<'source> {
@@ -47,8 +47,7 @@ pub enum TokenTag {
     Not,
 
     // other
-    Literal(Type),
-    Type(Type),
+    Literal(LiteralType),
     Id,
 
     EOF,

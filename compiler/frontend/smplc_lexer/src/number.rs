@@ -1,7 +1,6 @@
-use smplc_ast::Type;
+use smplc_ast::LiteralType;
 
-use crate::cursor::Cursor;
-use crate::TokenTag;
+use crate::{cursor::Cursor, TokenTag};
 
 const RADIX_PREFIX_LENGTH: usize = 2;
 
@@ -21,24 +20,24 @@ pub fn lex_number(cursor: &mut Cursor) -> Option<TokenTag> {
     ))
 }
 
-pub fn prefixed(cursor: &mut Cursor, radix: u32) -> Type {
+pub fn prefixed(cursor: &mut Cursor, radix: u32) -> LiteralType {
     cursor.skip(RADIX_PREFIX_LENGTH);
 
     literal(cursor, radix);
 
-    Type::Int
+    LiteralType::Int
 }
 
-pub fn decimal(cursor: &mut Cursor) -> Type {
+pub fn decimal(cursor: &mut Cursor) -> LiteralType {
     literal(cursor, 10);
 
     let has_fraction = fraction(cursor);
     let has_exponential = exponential_part(cursor);
 
     if has_fraction || has_exponential {
-        Type::Real
+        LiteralType::Real
     } else {
-        Type::Int
+        LiteralType::Int
     }
 }
 

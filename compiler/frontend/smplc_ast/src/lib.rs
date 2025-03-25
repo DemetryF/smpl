@@ -17,10 +17,3 @@ pub use statement::*;
 pub struct Block<'source> {
     pub statements: Vec<Statement<'source>>,
 }
-
-#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq)]
-pub enum Type {
-    Real,
-    Int,
-    Bool,
-}

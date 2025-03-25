@@ -1,4 +1,4 @@
-use smplc_ast::Type;
+use smplc_ast::LiteralType;
 
 use crate::{Lexer, TokenTag};
 
@@ -31,11 +31,11 @@ fn numbers() {
             1E10        /* exponential notation (no)    */
         ";
 
-        TokenTag::Literal(Type::Int), "384_400";
-        TokenTag::Literal(Type::Real), "3.1415";
-        TokenTag::Literal(Type::Real), "6.67e-11";
-        TokenTag::Literal(Type::Real), "6.022e+23";
-        TokenTag::Literal(Type::Real), "1E10";
+        TokenTag::Literal(LiteralType::Int), "384_400";
+        TokenTag::Literal(LiteralType::Real), "3.1415";
+        TokenTag::Literal(LiteralType::Real), "6.67e-11";
+        TokenTag::Literal(LiteralType::Real), "6.022e+23";
+        TokenTag::Literal(LiteralType::Real), "1E10";
     ];
 }
 
@@ -44,15 +44,15 @@ fn bool() {
     lexer_test![
         "true false";
 
-        TokenTag::Literal(Type::Bool), "true";
-        TokenTag::Literal(Type::Bool), "false";
+        TokenTag::Literal(LiteralType::Bool), "true";
+        TokenTag::Literal(LiteralType::Bool), "false";
     ];
 }
 
 #[test]
 fn keywords() {
     lexer_test![
-        "return while else let fn if continue break const int real bool";
+        "return while else let fn if continue break const";
 
         TokenTag::Return;
         TokenTag::While;
@@ -63,10 +63,6 @@ fn keywords() {
         TokenTag::Continue;
         TokenTag::Break;
         TokenTag::Const;
-
-        TokenTag::Type(Type::Int);
-        TokenTag::Type(Type::Real);
-        TokenTag::Type(Type::Bool);
     ];
 }
 

@@ -1,9 +1,11 @@
 use smplc_ast::*;
 use smplc_lexer::TokenTag;
 
-use crate::error::{ParseError, ParseErrorKind, ParseResult};
-use crate::token_stream::Tokens;
-use crate::{Parse, TokenStream};
+use crate::{
+    error::{ParseError, ParseErrorKind, ParseResult},
+    token_stream::Tokens,
+    Parse, TokenStream,
+};
 
 impl<'source> Parse<'source> for Statement<'source> {
     fn parse<TS: Tokens<'source>>(
@@ -59,7 +61,7 @@ impl<'source> Parse<'source> for DeclareStatement<'source> {
         let ty = {
             token_stream
                 .try_consume(TokenTag::Colon)?
-                .then(|| Type::parse(token_stream))
+                .then(|| Id::parse(token_stream))
                 .transpose()?
         };
 
