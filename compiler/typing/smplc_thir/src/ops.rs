@@ -96,7 +96,7 @@ impl TryFrom<hir::BinOp> for RelOp {
 
 #[derive(PartialEq, Eq)]
 pub enum UnOp {
-    Neg(NumberType),
+    Neg(LinearType),
     Not,
 }
 
@@ -117,11 +117,11 @@ impl Into<hir::Type> for NumberType {
     }
 }
 
-impl TryInto<NumberType> for hir::Type {
+impl TryFrom<hir::Type> for NumberType {
     type Error = ();
 
-    fn try_into(self) -> Result<NumberType, Self::Error> {
-        match self {
+    fn try_from(value: hir::Type) -> Result<NumberType, Self::Error> {
+        match value {
             hir::Type::Complex => Ok(NumberType::Complex),
             hir::Type::Real => Ok(NumberType::Real),
             hir::Type::Int => Ok(NumberType::Int),
@@ -131,7 +131,7 @@ impl TryInto<NumberType> for hir::Type {
     }
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub enum VecType {
     Vec2,
     Vec3,
@@ -148,6 +148,41 @@ impl TryFrom<hir::Type> for VecType {
             hir::Type::Vec4 => Ok(Self::Vec4),
 
             _ => Err(()),
+        }
+    }
+}
+
+impl From<VecType> for hir::Type {
+    fn from(value: VecType) -> Self {
+        match value {
+            VecType::Vec2 => Self::Vec2,
+            VecType::Vec3 => Self::Vec3,
+            VecType::Vec4 => Self::Vec4,
+        }
+    }
+}
+
+#[derive(PartialEq, Eq, Clone, Copy)]
+pub enum LinearType {
+    Vec(VecType),
+    Number(NumberType),
+}
+
+impl TryFrom<hir::Type> for LinearType {
+    type Error = ();
+
+    fn try_from(value: hir::Type) -> Result<Self, Self::Error> {
+        VecType::try_from(value)
+            .map(|ty| Self::Vec(ty))
+            .or(NumberType::try_from(value).map(|ty| Self::Number(ty)))
+    }
+}
+
+impl From<LinearType> for hir::Type {
+    fn from(value: LinearType) -> Self {
+        match value {
+            LinearType::Vec(ty) => ty.into(),
+            LinearType::Number(ty) => ty.into(),
         }
     }
 }

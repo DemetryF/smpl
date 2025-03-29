@@ -3,7 +3,8 @@ mod ops;
 use smplc_ast as ast;
 use smplc_hir::SymbolsTable;
 
-pub use smplc_hir::{Atom, FunData, FunId, Type, VarId};
+pub use smplc_ast::LiteralType;
+pub use smplc_hir::{Atom, FunData, FunId, Literal, Type, VarId};
 
 pub use ops::*;
 
