@@ -1,16 +1,21 @@
 mod expr;
 mod statement;
 
-use std::ops::Index;
-use std::{collections::HashMap, fmt};
+use std::{collections::HashMap, ops::Index};
 
+use smplc_ast::Spanned;
 use smplc_hir as hir;
 use smplc_hir::Type;
 use smplc_thir::{FunId, Symbols, VarData, VarId};
 
-pub use self::expr::infer_expr;
+use crate::{
+    error::{TypeError, TypeErrorKind, TypeResult},
+    type_var::TypeVar,
+};
 
-use crate::error::{TypeError, TypeErrorKind, TypeResult};
+use self::expr::InferenceResult;
+
+pub use self::expr::infer_expr;
 
 pub trait TypeInfer<'source> {
     fn infer(
@@ -28,6 +33,8 @@ pub struct TypeInferrer {
     sets_counter: usize,
 
     pub current_fn: Option<FunId>,
+
+    relations: Vec<Relation>,
 }
 
 impl TypeInferrer {
@@ -52,12 +59,41 @@ impl TypeInferrer {
         }
     }
 
-    pub fn set_set_ty(&mut self, set: SetId, ty: TypeVar) -> Result<(), (TypeVar, TypeVar)> {
+    pub fn set_set_ty(&mut self, set: SetId, ty: TypeVar) -> Result<TypeVar, (TypeVar, TypeVar)> {
         let new_ty = TypeVar::max(self.sets[&set], ty)?;
 
         self.sets.insert(set, new_ty);
 
-        Ok(())
+        Ok(new_ty)
+    }
+
+    pub fn assume_inference<'source>(
+        &mut self,
+        inference: InferenceResult,
+        ty: TypeVar,
+    ) -> TypeResult<'source, TypeVar> {
+        if let Some(set) = inference.set {
+            self.set_set_ty(set, ty)
+        } else {
+            TypeVar::max(inference.ty, ty)
+        }
+        .map_err(|(got, required)| TypeError::mismatched_types(required, got, inference.span))
+    }
+
+    pub fn try_unite(
+        &mut self,
+        a: Option<SetId>,
+        b: Option<SetId>,
+    ) -> Result<Option<SetId>, (TypeVar, TypeVar)> {
+        if let (Some(a), Some(b)) = (a, b) {
+            self.unite(a, b).map(Some)
+        } else {
+            Ok(a.or(b))
+        }
+    }
+
+    pub fn connect(&mut self, relation: Relation) {
+        self.relations.push(relation);
     }
 
     pub fn unite(&mut self, a: SetId, b: SetId) -> Result<SetId, (TypeVar, TypeVar)> {
@@ -65,14 +101,17 @@ impl TypeInferrer {
             return Ok(a);
         }
 
-        let ty = self.sets.remove(&b).unwrap();
+        let new_ty = TypeVar::max(self.sets[&a], self.sets[&b])?;
 
-        self.sets.insert(a, TypeVar::max(self.sets[&a], ty)?);
+        self.set_set_ty(a, new_ty)?;
 
-        self.vars
-            .iter_mut()
-            .filter(|(_, &mut set)| set == b)
-            .for_each(|(_, set)| *set = a);
+        // self.sets.remove(&b).unwrap();
+
+        for (_, set) in &mut self.vars {
+            if set == &b {
+                *set = a
+            }
+        }
 
         Ok(a)
     }
@@ -83,7 +122,66 @@ impl TypeInferrer {
         SetId(self.sets_counter)
     }
 
-    pub fn infer(self, symbols: hir::Symbols) -> Result<Symbols, Vec<TypeError>> {
+    pub fn solve_relations<'source>(&mut self) -> TypeResult<'source, ()> {
+        for relation in std::mem::take(&mut self.relations) {
+            match relation {
+                Relation::Mul(lhs, rhs) => {
+                    let lhs_set = lhs.0;
+                    let lhs_ty = self.sets[&lhs_set];
+
+                    let rhs_set = rhs.0;
+                    let rhs_ty = self.sets[&rhs_set];
+
+                    if lhs_ty.is_vec() {
+                        self.set_set_ty(rhs_set, Type::Real.into())
+                            .map(|_| ())
+                            .map_err(|tys| (tys, rhs.span()))
+                    } else if rhs_ty.is_vec() {
+                        self.set_set_ty(lhs_set, Type::Real.into())
+                            .map(|_| ())
+                            .map_err(|tys| (tys, lhs.span()))
+                    } else if lhs_ty.is_number() && rhs_ty.is_number() {
+                        self.unite(lhs_set, rhs_set)
+                            .map(|_| ())
+                            .map_err(|tys| (tys, rhs.span()))
+                    } else {
+                        Err(((lhs_ty, rhs_ty), rhs.span()))
+                    }
+                    .map_err(|((got, required), span)| {
+                        TypeError::mismatched_types(required, got, span)
+                    })?;
+                }
+                Relation::Div(lhs, rhs) => {
+                    let lhs_set = lhs.0;
+                    let lhs_ty = self.sets[&lhs_set];
+
+                    let rhs_set = rhs.0;
+                    let rhs_ty = self.sets[&rhs_set];
+
+                    if lhs_ty.is_vec() {
+                        self.set_set_ty(rhs_set, Type::Real.into())
+                            .map(|_| ())
+                            .map_err(|tys| (tys, rhs.span()))
+                    } else if lhs_ty.is_number() && rhs_ty.is_number() {
+                        self.unite(lhs_set, rhs_set)
+                            .map(|_| ())
+                            .map_err(|tys| (tys, rhs.span()))
+                    } else {
+                        Err(((lhs_ty, rhs_ty), rhs.span()))
+                    }
+                    .map_err(|((got, required), span)| {
+                        TypeError::mismatched_types(required, got, span)
+                    })?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn infer(mut self, symbols: hir::Symbols) -> Result<Symbols, Vec<TypeError>> {
+        self.solve_relations().map_err(|err| vec![err])?;
+
         let no_all_infered = self
             .sets
             .iter()
@@ -137,6 +235,11 @@ impl TypeInferrer {
     }
 }
 
+pub enum Relation {
+    Mul(Spanned<SetId>, Spanned<SetId>),
+    Div(Spanned<SetId>, Spanned<SetId>),
+}
+
 pub struct TypesInfo {
     vars: HashMap<VarId, SetId>,
     sets: HashMap<SetId, TypeVar>,
@@ -156,37 +259,3 @@ impl Index<VarId> for TypesInfo {
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SetId(usize);
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum TypeVar {
-    Type(Type),
-    Number,
-    Unknown,
-    None,
-}
-
-impl TypeVar {
-    pub fn max(a: Self, b: Self) -> Result<Self, (Self, Self)> {
-        match (a, b) {
-            (a, b) if a == b => Ok(a),
-
-            (Self::Unknown, res)
-            | (res, Self::Unknown)
-            | (Self::Number, res @ Self::Type(Type::Int | Type::Real))
-            | (res @ Self::Type(Type::Int | Type::Real), Self::Number) => Ok(res),
-
-            _ => Err((a, b)),
-        }
-    }
-}
-
-impl fmt::Display for TypeVar {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            TypeVar::Type(ty) => write!(f, "{ty}"),
-            TypeVar::Number => write!(f, "AmbiguousNumber"),
-            TypeVar::Unknown => write!(f, "Unknown"),
-            TypeVar::None => write!(f, "None"),
-        }
-    }
-}

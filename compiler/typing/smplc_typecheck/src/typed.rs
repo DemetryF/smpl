@@ -80,11 +80,12 @@ impl<'source> Typed<'source> for hir::Expr<'source> {
                 let lhs = lhs.0.typed(symbols);
                 let rhs = rhs.0.typed(symbols);
 
-                let ty = expr_ty(&rhs, symbols);
+                let lhs_ty = expr_ty(&lhs, symbols);
+                let rhs_ty = expr_ty(&rhs, symbols);
 
                 Expr::Binary {
                     lhs: Box::new(lhs),
-                    op: bin_op_typed(op, ty),
+                    op: bin_op_typed(op, lhs_ty, rhs_ty),
                     rhs: Box::new(rhs),
                 }
             }
@@ -119,6 +120,7 @@ fn expr_ty(expr: &Expr, symbols: &Symbols) -> Type {
         Expr::Binary { op, .. } => match op {
             &BinOp::Arithm(_, ty) => ty.into(),
             BinOp::Rel(_, _) | BinOp::And | BinOp::Or => Type::Bool,
+            _ => todo!(),
         },
 
         Expr::Unary { op, .. } => match op {
@@ -134,19 +136,33 @@ fn expr_ty(expr: &Expr, symbols: &Symbols) -> Type {
     }
 }
 
-fn bin_op_typed(op: hir::BinOp, ty: Type) -> BinOp {
+fn bin_op_typed(op: hir::BinOp, lhs: Type, rhs: Type) -> BinOp {
     if let Ok(op) = ArithmOp::try_from(op) {
-        return BinOp::Arithm(op, ty.try_into().unwrap());
+        if let Ok(ty) = VecType::try_from(lhs).or(VecType::try_from(rhs)) {
+            let op = match op {
+                ArithmOp::Add => VecOp::Add,
+                ArithmOp::Sub => VecOp::Sub,
+                ArithmOp::Mul if lhs == Type::Real => VecOp::LeftMul,
+                ArithmOp::Mul if rhs == Type::Real => VecOp::RightMul,
+                ArithmOp::Div => VecOp::Div,
+
+                _ => unreachable!(),
+            };
+
+            return BinOp::Vec(op, ty);
+        } else {
+            return BinOp::Arithm(op, lhs.try_into().unwrap());
+        }
     }
 
     if let Ok(op) = RelOp::try_from(op) {
-        return BinOp::Rel(op, ty.try_into().unwrap());
+        return BinOp::Rel(op, lhs.try_into().unwrap());
     }
 
     match op {
         hir::BinOp::Or => BinOp::Or,
         hir::BinOp::And => BinOp::And,
 
-        _ => unreachable!(),
+        _ => unreachable!(""),
     }
 }

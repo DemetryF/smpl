@@ -1,94 +1,141 @@
+use smplc_ast::{MakeSpanned, Span, Spanned};
 use smplc_hir as hir;
 use smplc_hir::Type;
 
-use crate::error::{TypeError, TypeResult};
+use crate::{
+    error::{TypeError, TypeResult},
+    infer::Relation,
+};
 
 use super::{SetId, TypeInferrer, TypeVar};
 
 pub fn infer_expr<'source>(
-    expr: &hir::Expr<'source>,
+    expr: &Spanned<hir::Expr<'source>>,
     inferrer: &mut TypeInferrer,
     symbols: &hir::Symbols<'source>,
 ) -> TypeResult<'source, InferenceResult> {
-    match expr {
+    match &expr.0 {
         hir::Expr::Binary { lhs, op, rhs } => {
-            let lhs_inference = infer_expr(&lhs.0, inferrer, symbols)?;
-            let rhs_inference = infer_expr(&rhs.0, inferrer, symbols)?;
+            let lhs_inference = infer_expr(&lhs, inferrer, symbols)?;
+            let rhs_inference = infer_expr(&rhs, inferrer, symbols)?;
 
-            let mut op_compability = {
-                |op: &hir::BinOp, inference: InferenceResult, span| {
-                    match op {
-                        op if op.is_arithm() => TypeVar::max(inference.ty, TypeVar::Number),
+            let (ret_ty, set) = match (lhs_inference.ty, op, rhs_inference.ty) {
+                (_, hir::BinOp::Add | hir::BinOp::Sub, _) => {
+                    let lhs_ty = inferrer.assume_inference(lhs_inference, TypeVar::Linear)?;
+                    let rhs_ty = inferrer.assume_inference(rhs_inference, TypeVar::Linear)?;
 
-                        op if op.is_logic() => {
-                            TypeVar::max(inference.ty, TypeVar::Type(Type::Bool))
-                        }
+                    let operation_ty =
+                        TypeVar::max(lhs_ty, rhs_ty).map_err(|(required, got)| {
+                            TypeError::mismatched_types(required, got, rhs.span())
+                        })?;
 
-                        op if op.is_rel() => TypeVar::max(inference.ty, TypeVar::Number),
-                        _ => unreachable!(),
-                    }
-                    .inspect(|&ty| {
-                        if let Some(set) = inference.set {
-                            inferrer.set_set_ty(set, ty).unwrap();
-                        }
-                    })
-                    .map_err(|(got, required)| TypeError::mismatched_types(required, got, span))
+                    let set = inferrer
+                        .try_unite(lhs_inference.set, rhs_inference.set)
+                        .unwrap();
+
+                    (operation_ty, set)
                 }
+
+                (lhs_ty, hir::BinOp::Mul | hir::BinOp::Div, rhs_ty)
+                    if lhs_ty.is_number() && rhs_ty.is_number() =>
+                {
+                    let operation_ty =
+                        TypeVar::max(lhs_ty, rhs_ty).map_err(|(required, got)| {
+                            TypeError::mismatched_types(required, got, rhs.span())
+                        })?;
+
+                    let set = inferrer
+                        .try_unite(lhs_inference.set, rhs_inference.set)
+                        .unwrap();
+
+                    (operation_ty, set)
+                }
+
+                (_, hir::BinOp::Mul, rhs_ty) if rhs_ty.is_vec() => {
+                    inferrer.assume_inference(lhs_inference, Type::Real.into())?;
+
+                    (rhs_ty, rhs_inference.set)
+                }
+
+                (lhs_ty, hir::BinOp::Mul | hir::BinOp::Div, _) if lhs_ty.is_vec() => {
+                    inferrer.assume_inference(rhs_inference, Type::Real.into())?;
+
+                    (lhs_ty, lhs_inference.set)
+                }
+
+                (_, hir::BinOp::Mul, _) => {
+                    inferrer.assume_inference(lhs_inference, TypeVar::Linear)?;
+                    inferrer.assume_inference(rhs_inference, TypeVar::Linear)?;
+
+                    if let Some((a, b)) = lhs_inference.set.zip(rhs_inference.set) {
+                        inferrer
+                            .connect(Relation::Mul(a.spanned(lhs.span()), b.spanned(rhs.span())));
+                    }
+
+                    (TypeVar::Linear, None)
+                }
+
+                (_, hir::BinOp::Div, _) => {
+                    inferrer.assume_inference(lhs_inference, TypeVar::Linear)?;
+                    inferrer.assume_inference(rhs_inference, TypeVar::Number)?;
+
+                    if let Some((a, b)) = lhs_inference.set.zip(rhs_inference.set) {
+                        inferrer
+                            .connect(Relation::Div(a.spanned(lhs.span()), b.spanned(rhs.span())));
+                    }
+
+                    (TypeVar::Linear, None)
+                }
+
+                (_, op, _) if op.is_rel() => {
+                    inferrer.assume_inference(lhs_inference, TypeVar::Scalar)?;
+                    inferrer.assume_inference(rhs_inference, TypeVar::Scalar)?;
+
+                    (Type::Bool.into(), None)
+                }
+
+                (_, op, _) if op.is_logic() => {
+                    inferrer.assume_inference(lhs_inference, Type::Bool.into())?;
+                    inferrer.assume_inference(rhs_inference, Type::Bool.into())?;
+
+                    let set = inferrer
+                        .try_unite(lhs_inference.set, rhs_inference.set)
+                        .unwrap();
+
+                    (Type::Bool.into(), set)
+                }
+
+                _ => todo!("error"),
             };
 
-            let lhs_ty = op_compability(op, lhs_inference, lhs.span())?;
-            let rhs_ty = op_compability(op, rhs_inference, rhs.span())?;
-
-            // calculate the operation type
-            let operation_ty = {
-                let maybe_ty = TypeVar::max(lhs_ty, rhs_ty);
-
-                maybe_ty.map_err(|(required, got)| {
-                    TypeError::mismatched_types(required, got, rhs.span())
-                })?
-            };
-
-            // unite sets because all bin ops require same types
-            let set = match (lhs_inference.set, rhs_inference.set) {
-                (Some(a), Some(b)) => Some(inferrer.unite(a, b).unwrap()),
-                (None, Some(set)) | (Some(set), None) => Some(set),
-                (None, None) => None,
-            };
-
-            let result_ty = match op {
-                op if op.is_rel() => TypeVar::Type(Type::Bool),
-                _ => operation_ty,
-            };
-
-            if let Some(set) = set {
-                inferrer.set_set_ty(set, operation_ty).unwrap();
-            }
-
-            // rel ops have different operands and result types
-            let set = match op {
-                op if op.is_rel() => None,
-                _ => set,
-            };
-
-            Ok(InferenceResult { set, ty: result_ty })
+            Ok(InferenceResult {
+                set,
+                ty: ret_ty,
+                span: expr.span(),
+            })
         }
 
         hir::Expr::Unary { op, rhs } => {
             let InferenceResult {
                 set,
                 ty: operand_ty,
-            } = infer_expr(&rhs.0, inferrer, symbols)?;
+                ..
+            } = infer_expr(&rhs, inferrer, symbols)?;
 
             let min_ty = match op {
                 hir::UnOp::Not => TypeVar::Type(Type::Bool),
-                hir::UnOp::Neg => TypeVar::Number,
+                hir::UnOp::Neg => TypeVar::Linear,
             };
 
             let ret_ty = TypeVar::max(min_ty, operand_ty).map_err(|(required, got)| {
                 TypeError::mismatched_types(required, got, rhs.span())
             })?;
 
-            Ok(InferenceResult { set, ty: ret_ty })
+            Ok(InferenceResult {
+                set,
+                ty: ret_ty,
+                span: expr.span(),
+            })
         }
 
         hir::Expr::Call { fun, args } => {
@@ -96,7 +143,9 @@ pub fn infer_expr<'source>(
             let fun = &symbols.functions[fun_id];
 
             for (expr, &req_ty) in args.iter().zip(&fun.args_types) {
-                let InferenceResult { set, ty: arg_ty } = infer_expr(&expr.0, inferrer, symbols)?;
+                let InferenceResult {
+                    set, ty: arg_ty, ..
+                } = infer_expr(&expr, inferrer, symbols)?;
 
                 if let Err((got, required)) = TypeVar::max(TypeVar::Type(req_ty), arg_ty) {
                     return Err(TypeError::mismatched_types(required, got, expr.span()));
@@ -112,6 +161,7 @@ pub fn infer_expr<'source>(
             Ok(InferenceResult {
                 set: None,
                 ty: ret_ty,
+                span: expr.span(),
             })
         }
 
@@ -129,12 +179,14 @@ pub fn infer_expr<'source>(
             Ok(InferenceResult {
                 set: Some(set),
                 ty: ret_ty,
+                span: expr.span(),
             })
         }
 
         hir::Expr::Atom(hir::Atom::Literal(lit)) => Ok(InferenceResult {
             set: None,
             ty: TypeVar::Type(lit.ty.into()),
+            span: expr.span(),
         }),
     }
 }
@@ -143,4 +195,5 @@ pub fn infer_expr<'source>(
 pub struct InferenceResult {
     pub set: Option<SetId>,
     pub ty: TypeVar,
+    pub span: Span,
 }

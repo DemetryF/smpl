@@ -34,7 +34,8 @@ impl<'source> TypeInfer<'source> for hir::ExprStatement<'source> {
                 let InferenceResult {
                     set: value_set,
                     ty: value_ty,
-                } = infer_expr(&rhs.0, inferrer, symbols)?;
+                    ..
+                } = infer_expr(&rhs, inferrer, symbols)?;
 
                 let var_set = if let Some(ty) = symbols.variables[var].ty {
                     TypeVar::max(TypeVar::Type(ty), value_ty).map_err(|(required, got)| {
@@ -57,10 +58,9 @@ impl<'source> TypeInfer<'source> for hir::ExprStatement<'source> {
                 Ok(())
             }
 
-            hir::ExprStatement::Expr(expr) => {
-                infer_expr(expr, inferrer, symbols)?;
-
-                Ok(())
+            hir::ExprStatement::Expr(_expr) => {
+                // infer_expr(expr, inferrer, symbols)?;
+                todo!();
             }
         }
     }
@@ -72,7 +72,7 @@ impl<'source> TypeInfer<'source> for hir::IfStatement<'source> {
         inferrer: &mut TypeInferrer,
         symbols: &hir::Symbols<'source>,
     ) -> TypeResult<'source, ()> {
-        let InferenceResult { set, ty } = infer_expr(&self.cond.0, inferrer, symbols)?;
+        let InferenceResult { set, ty, .. } = infer_expr(&self.cond, inferrer, symbols)?;
 
         TypeVar::max(ty, TypeVar::Type(Type::Bool)).map_err(|(got, required)| {
             TypeError::mismatched_types(required, got, self.cond.span())
@@ -103,7 +103,7 @@ impl<'source> TypeInfer<'source> for hir::ReturnStatement<'source> {
 
         match &self.value {
             Some(value) => {
-                let InferenceResult { set, ty } = infer_expr(&value.0, inferrer, symbols)?;
+                let InferenceResult { set, ty, .. } = infer_expr(&value, inferrer, symbols)?;
 
                 TypeVar::max(ty, ret_ty).map_err(|(got, required)| {
                     TypeError::mismatched_types(required, got, value.span())
@@ -131,7 +131,7 @@ impl<'source> TypeInfer<'source> for hir::WhileStatement<'source> {
         inferrer: &mut TypeInferrer,
         symbols: &hir::Symbols<'source>,
     ) -> TypeResult<'source, ()> {
-        let InferenceResult { set, ty } = infer_expr(&self.cond.0, inferrer, symbols)?;
+        let InferenceResult { set, ty, .. } = infer_expr(&self.cond, inferrer, symbols)?;
 
         TypeVar::max(ty, TypeVar::Type(Type::Bool)).map_err(|(got, required)| {
             TypeError::mismatched_types(required, got, self.cond.span())

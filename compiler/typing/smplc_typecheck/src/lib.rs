@@ -1,13 +1,15 @@
-use infer::{infer_expr, TypeInfer, TypeInferrer, TypeVar};
 use smplc_hir::HIR;
 use smplc_thir::{Constant, Function, THIR};
 
 use error::TypeError;
+use infer::{infer_expr, TypeInfer, TypeInferrer};
+use type_var::TypeVar;
 use typed::Typed;
 
 pub mod error;
 
 mod infer;
+mod type_var;
 mod typed;
 
 pub fn typecheck(hir: HIR) -> Result<THIR, Vec<TypeError>> {
@@ -24,7 +26,7 @@ pub fn typecheck(hir: HIR) -> Result<THIR, Vec<TypeError>> {
 
     for constant in &hir.constants {
         let inference =
-            infer_expr(&constant.value.0, &mut inferrer, &hir.symbols).map_err(|x| vec![x])?;
+            infer_expr(&constant.value, &mut inferrer, &hir.symbols).map_err(|x| vec![x])?;
 
         TypeVar::max(TypeVar::Type(constant.ty), inference.ty)
             .map_err(|(required, got)| {
