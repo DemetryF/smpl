@@ -40,6 +40,12 @@ impl BinOp {
         matches!(self, Add | Sub | Mul | Div)
     }
 
+    pub fn is_vec(self) -> bool {
+        use BinOp::*;
+
+        matches!(self, Add | Sub | Mul | Div)
+    }
+
     pub fn is_rel(self) -> bool {
         use BinOp::*;
 
