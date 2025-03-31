@@ -13,3 +13,5 @@ smplc_thir = { path = "../../typing/smplc_thir" }
 
 smplc_macros = { path = "../../../utils/smplc_macros" }
 petgraph = "0.7.1"
+num = "0.4.3"
+nalgebra = "0.33.2"

@@ -1,4 +1,4 @@
-use smplc_lir::{Atom, ControlFlow, Label, Number, RelOp, Type};
+use smplc_lir::{Atom, ControlFlow, Label, RelOp, Type, Value};
 use smplc_thir as thir;
 use smplc_thir::Symbols;
 
@@ -83,7 +83,7 @@ pub fn translate_logic(
                 lhs: Atom::Id(result),
                 op: RelOp::Eq,
                 ty: Type::Int,
-                rhs: Atom::Number(Number::Int(1)),
+                rhs: Atom::Number(Value::Int(1)),
                 label: true_label,
             });
 
@@ -99,7 +99,7 @@ pub fn translate_logic(
                 lhs: value,
                 op: RelOp::Eq,
                 ty: Type::Int,
-                rhs: Atom::Number(Number::Int(1)),
+                rhs: Atom::Number(Value::Int(1)),
                 label: true_label,
             });
 

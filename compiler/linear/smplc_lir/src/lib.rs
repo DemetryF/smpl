@@ -1,41 +1,20 @@
-mod display;
 pub mod instruction;
+
+mod display;
+mod value;
 
 use std::collections::HashMap;
 
 pub use smplc_thir::FunId;
 
 pub use instruction::*;
+pub use value::*;
 
 pub struct LIR {
     pub functions: HashMap<FunId, CodeFunction>,
     pub function_names: HashMap<FunId, String>,
-    pub constants: HashMap<Id, Number>,
+    pub constants: HashMap<Id, Value>,
     pub labels: HashMap<Label, String>,
-}
-
-#[derive(Clone, Copy)]
-pub enum Number {
-    Real(f32),
-    Int(i32),
-}
-
-impl Number {
-    pub fn int(self) -> i32 {
-        let Number::Int(value) = self else {
-            unreachable!()
-        };
-
-        value
-    }
-
-    pub fn real(self) -> f32 {
-        let Number::Real(value) = self else {
-            unreachable!()
-        };
-
-        value
-    }
 }
 
 pub struct CodeFunction {

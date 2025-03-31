@@ -1,13 +1,13 @@
 use std::{cell::Cell, collections::HashMap};
 
-use smplc_lir::{Id, Number, Type};
+use smplc_lir::{Id, Value, Type};
 use smplc_thir::VarId;
 
 #[derive(Default)]
 pub struct BaseIdents<'p> {
     pub parent: Option<&'p Self>,
     pub variables: HashMap<VarId, Id>,
-    pub constants: HashMap<Id, Number>,
+    pub constants: HashMap<Id, Value>,
     counter: Cell<usize>,
 }
 

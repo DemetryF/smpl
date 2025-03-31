@@ -1,4 +1,6 @@
-use smplc_lir::{Atom, ControlFlow, Id, Number, Sequental, Type, UnOp};
+use num::complex::Complex32;
+
+use smplc_lir::{Atom, ControlFlow, Id, Sequental, Type, UnOp, Value};
 use smplc_thir as thir;
 use smplc_thir::Symbols;
 
@@ -90,14 +92,14 @@ pub fn translate_expr(
             translator.code.label(true_label);
             translator.code.push(Sequental::Assign {
                 dst: result,
-                value: Atom::Number(Number::Int(1)),
+                value: Atom::Number(Value::Int(1)),
             });
             translator.code.push(ControlFlow::Goto { label: end_label });
 
             translator.code.label(false_label);
             translator.code.push(Sequental::Assign {
                 dst: result,
-                value: Atom::Number(Number::Int(0)),
+                value: Atom::Number(Value::Int(0)),
             });
 
             translator.code.label(end_label);
@@ -110,10 +112,14 @@ pub fn translate_expr(
 pub fn translate_atom(atom: thir::Atom, idents: &mut BaseIdents) -> Atom {
     match atom {
         thir::Atom::Var(var) => Atom::Id(idents.get(var)),
-        thir::Atom::Literal(literal) => Atom::Number(match literal.ty.into() {
-            thir::Type::Real => Number::Real(parse_int::parse(literal.value).unwrap()),
-            thir::Type::Int => Number::Int(parse_int::parse(literal.value).unwrap()),
-            thir::Type::Bool => Number::Int(if literal.value == "true" { 1 } else { 0 }),
+        thir::Atom::Literal(literal) => Atom::Number(match literal.ty {
+            thir::LiteralType::Complex => Value::Complex(Complex32::new(
+                0.0,
+                parse_int::parse(literal.value).unwrap(),
+            )),
+            thir::LiteralType::Real => Value::Real(parse_int::parse(literal.value).unwrap()),
+            thir::LiteralType::Int => Value::Int(parse_int::parse(literal.value).unwrap()),
+            thir::LiteralType::Bool => Value::Int(if literal.value == "true" { 1 } else { 0 }),
         }),
     }
 }
