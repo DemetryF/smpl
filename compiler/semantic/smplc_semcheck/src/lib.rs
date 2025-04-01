@@ -89,4 +89,52 @@ pub fn init_std(env: &mut Env) {
             None,
         )
         .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("vec2", Span::default()),
+            vec![Type::Real, Type::Real],
+            Some(Type::Vec2),
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("vec3", Span::default()),
+            vec![Type::Real, Type::Real, Type::Real],
+            Some(Type::Vec3),
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("vec4", Span::default()),
+            vec![Type::Real, Type::Real, Type::Real, Type::Real],
+            Some(Type::Vec4),
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printvec2", Span::default()),
+            vec![Type::Vec2],
+            None,
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printvec3", Span::default()),
+            vec![Type::Vec3],
+            None,
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printvec4", Span::default()),
+            vec![Type::Vec4],
+            None,
+        )
+        .unwrap();
 }
