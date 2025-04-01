@@ -119,8 +119,8 @@ fn expr_ty(expr: &Expr, symbols: &Symbols) -> Type {
     match expr {
         Expr::Binary { op, .. } => match op {
             &BinOp::Arithm(_, ty) => ty.into(),
+            &BinOp::Vec(_, ty) => ty.into(),
             BinOp::Rel(_, _) | BinOp::And | BinOp::Or => Type::Bool,
-            _ => todo!(),
         },
 
         Expr::Unary { op, .. } => match op {

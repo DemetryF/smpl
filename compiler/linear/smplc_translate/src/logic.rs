@@ -83,7 +83,7 @@ pub fn translate_logic(
                 lhs: Atom::Id(result),
                 op: RelOp::Eq,
                 ty: Type::Int,
-                rhs: Atom::Number(Value::Int(1)),
+                rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });
 
@@ -99,7 +99,7 @@ pub fn translate_logic(
                 lhs: value,
                 op: RelOp::Eq,
                 ty: Type::Int,
-                rhs: Atom::Number(Value::Int(1)),
+                rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });
 

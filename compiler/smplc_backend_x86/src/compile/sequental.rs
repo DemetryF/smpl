@@ -3,11 +3,7 @@ use std::fmt::Write;
 
 use smplc_lir::{BinOp, Id, Sequental, Type, UnOp};
 
-use crate::{
-    builder::Builder,
-    compile::to_asm,
-    env::{address2str, Env},
-};
+use crate::{builder::Builder, compile::atom, env::Env};
 
 use super::Compile;
 
@@ -24,7 +20,7 @@ impl Compile for Sequental {
             Sequental::Assign { dst, value } => {
                 let result_ptr = env.get_or_add(dst);
 
-                let value = to_asm(env, builder, value);
+                let value = atom(env, builder, value);
 
                 match dst.ty() {
                     Type::Real => {
@@ -35,7 +31,99 @@ impl Compile for Sequental {
                         writeln!(builder, "mov eax, {value}")?;
                         writeln!(builder, "mov {result_ptr}, eax")?;
                     }
+                    Type::Complex | Type::Vec2 => {
+                        writeln!(builder, "movlps xmm0, {value}")?;
+                        writeln!(builder, "movlps {result_ptr}, xmm0")?;
+                    }
+                    Type::Vec3 | Type::Vec4 => {
+                        writeln!(builder, "movaps xmm0, {value}")?;
+                        writeln!(builder, "movaps {result_ptr}, xmm0")?;
+                    }
                 }
+            }
+
+            Sequental::Binary {
+                dst,
+                op,
+                ty: Type::Complex,
+                lhs,
+                rhs,
+            } => {
+                let result_ptr = env.get_or_add(dst);
+
+                let lhs = atom(env, builder, lhs);
+                let rhs = atom(env, builder, rhs);
+
+                writeln!(builder, "movlps xmm0, {lhs}")?;
+                writeln!(builder, "movlps xmm1, {rhs}")?;
+
+                match op {
+                    BinOp::Add => {
+                        writeln!(builder, "addps xmm0, xmm1")?;
+                    }
+                    BinOp::Sub => {
+                        writeln!(builder, "subps xmm0, xmm1")?;
+                    }
+                    BinOp::Mul => {
+                        writeln!(builder, "shufps xmm0, xmm0, 0b00_01_01_00")?; // xmm0 = [ a, b, b, a ]
+                        writeln!(builder, "shufps xmm1, xmm1, 0b00_01_00_01")?; // xmm1 = [ c, d, c, d ]
+                        writeln!(builder, "mulps  xmm1, xmm1")?; // xmm1 = [ac, bd, bc, ad]
+                        writeln!(builder, "movaps xmm0, xmm1")?; // xmm0 = [ac, bd, bc, ad]
+                        writeln!(builder, "haddps xmm1, xmm1")?; // xmm1 = [ac - bd, bc - ad]
+                        writeln!(builder, "hsubps xmm0, xmm0")?; // xmm0 = [ac + bd, bc + ad]
+                        writeln!(builder, "movss  xmm0, xmm1")?; // xmm0 = [ac - bd, bc + ad]
+                    }
+                    BinOp::Div => {
+                        writeln!(builder, "movlps xmm2, xmm1")?; // xmm2 = [ c,  d  ]
+                        writeln!(builder, "mulps  xmm2, xmm2")?; // xmm2 = [ cc, dd ]
+                        writeln!(builder, "haddps xmm2, xmm2")?; // xmm2 = [ cc + dd ]
+                        writeln!(builder, "shufps xmm0, xmm0, 0b00_01_01_00")?; // xmm0 = [ a, b, b, a ]
+                        writeln!(builder, "shufps xmm1, xmm1, 0b00_01_00_01")?; // xmm1 = [ c, d, c, d ]
+                        writeln!(builder, "mulps  xmm1, xmm1")?; // xmm1 = [ac, bd, bc, ad ]
+                        writeln!(builder, "movaps xmm0, xmm1")?; // xmm0 = [ac, bd, bc, ad ]
+                        writeln!(builder, "haddps xmm1, xmm1")?; // xmm1 = [ac + bd, bc + ad]
+                        writeln!(builder, "hsubps xmm0, xmm0")?; // xmm0 = [ac - bd, bc - ad]
+                        writeln!(builder, "movss  xmm0, xmm1")?; // xmm0 = [ac + bd, bc - ad]
+                        writeln!(builder, "divps  xmm0, xmm2")?; // xmm0 = [(ac + bd)/(cc + dd), (bc - ad)/(cc + dd)]
+                    }
+                }
+
+                writeln!(builder, "movss {result_ptr}, xmm0")?;
+            }
+
+            Sequental::Binary {
+                dst,
+                op,
+                ty: Type::Vec2 | Type::Vec3 | Type::Vec4,
+                lhs,
+                rhs,
+            } => {
+                let result_ptr = env.get_or_add(dst);
+
+                let lhs = atom(env, builder, lhs);
+                let rhs = atom(env, builder, rhs);
+
+                writeln!(builder, "movlps xmm0, {lhs}")?;
+                writeln!(builder, "movlps xmm1, {rhs}")?;
+
+                match op {
+                    BinOp::Add => {
+                        writeln!(builder, "addps xmm0, xmm1")?;
+                    }
+                    BinOp::Sub => {
+                        writeln!(builder, "subps xmm0, xmm1")?;
+                    }
+                    BinOp::Mul => {
+                        writeln!(builder, "shufps xmm1, xmm1, 0b00_00_00_00")?;
+                        writeln!(builder, "mulps xmm0, xmm1")?;
+                    }
+                    BinOp::Div => {
+                        writeln!(builder, "shufps xmm1, xmm1, 0b00_00_00_00")?;
+                        writeln!(builder, "divps xmm0, xmm1")?;
+                    }
+                }
+
+                writeln!(builder, "movss {result_ptr}, xmm0")?;
             }
 
             Sequental::Binary {
@@ -55,8 +143,8 @@ impl Compile for Sequental {
                     BinOp::Div => "div",
                 };
 
-                let lhs = to_asm(env, builder, lhs);
-                let rhs = to_asm(env, builder, rhs);
+                let lhs = atom(env, builder, lhs);
+                let rhs = atom(env, builder, rhs);
 
                 match ty {
                     Type::Real => {
@@ -71,11 +159,15 @@ impl Compile for Sequental {
                         writeln!(builder, "mov {result_ptr}, eax")?;
                     }
                     Type::Int => {
+                        // writeln!(builder, "mov eax, {lhs}")?;
+                        // writeln!(builder, "mov ebx, {rhs}")?;
+                        // writeln!(builder, "{instruction} eax, ebx")?;
+                        // writeln!(builder, "mov {result_ptr}, eax")?;
                         writeln!(builder, "mov eax, {lhs}")?;
-                        writeln!(builder, "mov ebx, {rhs}")?;
-                        writeln!(builder, "{instruction} eax, ebx")?;
+                        writeln!(builder, "{instruction} eax, {rhs}")?;
                         writeln!(builder, "mov {result_ptr}, eax")?;
                     }
+                    _ => unreachable!(),
                 }
             }
 
@@ -86,7 +178,7 @@ impl Compile for Sequental {
                 operand,
             } => {
                 let result_ptr = env.get_or_add(dst);
-                let operand = to_asm(env, builder, operand);
+                let operand = atom(env, builder, operand);
 
                 match (ty, op) {
                     (Type::Real, UnOp::Neg) => {
@@ -99,6 +191,10 @@ impl Compile for Sequental {
                         writeln!(builder, "sub eax, {operand}")?;
                         writeln!(builder, "mov {result_ptr}, eax")?;
                     }
+                    _ => {
+                        writeln!(builder, "xorps xmm0, xmm0")?;
+                        writeln!(builder, "subps xmm0, {operand}")?;
+                    }
                 }
             }
 
@@ -106,7 +202,7 @@ impl Compile for Sequental {
                 let shift = env.stack_size() + args.len() * 8;
 
                 for (n, (arg, ty)) in args.into_iter().rev().enumerate() {
-                    let value = to_asm(env, builder, arg);
+                    let value = atom(env, builder, arg);
                     let address = env.stack_size() + (n + 1) * 8;
 
                     match ty {
@@ -117,6 +213,10 @@ impl Compile for Sequental {
                         Type::Int => {
                             writeln!(builder, "mov eax, {value}")?;
                             writeln!(builder, "mov DWORD [rsp - {address}], eax")?;
+                        }
+                        _ => {
+                            writeln!(builder, "movaps xmm0, {value}")?;
+                            writeln!(builder, "movaps QWORD [rsp - {address}], xmm0")?;
                         }
                     }
                 }
@@ -134,6 +234,9 @@ impl Compile for Sequental {
                         }
                         Type::Int => {
                             writeln!(builder, "mov {result_ptr}, eax")?;
+                        }
+                        _ => {
+                            writeln!(builder, "movaps {result_ptr}, xmm0")?;
                         }
                     }
                 }
@@ -153,6 +256,10 @@ impl Compile for Sequental {
                         writeln!(builder, "mov eax, {dst_address}")?;
                         writeln!(builder, "mov {phi_dst_ptr}, eax")?;
                     }
+                    _ => {
+                        writeln!(builder, "movaps xmm0, {dst_address}")?;
+                        writeln!(builder, "movaps {phi_dst_ptr}, xmm0")?;
+                    }
                 }
             }
         }
@@ -161,7 +268,7 @@ impl Compile for Sequental {
     }
 }
 
-fn add_phi(dst: Id, env: &mut Env, mut address: Option<isize>) -> Option<String> {
+fn add_phi(dst: Id, env: &mut Env, mut address: Option<isize>) -> Option<isize> {
     for phi in env.phis {
         if !phi.branches.iter().any(|&id| id == dst) {
             continue;
@@ -185,5 +292,5 @@ fn add_phi(dst: Id, env: &mut Env, mut address: Option<isize>) -> Option<String>
         add_phi(phi.dst, env, address);
     }
 
-    address.map(address2str)
+    address
 }

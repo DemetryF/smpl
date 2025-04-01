@@ -32,6 +32,10 @@ impl Code {
     pub fn push(&mut self, instr: impl Into<Instruction>) {
         match instr.into() {
             Instruction::ControlFlow(instr) => {
+                if self.blocks.is_empty() {
+                    self.blocks.push(Default::default());
+                }
+
                 self.blocks.last_mut().unwrap().end = Some(instr);
                 self.blocks.push(Default::default());
             }

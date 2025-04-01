@@ -115,7 +115,7 @@ pub fn assembly(assembly: String, output_filename: String) {
         return;
     }
 
-    if let Err(err) = Command::new("rm").arg("./temp.asm").arg("temp.o").output() {
-        eprintln!("Error: {err}");
-    }
+    // if let Err(err) = Command::new("rm").arg("./temp.asm").arg("temp.o").output() {
+    //     eprintln!("Error: {err}");
+    // }
 }

@@ -1,5 +1,4 @@
-use std::cmp::Ordering;
-use std::collections::HashMap;
+use std::{cmp::Ordering, collections::HashMap, fmt};
 
 use smplc_lir as ir;
 use smplc_lir::{Label, Phi};
@@ -8,7 +7,7 @@ pub struct Env<'a> {
     pub functions: &'a HashMap<ir::FunId, String>,
     pub labels: &'a HashMap<Label, String>,
     pub phis: &'a Vec<Phi>,
-    constants: &'a HashMap<ir::Id, String>,
+    constants: &'a HashMap<ir::Id, Operand>,
 
     addresses: HashMap<ir::Id, isize>,
     vars_count: usize,
@@ -16,7 +15,7 @@ pub struct Env<'a> {
 
 impl<'a> Env<'a> {
     pub fn new(
-        constants: &'a HashMap<ir::Id, String>,
+        constants: &'a HashMap<ir::Id, Operand>,
         labels: &'a HashMap<Label, String>,
         phis: &'a Vec<Phi>,
         functions: &'a HashMap<ir::FunId, String>,
@@ -31,12 +30,12 @@ impl<'a> Env<'a> {
         }
     }
 
-    pub fn get(&self, id: ir::Id) -> String {
-        if let Some(address) = self.constants.get(&id) {
-            return address.clone();
+    pub fn get(&self, id: ir::Id) -> Operand {
+        if let Some(&address) = self.constants.get(&id) {
+            return address;
         }
 
-        address2str(self.addresses[&id])
+        Operand::Address(Address::Stack(self.addresses[&id]))
     }
 
     pub fn has(&self, id: ir::Id) -> bool {
@@ -51,7 +50,7 @@ impl<'a> Env<'a> {
         self.addresses.insert(id, address);
     }
 
-    pub fn get_or_add(&mut self, id: ir::Id) -> String {
+    pub fn get_or_add(&mut self, id: ir::Id) -> Operand {
         if !self.addresses.contains_key(&id) {
             self.vars_count += 1;
             self.set(id, self.vars_count as isize);
@@ -65,15 +64,44 @@ impl<'a> Env<'a> {
     }
 }
 
-pub fn address2str(address: isize) -> String {
-    let address = address * 8;
-    let ordering = address.cmp(&0);
-    let address = address.abs();
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Operand {
+    Address(Address),
+    Number(i32),
+}
 
-    match ordering {
-        Ordering::Less => format!("DWORD [rbp+{address}]"),
-        Ordering::Greater => format!("DWORD [rbp-{address}]"),
+impl fmt::Display for Operand {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Operand::Address(address) => write!(f, "{address}"),
+            Operand::Number(n) => write!(f, "{n}"),
+        }
+    }
+}
 
-        _ => unreachable!(),
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Address {
+    Stack(isize),
+    Const(usize),
+}
+
+impl fmt::Display for Address {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            &Address::Stack(address) => {
+                let ordering = address.cmp(&0);
+                let address = 8 * address.abs();
+
+                match ordering {
+                    Ordering::Less => write!(f, "[rbp+{address}]"),
+                    Ordering::Greater => write!(f, "[rbp-{address}]"),
+
+                    _ => unreachable!(),
+                }
+            }
+            &Address::Const(n) => {
+                write!(f, "[LC{n}]")
+            }
+        }
     }
 }

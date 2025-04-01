@@ -25,11 +25,15 @@ impl TypeVar {
         )
     }
 
-    pub fn is_number(self) -> bool {
+    pub fn is_scalar(self) -> bool {
         matches!(
             self,
-            Self::Number | Self::Scalar | Self::Type(Type::Real) | Self::Type(Type::Int)
+            Self::Scalar | Self::Type(Type::Real) | Self::Type(Type::Int)
         )
+    }
+
+    pub fn is_number(self) -> bool {
+        self.is_scalar() || matches!(self, Self::Number | Self::Type(Type::Complex))
     }
 
     pub fn is_linear(self) -> bool {
@@ -41,6 +45,11 @@ impl TypeVar {
             (a, b) if a == b => Ok(a),
 
             (Self::Unknown, res) | (res, Self::Unknown) => Ok(res),
+
+            (Self::Linear, ty) | (ty, Self::Linear) if ty.is_linear() => Ok(ty),
+            (Self::Number, ty) | (ty, Self::Number) if ty.is_number() => Ok(ty),
+            (Self::Scalar, ty) | (ty, Self::Scalar) if ty.is_scalar() => Ok(ty),
+            (Self::Vec, ty) | (ty, Self::Vec) if ty.is_vec() => Ok(ty),
 
             (Self::Type(Type::Complex), Self::Type(Type::Real))
             | (Self::Type(Type::Real), Self::Type(Type::Int)) => Ok(Self::Type(Type::Complex)),

@@ -5,7 +5,7 @@ use smplc_lir::{ControlFlow, Type};
 
 use crate::{builder::Builder, env::Env};
 
-use super::{to_asm, Compile};
+use super::{atom, Compile};
 
 impl Compile for ControlFlow {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> std::fmt::Result {
@@ -30,10 +30,12 @@ impl Compile for ControlFlow {
                     (Type::Int, lir::RelOp::Lt) => "jl",
                     (Type::Int, lir::RelOp::Gt) => "jg",
                     (Type::Int, lir::RelOp::Ge) => "jge",
+
+                    _ => unreachable!(),
                 };
 
-                let lhs = to_asm(env, builder, lhs);
-                let rhs = to_asm(env, builder, rhs);
+                let lhs = atom(env, builder, lhs);
+                let rhs = atom(env, builder, rhs);
 
                 match ty {
                     Type::Real => {
@@ -46,6 +48,7 @@ impl Compile for ControlFlow {
                         writeln!(builder, "mov ebx, {rhs}")?;
                         writeln!(builder, "cmp eax, ebx")?;
                     }
+                    _ => unreachable!(),
                 }
 
                 writeln!(builder, "{jmp_instr} {}", env.labels[&label])?;
@@ -60,7 +63,7 @@ impl Compile for ControlFlow {
             ControlFlow::Return { value } => {
                 if let Some(operand) = value {
                     let ty = operand.ty();
-                    let operand = to_asm(env, builder, operand);
+                    let operand = atom(env, builder, operand);
 
                     match ty {
                         Type::Real => {
@@ -68,6 +71,9 @@ impl Compile for ControlFlow {
                         }
                         Type::Int => {
                             writeln!(builder, "mov eax, {operand}")?;
+                        }
+                        _ => {
+                            writeln!(builder, "movaps xmm0, {operand}")?;
                         }
                     }
                 }

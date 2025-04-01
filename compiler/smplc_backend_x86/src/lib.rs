@@ -1,11 +1,12 @@
-use std::collections::HashMap;
-use std::fmt::{self, Write};
+use std::{
+    collections::HashMap,
+    fmt::{self, Write},
+};
 
 use smplc_lir as ir;
-use smplc_lir::Number;
 
 use builder::Builder;
-use compile::Compile;
+use compile::{value, Compile};
 use env::Env;
 
 mod builder;
@@ -18,10 +19,7 @@ pub fn compile(lir: ir::LIR) -> Result<String, fmt::Error> {
     let constants = lir
         .constants
         .into_iter()
-        .map(|(id, value)| match value {
-            Number::Real(value) => (id, builder.float(value)),
-            Number::Int(value) => (id, value.to_string()),
-        })
+        .map(|(id, v)| (id, value(&mut builder, v)))
         .collect::<HashMap<_, _>>();
 
     writeln!(

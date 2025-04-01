@@ -127,7 +127,7 @@ impl fmt::Display for Type {
 impl fmt::Display for Atom {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Atom::Number(value) => write!(f, "{value}"),
+            Atom::Value(value) => write!(f, "{value}"),
             Atom::Id(id) => write!(f, "{id}"),
         }
     }

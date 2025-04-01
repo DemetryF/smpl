@@ -122,14 +122,14 @@ impl From<thir::LinearType> for Type {
 
 #[derive(Clone, Copy)]
 pub enum Atom {
-    Number(Value),
+    Value(Value),
     Id(Id),
 }
 
 impl Atom {
     pub fn ty(self) -> Type {
         match self {
-            Atom::Number(value) => value.ty(),
+            Atom::Value(value) => value.ty(),
             Atom::Id(id) => id.ty(),
         }
     }
