@@ -77,7 +77,7 @@ impl<'source> SemCheck<'source> for ast::ExprStatement<'source> {
     ) -> SemResult<'source, Self::Checked> {
         match self {
             ast::ExprStatement::Expr(expr) => {
-                return Ok(ExprStatement::Expr(expr.0.check(env, inited)?));
+                return Ok(ExprStatement::Expr(expr.check(env, inited)?));
             }
 
             ast::ExprStatement::Assign { id, rhs } => {

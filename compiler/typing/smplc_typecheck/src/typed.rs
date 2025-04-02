@@ -52,7 +52,7 @@ impl<'source> Typed<'source> for hir::ExprStatement<'source> {
                 rhs: rhs.0.typed(symbols),
             },
 
-            hir::ExprStatement::Expr(expr) => ExprStatement::Expr(expr.typed(symbols)),
+            hir::ExprStatement::Expr(expr) => ExprStatement::Expr(expr.0.typed(symbols)),
         }
     }
 }

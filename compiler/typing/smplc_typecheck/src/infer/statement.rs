@@ -58,9 +58,10 @@ impl<'source> TypeInfer<'source> for hir::ExprStatement<'source> {
                 Ok(())
             }
 
-            hir::ExprStatement::Expr(_expr) => {
-                // infer_expr(expr, inferrer, symbols)?;
-                todo!();
+            hir::ExprStatement::Expr(expr) => {
+                infer_expr(expr, inferrer, symbols)?;
+
+                Ok(())
             }
         }
     }

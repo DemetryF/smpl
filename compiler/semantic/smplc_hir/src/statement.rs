@@ -16,7 +16,7 @@ pub enum ExprStatement<'source> {
         var: VarId,
         rhs: Spanned<Expr<'source>>,
     },
-    Expr(Expr<'source>),
+    Expr(Spanned<Expr<'source>>),
 }
 
 pub struct IfStatement<'source> {

@@ -3,7 +3,12 @@ use std::fmt::Write;
 
 use smplc_lir::{BinOp, Id, Sequental, Type, UnOp};
 
-use crate::{builder::Builder, compile::atom, env::Env};
+use crate::{
+    builder::Builder,
+    compile::atom,
+    env::{Address, Env},
+    STACK_ALIGN,
+};
 
 use super::Compile;
 
@@ -103,8 +108,8 @@ impl Compile for Sequental {
                 let lhs = atom(env, builder, lhs);
                 let rhs = atom(env, builder, rhs);
 
-                writeln!(builder, "movlps xmm0, {lhs}")?;
-                writeln!(builder, "movlps xmm1, {rhs}")?;
+                writeln!(builder, "movaps xmm0, {lhs}")?;
+                writeln!(builder, "movaps xmm1, {rhs}")?;
 
                 match op {
                     BinOp::Add => {
@@ -123,7 +128,7 @@ impl Compile for Sequental {
                     }
                 }
 
-                writeln!(builder, "movss {result_ptr}, xmm0")?;
+                writeln!(builder, "movaps {result_ptr}, xmm0")?;
             }
 
             Sequental::Binary {
@@ -199,24 +204,24 @@ impl Compile for Sequental {
             }
 
             Sequental::Call { dst, fun, args } => {
-                let shift = env.stack_size() + args.len() * 8;
+                let shift = env.stack_size() + args.len() * STACK_ALIGN as usize;
 
                 for (n, (arg, ty)) in args.into_iter().rev().enumerate() {
                     let value = atom(env, builder, arg);
-                    let address = env.stack_size() + (n + 1) * 8;
+                    let address = env.stack_size() + (n + 1) * STACK_ALIGN as usize;
 
                     match ty {
                         Type::Real => {
                             writeln!(builder, "movss xmm0, {value}")?;
-                            writeln!(builder, "movss DWORD [rsp - {address}], xmm0")?;
+                            writeln!(builder, "movss [rsp - {address}], xmm0")?;
                         }
                         Type::Int => {
                             writeln!(builder, "mov eax, {value}")?;
-                            writeln!(builder, "mov DWORD [rsp - {address}], eax")?;
+                            writeln!(builder, "mov [rsp - {address}], eax")?;
                         }
                         _ => {
                             writeln!(builder, "movaps xmm0, {value}")?;
-                            writeln!(builder, "movaps QWORD [rsp - {address}], xmm0")?;
+                            writeln!(builder, "movaps [rsp - {address}], xmm0")?;
                         }
                     }
                 }
@@ -247,6 +252,8 @@ impl Compile for Sequental {
             let dst_address = env.get(dst);
 
             if let Some(phi_dst_ptr) = add_phi(dst, env, None) {
+                let phi_dst_ptr = Address::Stack(phi_dst_ptr);
+
                 match dst.ty() {
                     Type::Real => {
                         writeln!(builder, "movss xmm0, {dst_address}")?;

@@ -54,7 +54,7 @@ impl TypeVar {
             (Self::Type(Type::Complex), Self::Type(Type::Real))
             | (Self::Type(Type::Real), Self::Type(Type::Int)) => Ok(Self::Type(Type::Complex)),
 
-            _ => todo!(),
+            _ => Err((a, b)),
         }
     }
 }

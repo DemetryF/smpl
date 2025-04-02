@@ -29,10 +29,13 @@ impl Builder {
             self,
             "
 section .data
-fmtr: db \"%f\", 10, 0
-fmti: db \"%ld\", 10, 0
-fmttrue: db \"true\", 10, 0
-fmtfalse: db \"false\", 10, 0
+    fmtr:     db \"%f\", 10, 0
+    fmti:     db \"%ld\", 10, 0
+    fmttrue:  db \"true\", 10, 0
+    fmtfalse: db \"false\", 10, 0
+    fmtvec2:  db \"(%f, %f)\", 10, 0
+    fmtvec3:  db \"(%f, %f, %f)\", 10, 0
+    fmtvec4:  db \"(%f, %f, %f, %f)\", 10, 0
 "
         )?;
 

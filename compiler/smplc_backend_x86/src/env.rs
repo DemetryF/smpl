@@ -3,6 +3,8 @@ use std::{cmp::Ordering, collections::HashMap, fmt};
 use smplc_lir as ir;
 use smplc_lir::{Label, Phi};
 
+use crate::STACK_ALIGN;
+
 pub struct Env<'a> {
     pub functions: &'a HashMap<ir::FunId, String>,
     pub labels: &'a HashMap<Label, String>,
@@ -60,7 +62,7 @@ impl<'a> Env<'a> {
     }
 
     pub fn stack_size(&self) -> usize {
-        self.vars_count * 8
+        self.vars_count * STACK_ALIGN as usize
     }
 }
 
@@ -90,7 +92,7 @@ impl fmt::Display for Address {
         match self {
             &Address::Stack(address) => {
                 let ordering = address.cmp(&0);
-                let address = 8 * address.abs();
+                let address = STACK_ALIGN * address.abs();
 
                 match ordering {
                     Ordering::Less => write!(f, "[rbp+{address}]"),
