@@ -137,4 +137,12 @@ pub fn init_std(env: &mut Env) {
             None,
         )
         .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printc", Span::default()),
+            vec![Type::Complex],
+            None,
+        )
+        .unwrap();
 }

@@ -170,6 +170,31 @@ printvec4_L1:
     call     printf
     add      rsp, 8
     ret
+
+printc:
+    movups   xmm0, [rsp+8]
+    movaps   xmm1, xmm0
+    shufps   xmm1, xmm1, 0b00_00_00_01
+    cvtss2sd xmm0, xmm0
+    cvtss2sd xmm1, xmm1
+    lea      rdi, [fmtc]
+    mov      rax, 2
+
+    ucomisd  xmm1, [zero]
+    jne      printc_L0
+    lea      rdi, [fmtr]
+    mov      rax, 1
+printc_L0:
+
+    test     rsp, 15
+    jne      printc_L1
+    call     printf
+    ret
+printc_L1:
+    sub      rsp, 8
+    call     printf
+    add      rsp, 8
+    ret
     "
     )?;
 

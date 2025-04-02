@@ -46,13 +46,13 @@ impl TypeVar {
 
             (Self::Unknown, res) | (res, Self::Unknown) => Ok(res),
 
+            (Self::Type(Type::Complex), Self::Type(Type::Real))
+            | (Self::Type(Type::Real), Self::Type(Type::Complex)) => Ok(Type::Complex.into()),
+
             (Self::Linear, ty) | (ty, Self::Linear) if ty.is_linear() => Ok(ty),
             (Self::Number, ty) | (ty, Self::Number) if ty.is_number() => Ok(ty),
             (Self::Scalar, ty) | (ty, Self::Scalar) if ty.is_scalar() => Ok(ty),
             (Self::Vec, ty) | (ty, Self::Vec) if ty.is_vec() => Ok(ty),
-
-            (Self::Type(Type::Complex), Self::Type(Type::Real))
-            | (Self::Type(Type::Real), Self::Type(Type::Int)) => Ok(Self::Type(Type::Complex)),
 
             _ => Err((a, b)),
         }

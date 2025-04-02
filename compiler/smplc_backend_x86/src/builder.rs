@@ -36,6 +36,9 @@ section .data
     fmtvec2:  db \"(%f, %f)\", 10, 0
     fmtvec3:  db \"(%f, %f, %f)\", 10, 0
     fmtvec4:  db \"(%f, %f, %f, %f)\", 10, 0
+    fmtc:     db \"%f + %fi\", 10, 0
+    fmtcim:   db \"%fi\", 10, 0
+    zero:     dq 0.0
 "
         )?;
 

@@ -37,8 +37,8 @@ impl Compile for Sequental {
                         writeln!(builder, "mov {result_ptr}, eax")?;
                     }
                     Type::Complex | Type::Vec2 => {
-                        writeln!(builder, "movlps xmm0, {value}")?;
-                        writeln!(builder, "movlps {result_ptr}, xmm0")?;
+                        writeln!(builder, "movups xmm0, {value}")?;
+                        writeln!(builder, "movups {result_ptr}, xmm0")?;
                     }
                     Type::Vec3 | Type::Vec4 => {
                         writeln!(builder, "movaps xmm0, {value}")?;
@@ -59,8 +59,8 @@ impl Compile for Sequental {
                 let lhs = atom(env, builder, lhs);
                 let rhs = atom(env, builder, rhs);
 
-                writeln!(builder, "movlps xmm0, {lhs}")?;
-                writeln!(builder, "movlps xmm1, {rhs}")?;
+                writeln!(builder, "movaps xmm0, {lhs}")?;
+                writeln!(builder, "movaps xmm1, {rhs}")?;
 
                 match op {
                     BinOp::Add => {
@@ -79,7 +79,7 @@ impl Compile for Sequental {
                         writeln!(builder, "movss  xmm0, xmm1")?; // xmm0 = [ac - bd, bc + ad]
                     }
                     BinOp::Div => {
-                        writeln!(builder, "movlps xmm2, xmm1")?; // xmm2 = [ c,  d  ]
+                        writeln!(builder, "movaps xmm2, xmm1")?; // xmm2 = [ c,  d  ]
                         writeln!(builder, "mulps  xmm2, xmm2")?; // xmm2 = [ cc, dd ]
                         writeln!(builder, "haddps xmm2, xmm2")?; // xmm2 = [ cc + dd ]
                         writeln!(builder, "shufps xmm0, xmm0, 0b00_01_01_00")?; // xmm0 = [ a, b, b, a ]
@@ -93,7 +93,7 @@ impl Compile for Sequental {
                     }
                 }
 
-                writeln!(builder, "movss {result_ptr}, xmm0")?;
+                writeln!(builder, "movups {result_ptr}, xmm0")?;
             }
 
             Sequental::Binary {

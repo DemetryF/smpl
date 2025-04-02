@@ -150,7 +150,7 @@ pub fn translate_atom(atom: thir::Atom, idents: &mut BaseIdents) -> Atom {
         thir::Atom::Literal(literal) => Atom::Value(match literal.ty {
             thir::LiteralType::Complex => Value::Complex(Complex32::new(
                 0.0,
-                parse_int::parse(literal.value).unwrap(),
+                parse_int::parse(&literal.value[0..literal.value.len() - 1]).unwrap(),
             )),
             thir::LiteralType::Real => Value::Real(parse_int::parse(literal.value).unwrap()),
             thir::LiteralType::Int => Value::Int(parse_int::parse(literal.value).unwrap()),

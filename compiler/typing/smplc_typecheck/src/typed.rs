@@ -151,6 +151,9 @@ fn bin_op_typed(op: hir::BinOp, lhs: Type, rhs: Type) -> BinOp {
 
             return BinOp::Vec(op, ty);
         } else {
+            if lhs == Type::Complex || rhs == Type::Complex {
+                return BinOp::Arithm(op, NumberType::Complex);
+            }
             return BinOp::Arithm(op, lhs.try_into().unwrap());
         }
     }
