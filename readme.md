@@ -73,8 +73,8 @@ fn add(a: real, b: real) -> real {
 }
 ```
 
-you can see more examples [here](https://github.com/demetryf/smpl/tree/feature/add_typing/examples)
-and formal grammary [here](https://github.com/demetryf/smpl/tree/feature/add_typing/compiler/frontend/grammary.ebnff)
+you can see more examples [here](https://github.com/DemetryF/smpl/tree/main/examples)
+and formal grammary [here](https://github.com/DemetryF/smpl/blob/main/compiler/frontend/grammary.ebnf)
 
 # Typing
 
