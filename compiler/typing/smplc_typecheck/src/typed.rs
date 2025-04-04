@@ -91,17 +91,20 @@ impl<'source> Typed<'source> for hir::Expr<'source> {
             }
 
             hir::Expr::Unary { op, rhs } => {
-                let rhs = rhs.0.typed(symbols);
+                let rhs = Box::new(rhs.0.typed(symbols));
 
                 let op = match op {
                     hir::UnOp::Not => UnOp::Not,
                     hir::UnOp::Neg => UnOp::Neg(expr_ty(&rhs, symbols).try_into().unwrap()),
                 };
 
-                Expr::Unary {
-                    op,
-                    rhs: Box::new(rhs),
-                }
+                Expr::Unary { op, rhs }
+            }
+
+            hir::Expr::Swizzle { lhs, swizzle } => {
+                let lhs = Box::new(lhs.0.typed(symbols));
+
+                Expr::Swizzle { lhs, swizzle }
             }
 
             hir::Expr::Call { fun, args } => {
@@ -126,6 +129,14 @@ fn expr_ty(expr: &Expr, symbols: &Symbols) -> Type {
         Expr::Unary { op, .. } => match op {
             &UnOp::Neg(ty) => ty.into(),
             UnOp::Not => Type::Bool,
+        },
+
+        Expr::Swizzle { swizzle, .. } => match swizzle.combination.len() {
+            1 => Type::Real,
+            2 => Type::Vec2,
+            3 => Type::Vec3,
+            4 => Type::Vec4,
+            _ => unreachable!(),
         },
 
         &Expr::Call { fun: id, .. } => symbols.functions[id].ret_ty.unwrap(),

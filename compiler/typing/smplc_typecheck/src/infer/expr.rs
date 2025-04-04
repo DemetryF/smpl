@@ -1,4 +1,4 @@
-use smplc_ast::{MakeSpanned, Span, Spanned};
+use smplc_ast::{Component, MakeSpanned, Span, Spanned};
 use smplc_hir as hir;
 use smplc_hir::Type;
 
@@ -134,6 +134,35 @@ pub fn infer_expr<'source>(
             Ok(InferenceResult {
                 set,
                 ty: ret_ty,
+                span: expr.span(),
+            })
+        }
+
+        hir::Expr::Swizzle { lhs, swizzle } => {
+            let inference = infer_expr(&lhs, inferrer, symbols)?;
+
+            let ret_ty = match swizzle.combination.len() {
+                1 => Type::Real,
+                2 => Type::Vec2,
+                3 => Type::Vec3,
+                4 => Type::Vec4,
+
+                _ => unreachable!(),
+            };
+
+            let max_component = swizzle.combination.into_iter().max().unwrap();
+
+            let ty = match max_component {
+                Component::X | Component::Y => TypeVar::Vec,
+                Component::Z => TypeVar::Vec34,
+                Component::W => Type::Vec4.into(),
+            };
+
+            inferrer.assume_inference(inference, ty)?;
+
+            Ok(InferenceResult {
+                set: None,
+                ty: ret_ty.into(),
                 span: expr.span(),
             })
         }

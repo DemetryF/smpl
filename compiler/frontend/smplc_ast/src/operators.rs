@@ -81,7 +81,7 @@ pub struct Swizzle {
     pub combination: ArrayBuf<Component, 4>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy, Eq, PartialOrd, Ord)]
 pub enum Component {
     X,
     Y,

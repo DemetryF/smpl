@@ -9,6 +9,8 @@ pub enum TypeVar {
     Scalar,
     /// Scalar, Complex
     Number,
+    /// Vec3, Vec4
+    Vec34,
     /// Vec2, Vec3, Vec4
     Vec,
     /// Number, Vec
@@ -21,7 +23,11 @@ impl TypeVar {
     pub fn is_vec(self) -> bool {
         matches!(
             self,
-            Self::Vec | Self::Type(Type::Vec2) | Self::Type(Type::Vec3) | Self::Type(Type::Vec4)
+            Self::Vec34
+                | Self::Vec
+                | Self::Type(Type::Vec2)
+                | Self::Type(Type::Vec3)
+                | Self::Type(Type::Vec4)
         )
     }
 
@@ -52,6 +58,8 @@ impl TypeVar {
             (Self::Linear, ty) | (ty, Self::Linear) if ty.is_linear() => Ok(ty),
             (Self::Number, ty) | (ty, Self::Number) if ty.is_number() => Ok(ty),
             (Self::Scalar, ty) | (ty, Self::Scalar) if ty.is_scalar() => Ok(ty),
+            (Self::Vec34, ty @ Self::Type(Type::Vec3 | Type::Vec4))
+            | (ty @ Self::Type(Type::Vec3 | Type::Vec4), Self::Vec34) => Ok(ty),
             (Self::Vec, ty) | (ty, Self::Vec) if ty.is_vec() => Ok(ty),
 
             _ => Err((a, b)),
@@ -65,7 +73,8 @@ impl fmt::Display for TypeVar {
             TypeVar::Type(ty) => write!(f, "{ty}"),
             TypeVar::Scalar => write!(f, "AmbiguousScalar"),
             TypeVar::Number => write!(f, "AmbiguousNumber"),
-            TypeVar::Vec => write!(f, "AmiguousVec"),
+            TypeVar::Vec34 => write!(f, "AmbiguousVec{{3,4}}"),
+            TypeVar::Vec => write!(f, "AmbiguousVec"),
             TypeVar::Linear => write!(f, "AmbiguousLinear"),
             TypeVar::Unknown => write!(f, "Unknown"),
             TypeVar::None => write!(f, "None"),

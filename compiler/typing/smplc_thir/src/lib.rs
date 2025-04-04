@@ -1,6 +1,6 @@
 mod ops;
 
-use smplc_ast as ast;
+use smplc_ast::{self as ast, Swizzle};
 use smplc_hir::SymbolsTable;
 
 pub use smplc_ast::LiteralType;
@@ -79,6 +79,10 @@ pub enum Expr<'source> {
     Unary {
         op: UnOp,
         rhs: Box<Self>,
+    },
+    Swizzle {
+        lhs: Box<Self>,
+        swizzle: Swizzle,
     },
     Call {
         fun: FunId,
