@@ -1,4 +1,4 @@
-use crate::{BinOp, Spanned, UnOp};
+use crate::{BinOp, Spanned, Swizzle, UnOp};
 
 #[derive(Debug, PartialEq)]
 pub enum Expr<'source> {
@@ -10,6 +10,10 @@ pub enum Expr<'source> {
         lhs: Box<Spanned<Self>>,
         op: BinOp,
         rhs: Box<Spanned<Self>>,
+    },
+    Swizzle {
+        lhs: Box<Spanned<Self>>,
+        swizzle: Swizzle,
     },
     Call(Call<'source>),
     Atom(Atom<'source>),

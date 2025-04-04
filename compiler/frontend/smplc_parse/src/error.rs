@@ -15,6 +15,7 @@ pub struct ParseError<'source> {
 pub enum ParseErrorKind<'source> {
     UnexpectedToken(TokenTag, &'source str),
     UnexpectedChar(char),
+    InvalidSwizzle,
     BreakOutsideLoop,
     ContinueOutsideLoop,
 }
@@ -24,6 +25,13 @@ impl<'source> ParseError<'source> {
         let kind = ParseErrorKind::UnexpectedToken(tag, value);
 
         Self { kind, span }
+    }
+
+    pub fn invalid_swizzle(span: Span) -> Self {
+        Self {
+            kind: ParseErrorKind::InvalidSwizzle,
+            span,
+        }
     }
 }
 
@@ -36,6 +44,10 @@ impl fmt::Display for ParseErrorKind<'_> {
 
             Self::BreakOutsideLoop => {
                 write!(f, "using break outside loop")
+            }
+
+            Self::InvalidSwizzle => {
+                write!(f, "invalid swizzle combination")
             }
 
             Self::ContinueOutsideLoop => {

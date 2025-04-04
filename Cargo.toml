@@ -21,3 +21,6 @@ members = [
 ]
 
 resolver = "2"
+
+[workspace.dependencies]
+stack-array = "0.4.1"
