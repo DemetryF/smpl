@@ -57,6 +57,7 @@ mul ::=
 unary ::= 
       '!' fact
     | '-' fact
+    | fact ':' swizzle
     | fact
 
 fact ::= num | id | parenthesis | call
@@ -64,3 +65,4 @@ fact ::= num | id | parenthesis | call
 parenthesis ::= '(' expr ')'
 call ::= id '(' cargs? ')'
 cargs ::= expr (',' expr)*
+swizzle ::= [xyzw]{0,4}
