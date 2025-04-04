@@ -2,10 +2,12 @@ use smplc_ast as ast;
 use smplc_ast::{Call, Spanned};
 use smplc_hir::{Atom, Expr, FunData};
 
-use crate::env::Env;
-use crate::error::{SemError, SemResult};
-use crate::inited::Inited;
-use crate::SemCheck;
+use crate::{
+    env::Env,
+    error::{SemError, SemResult},
+    inited::Inited,
+    SemCheck,
+};
 
 impl<'source> SemCheck<'source> for Spanned<ast::Expr<'source>> {
     type Checked = Spanned<Expr<'source>>;
@@ -39,6 +41,12 @@ impl<'source> SemCheck<'source> for ast::Expr<'source> {
                 let rhs = Box::new(rhs.check(env, inited)?);
 
                 Ok(Expr::Unary { op, rhs })
+            }
+
+            ast::Expr::Swizzle { lhs, swizzle } => {
+                let lhs = Box::new(lhs.check(env, inited)?);
+
+                Ok(Expr::Swizzle { lhs, swizzle })
             }
 
             ast::Expr::Call(call) => {
