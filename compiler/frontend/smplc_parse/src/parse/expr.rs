@@ -21,7 +21,6 @@ fn expr_bp<'source, TS: Tokens<'source>>(
 
     loop {
         if token_stream.check(TokenTag::Colon) {
-            println!(":");
             let Spanned(swizzle, swizzle_span) =
                 token_stream.work(|token_stream| Swizzle::parse(token_stream))?;
 
@@ -109,6 +108,7 @@ fn parse_fact<'source, TS: Tokens<'source>>(
         _ => {
             if let Some(op) = UnOp::try_parse(token_stream) {
                 let (_, r_bp) = op.power();
+                token_stream.next_token()?;
 
                 let rhs = expr_bp(token_stream, r_bp)?;
                 let rhs = Box::new(rhs);
