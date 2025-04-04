@@ -29,8 +29,8 @@ impl Compile for Sequental {
 
                 match dst.ty() {
                     Type::Real => {
-                        writeln!(builder, "movss xmm0, {value}")?;
-                        writeln!(builder, "movss {result_ptr}, xmm0")?;
+                        writeln!(builder, "movups xmm0, {value}")?;
+                        writeln!(builder, "movups {result_ptr}, xmm0")?;
                     }
                     Type::Int => {
                         writeln!(builder, "mov eax, {value}")?;
@@ -71,12 +71,12 @@ impl Compile for Sequental {
                     }
                     BinOp::Mul => {
                         writeln!(builder, "shufps xmm0, xmm0, 0b00_01_01_00")?; // xmm0 = [ a, b, b, a ]
-                        writeln!(builder, "shufps xmm1, xmm1, 0b00_01_00_01")?; // xmm1 = [ c, d, c, d ]
-                        writeln!(builder, "mulps  xmm1, xmm1")?; // xmm1 = [ac, bd, bc, ad]
+                        writeln!(builder, "shufps xmm1, xmm1, 0b01_00_01_00")?; // xmm1 = [ c, d, c, d ]
+                        writeln!(builder, "mulps  xmm1, xmm0")?; // xmm1 = [ac, bd, bc, ad]
                         writeln!(builder, "movaps xmm0, xmm1")?; // xmm0 = [ac, bd, bc, ad]
-                        writeln!(builder, "haddps xmm1, xmm1")?; // xmm1 = [ac - bd, bc - ad]
-                        writeln!(builder, "hsubps xmm0, xmm0")?; // xmm0 = [ac + bd, bc + ad]
-                        writeln!(builder, "movss  xmm0, xmm1")?; // xmm0 = [ac - bd, bc + ad]
+                        writeln!(builder, "hsubps xmm1, xmm1")?; // xmm1 = [ac - bd, bc - ad]
+                        writeln!(builder, "haddps xmm0, xmm0")?; // xmm0 = [ac + bd, bc + ad]
+                        writeln!(builder, "movss xmm0, xmm1")?; // xmm0 = [ac - bd, bc + ad]
                     }
                     BinOp::Div => {
                         writeln!(builder, "movaps xmm2, xmm1")?; // xmm2 = [ c,  d  ]
@@ -153,9 +153,9 @@ impl Compile for Sequental {
 
                 match ty {
                     Type::Real => {
-                        writeln!(builder, "movss xmm0, {lhs}")?;
+                        writeln!(builder, "movups xmm0, {lhs}")?;
                         writeln!(builder, "{instruction}ss xmm0, {rhs}")?;
-                        writeln!(builder, "movss {result_ptr}, xmm0")?;
+                        writeln!(builder, "movups {result_ptr}, xmm0")?;
                     }
                     Type::Int if op == BinOp::Div => {
                         writeln!(builder, "mov eax, {lhs}")?;
@@ -189,7 +189,7 @@ impl Compile for Sequental {
                     (Type::Real, UnOp::Neg) => {
                         writeln!(builder, "pxor xmm0, xmm0")?;
                         writeln!(builder, "subss xmm0, {operand}")?;
-                        writeln!(builder, "movss {result_ptr}, xmm0")?;
+                        writeln!(builder, "movups {result_ptr}, xmm0")?;
                     }
                     (Type::Int, UnOp::Neg) => {
                         writeln!(builder, "xor eax, eax")?;
@@ -223,8 +223,8 @@ impl Compile for Sequental {
 
                     match ty {
                         Type::Real => {
-                            writeln!(builder, "movss xmm0, {value}")?;
-                            writeln!(builder, "movss [rsp - {address}], xmm0")?;
+                            writeln!(builder, "movups xmm0, {value}")?;
+                            writeln!(builder, "movups [rsp - {address}], xmm0")?;
                         }
                         Type::Int => {
                             writeln!(builder, "mov eax, {value}")?;
@@ -246,7 +246,7 @@ impl Compile for Sequental {
 
                     match dst.ty() {
                         Type::Real => {
-                            writeln!(builder, "movss {result_ptr}, xmm0")?;
+                            writeln!(builder, "movups {result_ptr}, xmm0")?;
                         }
                         Type::Int => {
                             writeln!(builder, "mov {result_ptr}, eax")?;
@@ -267,8 +267,8 @@ impl Compile for Sequental {
 
                 match dst.ty() {
                     Type::Real => {
-                        writeln!(builder, "movss xmm0, {dst_address}")?;
-                        writeln!(builder, "movss {phi_dst_ptr}, xmm0")?;
+                        writeln!(builder, "movups xmm0, {dst_address}")?;
+                        writeln!(builder, "movups {phi_dst_ptr}, xmm0")?;
                     }
                     Type::Int => {
                         writeln!(builder, "mov eax, {dst_address}")?;

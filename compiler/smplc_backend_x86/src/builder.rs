@@ -84,6 +84,15 @@ impl SimdConstant {
             SimdConstant::X4(constant) => &constant[..],
         }
     }
+
+    pub fn len(self) -> usize {
+        match self {
+            SimdConstant::X1(..) => 1,
+            SimdConstant::X2(..) => 2,
+            SimdConstant::X3(..) => 3,
+            SimdConstant::X4(..) => 4,
+        }
+    }
 }
 
 impl From<[f32; 1]> for SimdConstant {
@@ -114,6 +123,10 @@ impl fmt::Display for SimdConstant {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for &x in self.slice() {
             write!(f, "{}, ", x.to_bits())?;
+        }
+
+        for _ in 0..4 - self.len() {
+            write!(f, "0, ")?;
         }
 
         Ok(())
