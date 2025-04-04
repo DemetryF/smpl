@@ -459,6 +459,7 @@ dependencies = [
 name = "smplc_translate"
 version = "0.1.0"
 dependencies = [
+ "nalgebra",
  "num",
  "parse_int",
  "smplc_lir",

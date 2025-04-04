@@ -76,7 +76,7 @@ impl UnOp {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Swizzle {
     pub combination: ArrayBuf<Component, 4>,
 }

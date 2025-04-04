@@ -21,6 +21,7 @@ fn expr_bp<'source, TS: Tokens<'source>>(
 
     loop {
         if token_stream.check(TokenTag::Colon) {
+            println!(":");
             let Spanned(swizzle, swizzle_span) =
                 token_stream.work(|token_stream| Swizzle::parse(token_stream))?;
 
@@ -50,6 +51,8 @@ fn expr_bp<'source, TS: Tokens<'source>>(
 
                 Expr::Infix { lhs, op, rhs }.spanned(span)
             };
+        } else {
+            break;
         }
     }
 

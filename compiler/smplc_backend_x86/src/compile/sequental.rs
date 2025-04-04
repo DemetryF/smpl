@@ -196,9 +196,20 @@ impl Compile for Sequental {
                         writeln!(builder, "sub eax, {operand}")?;
                         writeln!(builder, "mov {result_ptr}, eax")?;
                     }
-                    _ => {
+                    (_, UnOp::Neg) => {
                         writeln!(builder, "xorps xmm0, xmm0")?;
                         writeln!(builder, "subps xmm0, {operand}")?;
+                    }
+                    (_, UnOp::Swizzle(swizzle)) => {
+                        let combination: usize = (&swizzle.combination[..])
+                            .into_iter()
+                            .enumerate()
+                            .map(|(n, &comp)| 4usize.pow(n as u32) * comp as usize)
+                            .sum();
+
+                        writeln!(builder, "movups xmm0, {operand}")?;
+                        writeln!(builder, "shufps xmm0, xmm0, {combination}")?;
+                        writeln!(builder, "movups {result_ptr}, xmm0")?;
                     }
                 }
             }

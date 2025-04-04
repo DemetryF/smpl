@@ -93,6 +93,29 @@ pub fn translate_expr(
             result
         }
 
+        thir::Expr::Swizzle { lhs, swizzle } => {
+            let lhs = translate_expr(*lhs, translator, idents, symbols);
+
+            let ty = match swizzle.combination.len() {
+                1 => Type::Real,
+                2 => Type::Vec2,
+                3 => Type::Vec3,
+                4 => Type::Vec4,
+                _ => unreachable!(),
+            };
+
+            let result = idents.next(ty);
+
+            translator.code.push(Sequental::Unary {
+                dst: result,
+                op: UnOp::Swizzle(swizzle),
+                ty,
+                operand: Atom::Id(lhs),
+            });
+
+            result
+        }
+
         thir::Expr::Call { fun, args } => {
             let ret_ty = symbols.functions[fun].ret_ty.unwrap();
 

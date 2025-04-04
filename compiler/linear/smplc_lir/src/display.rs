@@ -107,6 +107,15 @@ impl fmt::Display for UnOp {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             UnOp::Neg => write!(f, "-"),
+            UnOp::Swizzle(swizzle) => {
+                write!(f, ".")?;
+
+                for &comp in &swizzle.combination[..] {
+                    write!(f, "{comp}")?;
+                }
+
+                Ok(())
+            }
         }
     }
 }
@@ -114,9 +123,9 @@ impl fmt::Display for UnOp {
 impl fmt::Display for Type {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            Type::Complex => write!(f, "complex"),
             Type::Real => write!(f, "real"),
             Type::Int => write!(f, "int"),
-            Type::Complex => write!(f, "complex"),
             Type::Vec2 => write!(f, "vec2"),
             Type::Vec3 => write!(f, "vec3"),
             Type::Vec4 => write!(f, "vec4"),

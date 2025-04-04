@@ -3,6 +3,7 @@ use std::{
     ops::{Add, Div, Mul, Sub},
 };
 
+use nalgebra::{Vector2, Vector3, Vector4};
 use num::Complex;
 
 use smplc_lir::Value;
@@ -61,8 +62,6 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
                     Value::Int(rel(op, ord) as i32)
                 }
                 thir::BinOp::Vec(op, ty) => {
-                    ();
-
                     if matches!(op, thir::VecOp::Add | thir::VecOp::Sub) {
                         fn oper<T>(lhs: T, op: VecOp, rhs: T) -> T
                         where
@@ -135,6 +134,32 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
                     Value::Int(-rhs.int())
                 }
                 thir::UnOp::Not => Value::Int(!rhs.int()),
+            }
+        }
+        thir::Expr::Swizzle { lhs, swizzle } => {
+            let lhs = const_eval(*lhs, idents);
+
+            let source_vec = match &lhs {
+                Value::Vec2(matrix) => matrix.as_slice(),
+                Value::Vec3(matrix) => matrix.as_slice(),
+                Value::Vec4(matrix) => matrix.as_slice(),
+
+                _ => unreachable!(),
+            };
+
+            let mut new_vec = [0.; 4];
+
+            for (n, &comp) in (&swizzle.combination[..]).into_iter().enumerate() {
+                new_vec[n] = source_vec[comp as usize];
+            }
+
+            match swizzle.combination.len() {
+                1 => Value::Real(new_vec[0]),
+                2 => Value::Vec2(Vector2::new(new_vec[0], new_vec[1])),
+                3 => Value::Vec3(Vector3::new(new_vec[0], new_vec[1], new_vec[2])),
+                4 => Value::Vec4(Vector4::new(new_vec[0], new_vec[1], new_vec[2], new_vec[3])),
+
+                _ => unreachable!(),
             }
         }
         thir::Expr::Call { .. } => panic!("there's no const fn lol"),

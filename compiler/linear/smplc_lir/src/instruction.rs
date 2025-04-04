@@ -1,3 +1,4 @@
+use smplc_ast::Swizzle;
 use smplc_macros::EnumWrap;
 use smplc_thir::FunId;
 use smplc_thir::{self as thir};
@@ -62,9 +63,9 @@ pub enum ControlFlow {
     Halt,
 }
 
-#[derive(Clone, Copy)]
 pub enum UnOp {
     Neg,
+    Swizzle(Swizzle),
 }
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
