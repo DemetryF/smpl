@@ -1,101 +1,116 @@
-# About SMPL
+# SMPL
 
-SMPL is primitive math programming language under development.
+SMPL (saturn math programming language) is an open source educational compiled language.
 
-# Syntax
+You can see examples [there](https://github.com/DemetryF/smpl/tree/main/examples).
 
-All expressions end with a semicolon.
-Function `main` is entry point.
+# Quick Start
 
-## Variable Declaration
+You need to have rust toolchain to use smplc, if you don't, go [there](https://rustup.rs/) and install it.
 
-You can declare a variable with the `let` keyword:
+Use cargo install to install it from the repo to your system
 
-```rust
-let a = 2;
+```sh
+cargo install --git https://github.com/demetryf/smpl
 ```
 
-also, you can specify the var type explicit:
+Or build and run it from the source:
 
-```rust
-let a: int = 2;
+```sh
+git clone https://github.com/demetryf/smpl
+cd smpl
+cargo run --release -- <filename>
 ```
 
-## If Statement
+# Language overview
 
-Conditional constructs in SMPL are similar to conditional constructs in Rust:
+## Entry point
 
-```rust
-if cond {
+Since this is a compiled language, you should have an entry point to your program. It's what the \`main\` function is used for:
+
+```rs
+fn main() {
+    // ...
+}
+```
+
+A program in SMPL is built from items - constant or function declarations.
+
+The following syntax lets you define a function:
+
+```rs
+fn <name>( {<arg> : <ty>} ) [-> <ret_ty>] {
     // body
 }
 ```
 
-Also you can use `else` branch:
+Also, you can define constants:
 
-```rust
-if cond {
-    // body
+```rs
+const <name> : <ty> = <expr>;
+```
+
+In the expression of a constant, you can use previously defined constants, but cannot call functions
+
+There's several statements that can be used everywhere in function blocks in SMPL:
+
+## Declaring a variable
+
+```rs
+let <id> [: <ty>] [= <expr>];
+```
+
+Like any language, in SMPL you can declare your variable, specify it type and value.
+
+Specifying of the type is unnecessary because of type inference. If the compiler couldn't infer the type, you'll should specify it explicit.
+
+You can set the value of a variable later, but if you won't, you'll get an error within attempt to use it.
+
+## Conditional statement
+
+```rs
+if <cond> {
+    // then branch
+}
+```
+
+And with else branch:
+
+```rs
+if <cond> {
+    // then branch
 } else {
-    // else body
+    // else branch
 }
 ```
 
-Warning! Language does not yet support else if, attempting to use this syntax will result in an error.
+## Loops
 
-## While loop
-
-While loop is also similar to while loop in Rust
-
-```rust
-while cond {
+```rs
+while <cond> {
     // body
 }
 ```
 
-Also there is Continue and Break statements;
+In the language, loops are presented only by while loop, that firstly check the condition and then run the body code.
 
-## Function Declaration
+## Return
 
-You can declare a function by using `fn` keyword:
+You can exit from the function and return some value:
 
-```rust
-fn name(arg1: int, arg2: real) -> bool {
-    // body
-}
+```rs
+return [<expr>];
 ```
 
-Use return statement for exit from function:
+## Built-in types
 
-```rust
-fn add(a: real, b: real) -> real {
-    return a + b;
-}
-```
+There's several built-in types:
 
-you can see more examples [here](https://github.com/demetryf/smpl/tree/feature/add_typing/examples)
-and formal grammary [here](https://github.com/demetryf/smpl/tree/feature/add_typing/compiler/frontend/grammary.ebnff)
+- `bool` - boolean type that supports `&`, `|`, `!` operations.
+- `int` - integer number type representing i32 and supporting arithmetic (`+`, `-`, `*`, `/`) and ordering (`>`, `>=`, `<`, `<=`) operations.
+- `real` - floating point number type representing f32 and supporting the same operations as `int`.
+- `complex` - complex number type represented as two of f32 and supporting the same operations as `real` except the ordering operations. As an imaginary postfix is used `i`.
+- `vec2`, `vec3`, `vec4` - vector types represented as corresponding count of f32 and supporting `+`, `-` and multiplying/dividing on a scalar. To construct a vector, use function with the same name as vec type that you want your variable to have, e.g. `vec2(x, y)`. Also you can use swizzling to get access to a component or transform vector, e.g. `:x`, `:zyx`.
 
-# Typing
-
-SMPL is typed language, so it have 3 types: `real` (f32), `int` (i32) and bool
-
-# Using
-
-1. Compile it:
-
-```sh
-cargo build --release
-```
-
-2. take compiler bin
-
-```sh
-mv target/release/smplc ./smplc
-```
-
-3. compile your file:
-
-```sh
-./smplc <path> [-o <output binary file name>]
-```
+For each type there is a built-in function to print a value of it:
+`printb`, `printi`, `printr`, `printc`, `printvec2`, `printvec3`, `printvec4` accordingly.
