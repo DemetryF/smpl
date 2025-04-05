@@ -3,7 +3,10 @@ use std::collections::HashMap;
 use smplc_ast as ast;
 use smplc_hir::{FunData, FunId, SymbolsTable, Type, VarData, VarId};
 
-use crate::error::{SemError, SemResult};
+use crate::{
+    error::{SemError, SemResult},
+    semcheck::RawType,
+};
 
 #[derive(Default)]
 pub struct Env<'source> {
@@ -72,7 +75,7 @@ impl<'source> Variables<'source> {
         } else {
             let var_data = VarData {
                 id: arg.id,
-                ty: Some(arg.ty),
+                ty: Some(RawType(arg.ty).checked()?),
             };
 
             let var_id = self.symbols.add(var_data);

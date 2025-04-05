@@ -1,11 +1,14 @@
 mod expr;
 mod statement;
 mod symbols;
+mod ty;
+
+use smplc_ast::Spanned;
 
 pub use expr::*;
-use smplc_ast::Spanned;
 pub use statement::*;
 pub use symbols::*;
+pub use ty::Type;
 
 #[derive(Default)]
 pub struct HIR<'source> {

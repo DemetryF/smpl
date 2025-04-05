@@ -1,7 +1,8 @@
-use smplc_ast::Spanned;
-pub use smplc_ast::{BinOp, Literal, Pos, Type, UnOp};
+use smplc_ast::{Spanned, Swizzle};
 
 use crate::{FunId, VarId};
+
+pub use smplc_ast::{BinOp, Literal, Pos, UnOp};
 
 pub enum Expr<'source> {
     Binary {
@@ -12,6 +13,10 @@ pub enum Expr<'source> {
     Unary {
         op: UnOp,
         rhs: Box<Spanned<Self>>,
+    },
+    Swizzle {
+        lhs: Box<Spanned<Self>>,
+        swizzle: Swizzle,
     },
     Call {
         fun: FunId,

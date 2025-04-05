@@ -62,7 +62,7 @@ let a: int;
         ";
         Statement::Declare(DeclareStatement {
             id: Spanned("a", _),
-            ty: Some(Type::Int),
+            ty: Some(Spanned("int", _)),
             value: None,
         })
     );
@@ -73,7 +73,7 @@ let a: real = a;
         ";
         Statement::Declare(DeclareStatement {
             id: Spanned("a", _),
-            ty: Some(Type::Real),
+            ty: Some(Spanned("real", _)),
             value: Some(Spanned(Expr::Atom(Atom::Id(
                 Spanned("a", _)
             )), _)),
@@ -115,13 +115,13 @@ fn name(a: real) -> real {}
         Declaration::Function(FunctionDeclaration {
             id: Spanned("name", _),
             args,
-            ret_ty: Some(Type::Real),
+            ret_ty: Some(Spanned("real", _)),
             body: Block { statements },
         }) => {
             assert!(matches!(args.as_slice(), [
                 FunctionArg {
                     id:  Spanned("a", _),
-                    ty: Type::Real,
+                    ty: Spanned("real", _),
                 }
             ]));
 
@@ -136,17 +136,17 @@ fn name(a: bool, b: bool) -> bool {}
         Declaration::Function(FunctionDeclaration {
             id: Spanned("name", _),
             args,
-            ret_ty: Some(Type::Bool),
+            ret_ty: Some(Spanned("bool", _)),
             body: Block { statements },
         }) => {
             assert!(matches!(args.as_slice(), [
                 FunctionArg {
                     id: Spanned("a", _),
-                    ty: Type::Bool,
+                    ty: Spanned("bool", _),
                 },
                 FunctionArg {
                     id: Spanned("b", _),
-                    ty: Type::Bool,
+                    ty: Spanned("bool", _),
                 }
             ]));
 

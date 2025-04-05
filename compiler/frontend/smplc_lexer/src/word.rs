@@ -1,16 +1,13 @@
-use smplc_ast::Type;
+use smplc_ast::LiteralType;
 
-use crate::cursor::Cursor;
-use crate::TokenTag;
+use crate::{cursor::Cursor, TokenTag};
 
 pub fn lex_word(cursor: &mut Cursor) -> Option<TokenTag> {
-    if !(cursor.current().is_alphabetic() || cursor.current() == '_' || cursor.current() == '$') {
+    if !is_word_start(cursor.current()) {
         return None;
     }
 
-    let buffer = word_literal(cursor);
-
-    let value = match buffer {
+    Some(match word_literal(cursor) {
         "let" => TokenTag::Let,
         "else" => TokenTag::Else,
         "fn" => TokenTag::Fn,
@@ -22,26 +19,22 @@ pub fn lex_word(cursor: &mut Cursor) -> Option<TokenTag> {
         "continue" => TokenTag::Continue,
         "break" => TokenTag::Break,
 
-        "true" => TokenTag::Literal(Type::Bool),
-        "false" => TokenTag::Literal(Type::Bool),
-
-        "real" => TokenTag::Type(Type::Real),
-        "int" => TokenTag::Type(Type::Int),
-        "bool" => TokenTag::Type(Type::Bool),
+        "true" => TokenTag::Literal(LiteralType::Bool),
+        "false" => TokenTag::Literal(LiteralType::Bool),
 
         _ => TokenTag::Id,
-    };
+    })
+}
 
-    Some(value)
+fn is_word_start(char: char) -> bool {
+    char.is_alphabetic() || matches!(char, '_' | '$')
 }
 
 fn word_literal<'source>(cursor: &mut Cursor<'source>) -> &'source str {
     let start = cursor.index();
 
     while !cursor.is_eof()
-        && (cursor.current().is_alphanumeric()
-            || cursor.current() == '_'
-            || cursor.current() == '$')
+        && (cursor.current().is_alphanumeric() || matches!(cursor.current(), '_' | '$'))
     {
         cursor.next_ch();
     }

@@ -33,14 +33,12 @@ impl<'source, TS: Tokens<'source>> TokenStream<'source, TS> {
         !self.is_end() && self.current().tag == value
     }
 
-    pub fn consume(&mut self, value: TokenTag) -> ParseResult<'source, ()> {
+    pub fn consume(&mut self, value: TokenTag) -> ParseResult<'source, Token> {
         if self.check(value) {
-            self.next_token()?;
-
-            return Ok(());
+            Ok(self.next_token()?)
+        } else {
+            Err(self.unexpected_token())
         }
-
-        Err(self.unexpected_token())
     }
 
     pub fn try_consume(&mut self, value: TokenTag) -> ParseResult<'source, bool> {

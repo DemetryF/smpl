@@ -1,9 +1,12 @@
 use std::fmt::{self, Write};
 
+use crate::env::Address;
+
 #[derive(Default)]
 pub struct Builder {
     code: String,
-    float_constants: Vec<f32>,
+
+    constants: Vec<SimdConstant>,
 }
 
 impl Write for Builder {
@@ -26,40 +29,106 @@ impl Builder {
             self,
             "
 section .data
-fmtr: db \"%f\", 10, 0
-fmti: db \"%ld\", 10, 0
-fmttrue: db \"true\", 10, 0
-fmtfalse: db \"false\", 10, 0
+    fmtr:     db \"%f\", 10, 0
+    fmti:     db \"%ld\", 10, 0
+    fmttrue:  db \"true\", 10, 0
+    fmtfalse: db \"false\", 10, 0
+    fmtvec2:  db \"(%f, %f)\", 10, 0
+    fmtvec3:  db \"(%f, %f, %f)\", 10, 0
+    fmtvec4:  db \"(%f, %f, %f, %f)\", 10, 0
+    fmtc:     db \"%f + %fi\", 10, 0
+    fmtcim:   db \"%fi\", 10, 0
+    zero:     dq 0.0
 "
         )?;
 
-        if !self.float_constants.is_empty() {
-            for (index, float) in self.float_constants.iter().enumerate() {
-                if float.fract() == 0.0 {
-                    writeln!(self.code, "LC{index}: dd {float:.1}")?;
-                } else {
-                    writeln!(self.code, "LC{index}: dd {float}")?;
-                }
+        if !self.constants.is_empty() {
+            for (index, &constant) in self.constants.iter().enumerate() {
+                writeln!(self.code, "LC{index}: dd {constant}")?;
             }
         }
 
         Ok(self.code)
     }
 
-    pub fn float(&mut self, float: f32) -> String {
-        fn label(index: usize) -> String {
-            format!("dword[LC{index}]")
-        }
+    pub fn constant(&mut self, constant: impl Into<SimdConstant>) -> Address {
+        let constant = constant.into();
 
-        let index = match self.float_constants.iter().position(|&f| f == float) {
+        let index = match self.constants.iter().position(|&c| c == constant) {
             Some(index) => index,
             None => {
-                self.float_constants.push(float);
+                self.constants.push(constant);
 
-                self.float_constants.len() - 1
+                self.constants.len() - 1
             }
         };
 
-        label(index)
+        Address::Const(index)
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum SimdConstant {
+    X1([f32; 1]),
+    X2([f32; 2]),
+    X3([f32; 3]),
+    X4([f32; 4]),
+}
+
+impl SimdConstant {
+    pub fn slice(&self) -> &[f32] {
+        match self {
+            SimdConstant::X1(constant) => &constant[..],
+            SimdConstant::X2(constant) => &constant[..],
+            SimdConstant::X3(constant) => &constant[..],
+            SimdConstant::X4(constant) => &constant[..],
+        }
+    }
+
+    pub fn len(self) -> usize {
+        match self {
+            SimdConstant::X1(..) => 1,
+            SimdConstant::X2(..) => 2,
+            SimdConstant::X3(..) => 3,
+            SimdConstant::X4(..) => 4,
+        }
+    }
+}
+
+impl From<[f32; 1]> for SimdConstant {
+    fn from(value: [f32; 1]) -> Self {
+        Self::X1(value)
+    }
+}
+
+impl From<[f32; 2]> for SimdConstant {
+    fn from(value: [f32; 2]) -> Self {
+        Self::X2(value)
+    }
+}
+
+impl From<[f32; 3]> for SimdConstant {
+    fn from(value: [f32; 3]) -> Self {
+        Self::X3(value)
+    }
+}
+
+impl From<[f32; 4]> for SimdConstant {
+    fn from(value: [f32; 4]) -> Self {
+        Self::X4(value)
+    }
+}
+
+impl fmt::Display for SimdConstant {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for &x in self.slice() {
+            write!(f, "{}, ", x.to_bits())?;
+        }
+
+        for _ in 0..4 - self.len() {
+            write!(f, "0, ")?;
+        }
+
+        Ok(())
     }
 }

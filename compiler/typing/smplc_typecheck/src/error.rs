@@ -2,7 +2,7 @@ use std::fmt;
 
 use smplc_ast::Span;
 
-use crate::infer::TypeVar;
+use crate::type_var::TypeVar;
 
 pub struct TypeError<'source> {
     pub kind: TypeErrorKind<'source>,

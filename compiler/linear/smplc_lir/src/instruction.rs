@@ -1,10 +1,11 @@
+use smplc_ast::Swizzle;
 use smplc_macros::EnumWrap;
 use smplc_thir as thir;
 use smplc_thir::FunId;
 
-pub use smplc_thir::{ArithmOp as BinOp, RelOp};
+pub use smplc_thir::{ArithmOp as BinOp, EqOp, LinearType, NumberType, OrdOp, RelOp, VecType};
 
-use crate::Number;
+use crate::Value;
 
 #[derive(EnumWrap)]
 pub enum Instruction {
@@ -49,7 +50,6 @@ pub enum ControlFlow {
     If {
         lhs: Atom,
         op: RelOp,
-        ty: Type,
         rhs: Atom,
         label: Label,
     },
@@ -62,22 +62,31 @@ pub enum ControlFlow {
     Halt,
 }
 
-#[derive(Clone, Copy)]
 pub enum UnOp {
     Neg,
+    Swizzle(Swizzle),
 }
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub enum Type {
+    Complex,
     Real,
     Int,
+    Vec2,
+    Vec3,
+    Vec4,
 }
 
 impl From<thir::Type> for Type {
     fn from(value: thir::Type) -> Self {
         match value {
-            thir::Type::Real => Type::Real,
-            thir::Type::Int | thir::Type::Bool => Type::Int,
+            thir::Type::Real => Self::Real,
+            thir::Type::Int => Self::Int,
+            thir::Type::Bool => Self::Int,
+            thir::Type::Vec2 => Self::Vec2,
+            thir::Type::Vec3 => Self::Vec3,
+            thir::Type::Vec4 => Self::Vec4,
+            thir::Type::Complex => Self::Complex,
         }
     }
 }
@@ -87,21 +96,40 @@ impl From<thir::NumberType> for Type {
         match value {
             thir::NumberType::Real => Type::Real,
             thir::NumberType::Int => Type::Int,
+            thir::NumberType::Complex => Type::Complex,
+        }
+    }
+}
+
+impl From<thir::VecType> for Type {
+    fn from(value: thir::VecType) -> Self {
+        match value {
+            thir::VecType::Vec2 => Self::Vec2,
+            thir::VecType::Vec3 => Self::Vec3,
+            thir::VecType::Vec4 => Self::Vec4,
+        }
+    }
+}
+
+impl From<thir::LinearType> for Type {
+    fn from(value: thir::LinearType) -> Self {
+        match value {
+            thir::LinearType::Vec(ty) => ty.into(),
+            thir::LinearType::Number(ty) => ty.into(),
         }
     }
 }
 
 #[derive(Clone, Copy)]
 pub enum Atom {
-    Number(Number),
+    Value(Value),
     Id(Id),
 }
 
 impl Atom {
     pub fn ty(self) -> Type {
         match self {
-            Atom::Number(Number::Real(_)) => Type::Real,
-            Atom::Number(Number::Int(_)) => Type::Int,
+            Atom::Value(value) => value.ty(),
             Atom::Id(id) => id.ty(),
         }
     }

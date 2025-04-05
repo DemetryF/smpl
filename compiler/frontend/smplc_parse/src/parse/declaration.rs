@@ -28,7 +28,7 @@ impl<'source> Parse<'source> for ConstantDeclaration<'source> {
 
         token_stream.consume(TokenTag::Colon)?;
 
-        let ty = Type::parse(token_stream)?;
+        let ty = Id::parse(token_stream)?;
 
         token_stream.consume(TokenTag::Assign)?;
 
@@ -52,7 +52,7 @@ impl<'source> Parse<'source> for FunctionDeclaration<'source> {
         let ret_ty = {
             token_stream
                 .try_consume(TokenTag::Arrow)?
-                .then(|| Type::parse(token_stream))
+                .then(|| Id::parse(token_stream))
                 .transpose()?
         };
 
@@ -97,7 +97,7 @@ impl<'source> Parse<'source> for FunctionArg<'source> {
 
         token_stream.consume(TokenTag::Colon)?;
 
-        let ty = Type::parse(token_stream)?;
+        let ty = Id::parse(token_stream)?;
 
         Ok(FunctionArg { id, ty })
     }

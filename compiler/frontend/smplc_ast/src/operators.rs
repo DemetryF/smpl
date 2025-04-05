@@ -1,3 +1,5 @@
+use stack_array::ArrayBuf;
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum BinOp {
     Or,
@@ -40,10 +42,22 @@ impl BinOp {
         matches!(self, Add | Sub | Mul | Div)
     }
 
-    pub fn is_rel(self) -> bool {
+    pub fn is_vec(self) -> bool {
         use BinOp::*;
 
-        matches!(self, Eq | Ne | Lt | Le | Gt | Ge)
+        matches!(self, Add | Sub | Mul | Div)
+    }
+
+    pub fn is_eq(self) -> bool {
+        use BinOp::*;
+
+        matches!(self, Eq | Ne)
+    }
+
+    pub fn is_ord(self) -> bool {
+        use BinOp::*;
+
+        matches!(self, Lt | Le | Gt | Ge)
     }
 
     pub fn is_logic(self) -> bool {
@@ -64,6 +78,34 @@ impl UnOp {
         match self {
             Self::Not => (0, 15),
             Self::Neg => (0, 15),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Swizzle {
+    pub combination: ArrayBuf<Component, 4>,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy, Eq, PartialOrd, Ord)]
+pub enum Component {
+    X,
+    Y,
+    Z,
+    W,
+}
+
+impl TryFrom<char> for Component {
+    type Error = ();
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        match value {
+            'x' | 'X' => Ok(Self::X),
+            'y' | 'Y' => Ok(Self::Y),
+            'z' | 'Z' => Ok(Self::Z),
+            'w' | 'W' => Ok(Self::W),
+
+            _ => Err(()),
         }
     }
 }

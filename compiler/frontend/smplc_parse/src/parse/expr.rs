@@ -1,9 +1,9 @@
+use stack_array::{Array, ArrayBuf};
+
 use smplc_ast::*;
 use smplc_lexer::{Token, TokenTag};
 
-use crate::error::ParseResult;
-use crate::token_stream::Tokens;
-use crate::{Parse, ParseError, TokenStream, TryParse};
+use crate::{error::ParseResult, token_stream::Tokens, Parse, ParseError, TokenStream, TryParse};
 
 impl<'source> Parse<'source> for Spanned<Expr<'source>> {
     fn parse<TS: Tokens<'source>>(
@@ -19,25 +19,40 @@ fn expr_bp<'source, TS: Tokens<'source>>(
 ) -> ParseResult<'source, Spanned<Expr<'source>>> {
     let mut lhs = token_stream.work(|token_stream| parse_fact(token_stream))?;
 
-    while let Some(op) = BinOp::try_parse(token_stream) {
-        let (l_bp, r_bp) = op.power();
+    loop {
+        if token_stream.check(TokenTag::Colon) {
+            let Spanned(swizzle, swizzle_span) =
+                token_stream.work(|token_stream| Swizzle::parse(token_stream))?;
 
-        if l_bp < min_bp {
+            let span = Span::unite(lhs.span(), swizzle_span);
+
+            lhs = Expr::Swizzle {
+                lhs: Box::new(lhs),
+                swizzle,
+            }
+            .spanned(span);
+        } else if let Some(op) = BinOp::try_parse(token_stream) {
+            let (l_bp, r_bp) = op.power();
+
+            if l_bp < min_bp {
+                break;
+            }
+
+            token_stream.next_token()?;
+
+            lhs = {
+                let lhs = Box::new(lhs);
+
+                let rhs: Spanned<Expr<'_>> = expr_bp(token_stream, r_bp)?;
+                let rhs = Box::new(rhs);
+
+                let span = Span::unite(lhs.span(), rhs.span());
+
+                Expr::Infix { lhs, op, rhs }.spanned(span)
+            };
+        } else {
             break;
         }
-
-        token_stream.next_token()?;
-
-        lhs = {
-            let lhs = Box::new(lhs);
-
-            let rhs = expr_bp(token_stream, r_bp)?;
-            let rhs = Box::new(rhs);
-
-            let span = Span::unite(lhs.span(), rhs.span());
-
-            Expr::Infix { lhs, op, rhs }.spanned(span)
-        };
     }
 
     Ok(lhs)
@@ -93,6 +108,7 @@ fn parse_fact<'source, TS: Tokens<'source>>(
         _ => {
             if let Some(op) = UnOp::try_parse(token_stream) {
                 let (_, r_bp) = op.power();
+                token_stream.next_token()?;
 
                 let rhs = expr_bp(token_stream, r_bp)?;
                 let rhs = Box::new(rhs);
@@ -139,4 +155,38 @@ impl<'source> Parse<'source> for Id<'source> {
             token => Err(ParseError::unexpected_token(token)),
         }
     }
+}
+
+impl<'source> Parse<'source> for Swizzle {
+    fn parse<TS: Tokens<'source>>(
+        token_stream: &mut TokenStream<'source, TS>,
+    ) -> ParseResult<'source, Self> {
+        token_stream.consume(TokenTag::Colon)?;
+
+        let token = token_stream.consume(TokenTag::Id)?;
+
+        let Ok(Ok(combination)) =
+            try_collect_array_buf(token.value.chars().map(|char| Component::try_from(char)))
+        else {
+            return Err(ParseError::invalid_swizzle(token.span));
+        };
+
+        Ok(Swizzle { combination })
+    }
+}
+
+fn try_collect_array_buf<T, E, const N: usize>(
+    iter: impl IntoIterator<Item = Result<T, E>>,
+) -> Result<Result<ArrayBuf<T, N>, ()>, E> {
+    let mut arr = ArrayBuf::new();
+
+    for el in iter {
+        if arr.is_full() {
+            return Ok(Err(()));
+        }
+
+        arr.push(el?);
+    }
+
+    Ok(Ok(arr))
 }

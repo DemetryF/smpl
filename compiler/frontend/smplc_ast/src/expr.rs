@@ -1,4 +1,4 @@
-use crate::{BinOp, Spanned, Type, UnOp};
+use crate::{BinOp, Spanned, Swizzle, UnOp};
 
 #[derive(Debug, PartialEq)]
 pub enum Expr<'source> {
@@ -10,6 +10,10 @@ pub enum Expr<'source> {
         lhs: Box<Spanned<Self>>,
         op: BinOp,
         rhs: Box<Spanned<Self>>,
+    },
+    Swizzle {
+        lhs: Box<Spanned<Self>>,
+        swizzle: Swizzle,
     },
     Call(Call<'source>),
     Atom(Atom<'source>),
@@ -29,8 +33,16 @@ pub enum Atom<'source> {
 
 pub type Id<'source> = Spanned<&'source str>;
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub struct Literal<'source> {
     pub value: &'source str,
-    pub ty: Type,
+    pub ty: LiteralType,
+}
+
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
+pub enum LiteralType {
+    Complex,
+    Real,
+    Int,
+    Bool,
 }

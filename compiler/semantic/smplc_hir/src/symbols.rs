@@ -1,9 +1,12 @@
-use std::collections::HashMap;
-use std::hash::Hash;
-use std::ops::{Index, IndexMut};
+use std::{
+    collections::HashMap,
+    hash::Hash,
+    ops::{Index, IndexMut},
+};
 
 use smplc_ast as ast;
-use smplc_ast::Type;
+
+use crate::Type;
 
 #[derive(Default)]
 pub struct Symbols<'source> {

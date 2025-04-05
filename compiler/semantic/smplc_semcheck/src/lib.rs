@@ -7,14 +7,14 @@ mod semcheck;
 #[cfg(test)]
 mod tests;
 
-use inited::GeneralInited;
 use smplc_ast as ast;
 use smplc_ast::Span;
 use smplc_hir::{Symbols, Type, HIR};
 
 use env::Env;
 use error::SemResult;
-use semcheck::SemCheck;
+use inited::GeneralInited;
+use semcheck::{RawType, SemCheck};
 
 pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
     let mut env = Env::default();
@@ -26,11 +26,18 @@ pub fn sem_check(ast: Vec<ast::Declaration>) -> SemResult<HIR> {
 
     for declaration in ast.iter() {
         if let ast::Declaration::Function(function) = declaration {
-            env.functions.add(
-                function.id,
-                function.args.iter().map(|arg| arg.ty).collect(),
-                function.ret_ty,
-            )?;
+            let args_types = function
+                .args
+                .iter()
+                .map(|arg| RawType(arg.ty).checked())
+                .collect::<Result<_, _>>()?;
+
+            let ret_ty = function
+                .ret_ty
+                .map(|arg| RawType(arg).checked())
+                .transpose()?;
+
+            env.functions.add(function.id, args_types, ret_ty)?;
         }
     }
 
@@ -79,6 +86,62 @@ pub fn init_std(env: &mut Env) {
         .add(
             ast::Id::new("printb", Span::default()),
             vec![Type::Bool],
+            None,
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("vec2", Span::default()),
+            vec![Type::Real, Type::Real],
+            Some(Type::Vec2),
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("vec3", Span::default()),
+            vec![Type::Real, Type::Real, Type::Real],
+            Some(Type::Vec3),
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("vec4", Span::default()),
+            vec![Type::Real, Type::Real, Type::Real, Type::Real],
+            Some(Type::Vec4),
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printvec2", Span::default()),
+            vec![Type::Vec2],
+            None,
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printvec3", Span::default()),
+            vec![Type::Vec3],
+            None,
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printvec4", Span::default()),
+            vec![Type::Vec4],
+            None,
+        )
+        .unwrap();
+
+    env.functions
+        .add(
+            ast::Id::new("printc", Span::default()),
+            vec![Type::Complex],
             None,
         )
         .unwrap();

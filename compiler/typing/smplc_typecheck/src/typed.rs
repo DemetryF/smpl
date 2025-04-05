@@ -1,4 +1,3 @@
-use smplc_ast::Type;
 use smplc_hir as hir;
 use smplc_hir::Atom;
 use smplc_thir::*;
@@ -53,7 +52,7 @@ impl<'source> Typed<'source> for hir::ExprStatement<'source> {
                 rhs: rhs.0.typed(symbols),
             },
 
-            hir::ExprStatement::Expr(expr) => ExprStatement::Expr(expr.typed(symbols)),
+            hir::ExprStatement::Expr(expr) => ExprStatement::Expr(expr.0.typed(symbols)),
         }
     }
 }
@@ -81,27 +80,31 @@ impl<'source> Typed<'source> for hir::Expr<'source> {
                 let lhs = lhs.0.typed(symbols);
                 let rhs = rhs.0.typed(symbols);
 
-                let ty = expr_ty(&rhs, symbols);
+                let lhs_ty = expr_ty(&lhs, symbols);
+                let rhs_ty = expr_ty(&rhs, symbols);
 
                 Expr::Binary {
                     lhs: Box::new(lhs),
-                    op: bin_op_typed(op, ty),
+                    op: bin_op_typed(op, lhs_ty, rhs_ty),
                     rhs: Box::new(rhs),
                 }
             }
 
             hir::Expr::Unary { op, rhs } => {
-                let rhs = rhs.0.typed(symbols);
+                let rhs = Box::new(rhs.0.typed(symbols));
 
                 let op = match op {
                     hir::UnOp::Not => UnOp::Not,
                     hir::UnOp::Neg => UnOp::Neg(expr_ty(&rhs, symbols).try_into().unwrap()),
                 };
 
-                Expr::Unary {
-                    op,
-                    rhs: Box::new(rhs),
-                }
+                Expr::Unary { op, rhs }
+            }
+
+            hir::Expr::Swizzle { lhs, swizzle } => {
+                let lhs = Box::new(lhs.0.typed(symbols));
+
+                Expr::Swizzle { lhs, swizzle }
             }
 
             hir::Expr::Call { fun, args } => {
@@ -119,7 +122,8 @@ fn expr_ty(expr: &Expr, symbols: &Symbols) -> Type {
     match expr {
         Expr::Binary { op, .. } => match op {
             &BinOp::Arithm(_, ty) => ty.into(),
-            BinOp::Rel(_, _) | BinOp::And | BinOp::Or => Type::Bool,
+            &BinOp::Vec(_, ty) => ty.into(),
+            &BinOp::Eq(_, _) | BinOp::Ord(_, _) | BinOp::And | BinOp::Or => Type::Bool,
         },
 
         Expr::Unary { op, .. } => match op {
@@ -127,27 +131,56 @@ fn expr_ty(expr: &Expr, symbols: &Symbols) -> Type {
             UnOp::Not => Type::Bool,
         },
 
+        Expr::Swizzle { swizzle, .. } => match swizzle.combination.len() {
+            1 => Type::Real,
+            2 => Type::Vec2,
+            3 => Type::Vec3,
+            4 => Type::Vec4,
+            _ => unreachable!(),
+        },
+
         &Expr::Call { fun: id, .. } => symbols.functions[id].ret_ty.unwrap(),
 
-        Expr::Atom(Atom::Literal(lit)) => lit.ty,
+        Expr::Atom(Atom::Literal(lit)) => lit.ty.into(),
 
         &Expr::Atom(Atom::Var(id)) => symbols.variables[id].ty,
     }
 }
 
-fn bin_op_typed(op: hir::BinOp, ty: Type) -> BinOp {
+fn bin_op_typed(op: hir::BinOp, lhs: Type, rhs: Type) -> BinOp {
     if let Ok(op) = ArithmOp::try_from(op) {
-        return BinOp::Arithm(op, ty.try_into().unwrap());
+        if let Ok(ty) = VecType::try_from(lhs).or(VecType::try_from(rhs)) {
+            let op = match op {
+                ArithmOp::Add => VecOp::Add,
+                ArithmOp::Sub => VecOp::Sub,
+                ArithmOp::Mul if lhs == Type::Real => VecOp::LeftMul,
+                ArithmOp::Mul if rhs == Type::Real => VecOp::RightMul,
+                ArithmOp::Div => VecOp::Div,
+
+                _ => unreachable!(),
+            };
+
+            return BinOp::Vec(op, ty);
+        } else {
+            if lhs == Type::Complex || rhs == Type::Complex {
+                return BinOp::Arithm(op, NumberType::Complex);
+            }
+            return BinOp::Arithm(op, lhs.try_into().unwrap());
+        }
     }
 
-    if let Ok(op) = RelOp::try_from(op) {
-        return BinOp::Rel(op, ty.try_into().unwrap());
+    if let Ok(op) = OrdOp::try_from(op) {
+        return BinOp::Ord(op, lhs.try_into().unwrap());
+    }
+
+    if let Ok(op) = EqOp::try_from(op) {
+        return BinOp::Eq(op, lhs.try_into().unwrap());
     }
 
     match op {
         hir::BinOp::Or => BinOp::Or,
         hir::BinOp::And => BinOp::And,
 
-        _ => unreachable!(),
+        _ => unreachable!(""),
     }
 }
