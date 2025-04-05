@@ -48,10 +48,16 @@ impl BinOp {
         matches!(self, Add | Sub | Mul | Div)
     }
 
-    pub fn is_rel(self) -> bool {
+    pub fn is_eq(self) -> bool {
         use BinOp::*;
 
-        matches!(self, Eq | Ne | Lt | Le | Gt | Ge)
+        matches!(self, Eq | Ne)
+    }
+
+    pub fn is_ord(self) -> bool {
+        use BinOp::*;
+
+        matches!(self, Lt | Le | Gt | Ge)
     }
 
     pub fn is_logic(self) -> bool {

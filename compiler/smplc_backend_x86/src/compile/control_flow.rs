@@ -12,38 +12,34 @@ impl Compile for ControlFlow {
         match self {
             ControlFlow::If {
                 lhs,
-                op,
-                ty,
+                op: lir::RelOp::Ord(op, ty),
                 rhs,
                 label,
             } => {
                 let jmp_instr = match (ty, op) {
-                    (_, lir::RelOp::Eq) => "je",
-                    (_, lir::RelOp::Ne) => "jne",
+                    (lir::NumberType::Real, lir::OrdOp::Le) => "jbe",
+                    (lir::NumberType::Real, lir::OrdOp::Lt) => "jb",
+                    (lir::NumberType::Real, lir::OrdOp::Gt) => "ja",
+                    (lir::NumberType::Real, lir::OrdOp::Ge) => "jae",
 
-                    (Type::Real, lir::RelOp::Le) => "jbe",
-                    (Type::Real, lir::RelOp::Lt) => "jb",
-                    (Type::Real, lir::RelOp::Gt) => "ja",
-                    (Type::Real, lir::RelOp::Ge) => "jae",
+                    (lir::NumberType::Int, lir::OrdOp::Le) => "jle",
+                    (lir::NumberType::Int, lir::OrdOp::Lt) => "jl",
+                    (lir::NumberType::Int, lir::OrdOp::Gt) => "jg",
+                    (lir::NumberType::Int, lir::OrdOp::Ge) => "jge",
 
-                    (Type::Int, lir::RelOp::Le) => "jle",
-                    (Type::Int, lir::RelOp::Lt) => "jl",
-                    (Type::Int, lir::RelOp::Gt) => "jg",
-                    (Type::Int, lir::RelOp::Ge) => "jge",
-
-                    _ => unreachable!(),
+                    (lir::NumberType::Complex, _) => unreachable!(),
                 };
 
                 let lhs = atom(env, builder, lhs);
                 let rhs = atom(env, builder, rhs);
 
                 match ty {
-                    Type::Real => {
+                    lir::NumberType::Real => {
                         writeln!(builder, "movss xmm0, {lhs}")?;
                         writeln!(builder, "movss xmm1, {rhs}")?;
                         writeln!(builder, "ucomiss xmm0, xmm1")?;
                     }
-                    Type::Int => {
+                    lir::NumberType::Int => {
                         writeln!(builder, "mov eax, {lhs}")?;
                         writeln!(builder, "mov ebx, {rhs}")?;
                         writeln!(builder, "cmp eax, ebx")?;
@@ -51,7 +47,66 @@ impl Compile for ControlFlow {
                     _ => unreachable!(),
                 }
 
-                writeln!(builder, "{jmp_instr} {}", env.labels[&label])?;
+                writeln!(builder, "{jmp_instr} {}", env.labels[&label])
+            }
+
+            ControlFlow::If {
+                lhs,
+                op: lir::RelOp::Eq(op, ty),
+                rhs,
+                label,
+            } => {
+                let lhs = atom(env, builder, lhs);
+                let rhs = atom(env, builder, rhs);
+
+                let op = match op {
+                    lir::EqOp::Eq => "je",
+                    lir::EqOp::Ne => "jne",
+                };
+
+                let label = &env.labels[&label];
+
+                match ty {
+                    lir::LinearType::Number(lir::NumberType::Int) => {}
+
+                    lir::LinearType::Number(lir::NumberType::Real) => {
+                        writeln!(builder, "movss   xmm0, {lhs}")?;
+                        writeln!(builder, "movss   xmm1, {rhs}")?;
+                        writeln!(builder, "ucomiss xmm0, xmm1")?;
+                        writeln!(builder, "{op} {label}")?;
+                    }
+
+                    lir::LinearType::Number(lir::NumberType::Complex)
+                    | lir::LinearType::Vec(lir::VecType::Vec2) => {
+                        writeln!(builder, "movlps  xmm0, {lhs}")?;
+                        writeln!(builder, "movlps  xmm1, {rhs}")?;
+                        writeln!(builder, "cmpeqps xmm0, xmm1")?;
+                        writeln!(builder, "movmskps eax, xmm0")?;
+                        writeln!(builder, "and eax, 0b11")?;
+                        writeln!(builder, "cmp eax, 0b11")?;
+                        writeln!(builder, "{op} {label}")?;
+                    }
+
+                    lir::LinearType::Vec(lir::VecType::Vec3) => {
+                        writeln!(builder, "movups  xmm0, {lhs}")?;
+                        writeln!(builder, "movups  xmm1, {rhs}")?;
+                        writeln!(builder, "cmpeqps xmm0, xmm1")?;
+                        writeln!(builder, "movmskps eax, xmm0")?;
+                        writeln!(builder, "and eax, 0b111")?;
+                        writeln!(builder, "cmp eax, 0b111")?;
+                        writeln!(builder, "{op} {label}")?;
+                    }
+
+                    lir::LinearType::Vec(lir::VecType::Vec4) => {
+                        writeln!(builder, "movups  xmm0, {lhs}")?;
+                        writeln!(builder, "movups  xmm1, {rhs}")?;
+                        writeln!(builder, "cmpeqps xmm0, xmm1")?;
+                        writeln!(builder, "movmskps eax, xmm0")?;
+                        writeln!(builder, "and eax, 0b1111")?;
+                        writeln!(builder, "cmp eax, 0b1111")?;
+                        writeln!(builder, "{op} {label}")?;
+                    }
+                }
 
                 Ok(())
             }

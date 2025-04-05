@@ -123,7 +123,7 @@ fn expr_ty(expr: &Expr, symbols: &Symbols) -> Type {
         Expr::Binary { op, .. } => match op {
             &BinOp::Arithm(_, ty) => ty.into(),
             &BinOp::Vec(_, ty) => ty.into(),
-            BinOp::Rel(_, _) | BinOp::And | BinOp::Or => Type::Bool,
+            &BinOp::Eq(_, _) | BinOp::Ord(_, _) | BinOp::And | BinOp::Or => Type::Bool,
         },
 
         Expr::Unary { op, .. } => match op {
@@ -169,8 +169,12 @@ fn bin_op_typed(op: hir::BinOp, lhs: Type, rhs: Type) -> BinOp {
         }
     }
 
-    if let Ok(op) = RelOp::try_from(op) {
-        return BinOp::Rel(op, lhs.try_into().unwrap());
+    if let Ok(op) = OrdOp::try_from(op) {
+        return BinOp::Ord(op, lhs.try_into().unwrap());
+    }
+
+    if let Ok(op) = EqOp::try_from(op) {
+        return BinOp::Eq(op, lhs.try_into().unwrap());
     }
 
     match op {

@@ -1,6 +1,6 @@
 use smplc_lir::{Atom, ControlFlow, Label, RelOp, Type, Value};
-use smplc_thir as thir;
-use smplc_thir::Symbols;
+use smplc_thir::{self as thir, EqOp};
+use smplc_thir::{LinearType, NumberType, Symbols};
 
 use crate::{
     call::translate_call,
@@ -19,7 +19,7 @@ pub fn translate_logic(
 ) {
     match expr {
         thir::Expr::Binary {
-            op: thir::BinOp::Rel(op, ty),
+            op: thir::BinOp::Ord(op, ty),
             lhs,
             rhs,
         } => {
@@ -28,8 +28,27 @@ pub fn translate_logic(
 
             translator.code.push(ControlFlow::If {
                 lhs: Atom::Id(lhs),
-                op,
-                ty: ty.into(),
+                op: RelOp::Ord(op, ty),
+                rhs: Atom::Id(rhs),
+                label: true_label,
+            });
+
+            translator
+                .code
+                .push(ControlFlow::Goto { label: false_label })
+        }
+
+        thir::Expr::Binary {
+            lhs,
+            op: thir::BinOp::Eq(op, ty),
+            rhs,
+        } => {
+            let lhs = translate_expr(*lhs, translator, idents, symbols);
+            let rhs = translate_expr(*rhs, translator, idents, symbols);
+
+            translator.code.push(ControlFlow::If {
+                lhs: Atom::Id(lhs),
+                op: RelOp::Eq(op, ty),
                 rhs: Atom::Id(rhs),
                 label: true_label,
             });
@@ -81,8 +100,7 @@ pub fn translate_logic(
 
             translator.code.push(ControlFlow::If {
                 lhs: Atom::Id(result),
-                op: RelOp::Eq,
-                ty: Type::Int,
+                op: RelOp::Eq(EqOp::Eq, LinearType::Number(NumberType::Int)),
                 rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });
@@ -97,8 +115,7 @@ pub fn translate_logic(
 
             translator.code.push(ControlFlow::If {
                 lhs: value,
-                op: RelOp::Eq,
-                ty: Type::Int,
+                op: RelOp::Eq(EqOp::Eq, LinearType::Number(NumberType::Int)),
                 rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });

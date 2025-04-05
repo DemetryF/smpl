@@ -1,9 +1,9 @@
 use smplc_ast::Swizzle;
 use smplc_macros::EnumWrap;
+use smplc_thir as thir;
 use smplc_thir::FunId;
-use smplc_thir::{self as thir};
 
-pub use smplc_thir::{ArithmOp as BinOp, RelOp};
+pub use smplc_thir::{ArithmOp as BinOp, EqOp, LinearType, NumberType, OrdOp, RelOp, VecType};
 
 use crate::Value;
 
@@ -50,7 +50,6 @@ pub enum ControlFlow {
     If {
         lhs: Atom,
         op: RelOp,
-        ty: Type,
         rhs: Atom,
         label: Label,
     },

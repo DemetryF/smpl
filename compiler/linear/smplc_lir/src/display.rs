@@ -57,11 +57,10 @@ impl fmt::Display for ControlFlow {
             ControlFlow::If {
                 lhs,
                 op,
-                ty,
                 rhs,
                 label,
             } => {
-                writeln!(f, "if {ty}.{op} {lhs}, {rhs} goto @{}", label.0)
+                writeln!(f, "if {op} {lhs}, {rhs} goto @{}", label.0)
             }
 
             ControlFlow::Goto { label } => {

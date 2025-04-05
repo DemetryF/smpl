@@ -8,7 +8,7 @@ use num::Complex;
 
 use smplc_lir::Value;
 use smplc_thir::{self as thir, VecOp};
-use smplc_thir::{ArithmOp, NumberType, RelOp};
+use smplc_thir::{ArithmOp, NumberType, OrdOp};
 
 use crate::idents::BaseIdents;
 
@@ -40,15 +40,13 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
                         NumberType::Int => Value::Int(arithm(op, lhs.int(), rhs.int())),
                     }
                 }
-                thir::BinOp::Rel(op, ty) => {
-                    fn rel(op: RelOp, ordering: Ordering) -> bool {
+                thir::BinOp::Ord(op, ty) => {
+                    fn rel(op: OrdOp, ordering: Ordering) -> bool {
                         match op {
-                            RelOp::Eq => ordering.is_eq(),
-                            RelOp::Ne => ordering.is_ne(),
-                            RelOp::Gt => ordering.is_gt(),
-                            RelOp::Ge => ordering.is_ge(),
-                            RelOp::Lt => ordering.is_lt(),
-                            RelOp::Le => ordering.is_le(),
+                            OrdOp::Gt => ordering.is_gt(),
+                            OrdOp::Ge => ordering.is_ge(),
+                            OrdOp::Lt => ordering.is_lt(),
+                            OrdOp::Le => ordering.is_le(),
                         }
                     }
 
@@ -60,6 +58,22 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
                     };
 
                     Value::Int(rel(op, ord) as i32)
+                }
+                thir::BinOp::Eq(op, ty) => {
+                    let value = match ty {
+                        thir::LinearType::Vec(thir::VecType::Vec2) => lhs.vec2() == rhs.vec2(),
+                        thir::LinearType::Vec(thir::VecType::Vec3) => lhs.vec3() == rhs.vec3(),
+                        thir::LinearType::Vec(thir::VecType::Vec4) => lhs.vec4() == rhs.vec4(),
+
+                        thir::LinearType::Number(NumberType::Complex) => {
+                            lhs.complex() == rhs.complex()
+                        }
+
+                        thir::LinearType::Number(NumberType::Real) => lhs.real() == rhs.real(),
+                        thir::LinearType::Number(NumberType::Int) => lhs.int() == rhs.int(),
+                    };
+
+                    Value::Int(!(value ^ (op == thir::EqOp::Eq)) as i32)
                 }
                 thir::BinOp::Vec(op, ty) => {
                     if matches!(op, thir::VecOp::Add | thir::VecOp::Sub) {

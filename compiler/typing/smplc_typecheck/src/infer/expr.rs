@@ -87,9 +87,28 @@ pub fn infer_expr<'source>(
                     (TypeVar::Linear, None)
                 }
 
-                (_, op, _) if op.is_rel() => {
+                (_, op, _) if op.is_ord() => {
                     inferrer.assume_inference(lhs_inference, TypeVar::Scalar)?;
                     inferrer.assume_inference(rhs_inference, TypeVar::Scalar)?;
+
+                    inferrer
+                        .try_unite(lhs_inference.set, rhs_inference.set)
+                        .map_err(|(got, required)| {
+                            TypeError::mismatched_types(required, got, rhs_inference.span)
+                        })?;
+
+                    (Type::Bool.into(), None)
+                }
+
+                (_, op, _) if op.is_eq() => {
+                    inferrer.assume_inference(lhs_inference, TypeVar::Linear)?;
+                    inferrer.assume_inference(rhs_inference, TypeVar::Linear)?;
+
+                    inferrer
+                        .try_unite(lhs_inference.set, rhs_inference.set)
+                        .map_err(|(got, required)| {
+                            TypeError::mismatched_types(required, got, rhs_inference.span)
+                        })?;
 
                     (Type::Bool.into(), None)
                 }
