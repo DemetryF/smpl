@@ -1,3 +1,6 @@
+use smplc_lir as lir;
+use smplc_lir::Dims;
+
 mod convert;
 mod display;
 
@@ -9,6 +12,22 @@ pub enum BinOp {
     Eq(EqOp, LinearType),
     Or,
     And,
+}
+
+impl BinOp {
+    pub fn ty(self) -> lir::Type {
+        match self {
+            BinOp::Arithm(_, NumberType::Int) => lir::Type::Int,
+            BinOp::Arithm(_, NumberType::Real) => lir::Type::Real,
+            BinOp::Arithm(_, NumberType::Complex) => lir::Type::F32x2,
+
+            BinOp::Vec(_, VecType::Vec2) => lir::Type::F32x2,
+            BinOp::Vec(_, VecType::Vec3) => lir::Type::F32x4,
+            BinOp::Vec(_, VecType::Vec4) => lir::Type::F32x3,
+
+            BinOp::Ord(_, _) | BinOp::Eq(_, _) | BinOp::Or | BinOp::And => lir::Type::Int,
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, Clone, Copy)]
@@ -23,7 +42,7 @@ pub enum RelOp {
     Eq(EqOp, LinearType),
 }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum ArithmOp {
     Add,
     Sub,
@@ -54,6 +73,16 @@ pub enum VecType {
     Vec2,
     Vec3,
     Vec4,
+}
+
+impl VecType {
+    pub fn dims(self) -> Dims {
+        match self {
+            VecType::Vec2 => Dims::X2,
+            VecType::Vec3 => Dims::X3,
+            VecType::Vec4 => Dims::X4,
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, Clone, Copy)]

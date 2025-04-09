@@ -1,5 +1,3 @@
-use stack_array::ArrayBuf;
-
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum BinOp {
     Or,
@@ -78,34 +76,6 @@ impl UnOp {
         match self {
             Self::Not => (0, 15),
             Self::Neg => (0, 15),
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub struct Swizzle {
-    pub combination: ArrayBuf<Component, 4>,
-}
-
-#[derive(Debug, PartialEq, Clone, Copy, Eq, PartialOrd, Ord)]
-pub enum Component {
-    X,
-    Y,
-    Z,
-    W,
-}
-
-impl TryFrom<char> for Component {
-    type Error = ();
-
-    fn try_from(value: char) -> Result<Self, Self::Error> {
-        match value {
-            'x' | 'X' => Ok(Self::X),
-            'y' | 'Y' => Ok(Self::Y),
-            'z' | 'Z' => Ok(Self::Z),
-            'w' | 'W' => Ok(Self::W),
-
-            _ => Err(()),
         }
     }
 }

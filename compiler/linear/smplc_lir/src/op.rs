@@ -46,7 +46,7 @@ pub enum UnOp {
     Swizzle(Swizzle),
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Swizzle {
     X1([Component; 1]),
     X2([Component; 2]),
@@ -71,4 +71,19 @@ pub enum Component {
     Y,
     Z,
     W,
+}
+
+impl TryFrom<char> for Component {
+    type Error = ();
+
+    fn try_from(value: char) -> Result<Self, Self::Error> {
+        match value {
+            'x' | 'X' => Ok(Self::X),
+            'y' | 'Y' => Ok(Self::Y),
+            'z' | 'Z' => Ok(Self::Z),
+            'w' | 'W' => Ok(Self::W),
+
+            _ => Err(()),
+        }
+    }
 }

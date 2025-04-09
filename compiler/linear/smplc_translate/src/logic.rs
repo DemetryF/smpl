@@ -1,6 +1,6 @@
-use smplc_lir::{Atom, ControlFlow, Label, Type, Value};
-use smplc_thir::{self as thir, EqOp};
-use smplc_thir::{LinearType, NumberType, Symbols};
+use smplc_lir::{ArithmOp, Atom, BinOp, ControlFlow, Label, Type, Value};
+use smplc_thir as thir;
+use smplc_thir::Symbols;
 
 use crate::{
     call::translate_call,
@@ -19,7 +19,7 @@ pub fn translate_logic<'source>(
 ) {
     match expr {
         thir::Expr::Binary {
-            op: thir::BinOp::Ord(op, ty),
+            op: op @ (thir::BinOp::Ord(..) | thir::BinOp::Eq(..)),
             lhs,
             rhs,
         } => {
@@ -28,28 +28,7 @@ pub fn translate_logic<'source>(
 
             translator.code.push(ControlFlow::If {
                 lhs: Atom::Id(lhs),
-                op: todo!(), //RelOp::Ord(op, ty),
-                rhs: Atom::Id(rhs),
-                label: true_label,
-            });
-
-            translator
-                .code
-                .push(ControlFlow::Goto { label: false_label })
-        }
-
-        thir::Expr::Binary {
-            lhs,
-            op: thir::BinOp::Eq(op, ty),
-            rhs,
-        } => {
-            let lhs = translate_expr(*lhs, translator, idents, symbols);
-            let rhs = translate_expr(*rhs, translator, idents, symbols);
-
-            translator.code.push(ControlFlow::If {
-                lhs: Atom::Id(lhs),
-                // op: RelOp::Eq(op, ty),
-                op: todo!(),
+                op: op.into(),
                 rhs: Atom::Id(rhs),
                 label: true_label,
             });
@@ -101,8 +80,7 @@ pub fn translate_logic<'source>(
 
             translator.code.push(ControlFlow::If {
                 lhs: Atom::Id(result),
-                // op: RelOp::Eq(EqOp::Eq, LinearType::Number(NumberType::Int)),
-                op: todo!(),
+                op: BinOp::Int(ArithmOp::Eq),
                 rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });
@@ -117,8 +95,7 @@ pub fn translate_logic<'source>(
 
             translator.code.push(ControlFlow::If {
                 lhs: value,
-                // op: RelOp::Eq(EqOp::Eq, LinearType::Number(NumberType::Int)),
-                op: todo!(),
+                op: BinOp::Int(ArithmOp::Eq),
                 rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });

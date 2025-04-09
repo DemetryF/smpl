@@ -131,7 +131,7 @@ fn expr_ty(expr: &Expr, symbols: &Symbols) -> Type {
             UnOp::Not => Type::Bool,
         },
 
-        Expr::Swizzle { swizzle, .. } => match swizzle.combination.len() {
+        Expr::Swizzle { swizzle, .. } => match swizzle.as_slice().len() {
             1 => Type::Real,
             2 => Type::Vec2,
             3 => Type::Vec3,

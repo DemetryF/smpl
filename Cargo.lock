@@ -381,7 +381,7 @@ dependencies = [
 name = "smplc_ast"
 version = "0.1.0"
 dependencies = [
- "stack-array",
+ "smplc_lir",
 ]
 
 [[package]]
@@ -396,6 +396,7 @@ name = "smplc_hir"
 version = "0.1.0"
 dependencies = [
  "smplc_ast",
+ "smplc_lir",
 ]
 
 [[package]]
@@ -414,9 +415,6 @@ dependencies = [
  "num",
  "parse_int",
  "petgraph",
- "smplc_ast",
- "smplc_macros",
- "smplc_thir",
 ]
 
 [[package]]
@@ -434,7 +432,6 @@ version = "0.1.0"
 dependencies = [
  "smplc_ast",
  "smplc_lexer",
- "stack-array",
 ]
 
 [[package]]
@@ -453,6 +450,7 @@ version = "0.1.0"
 dependencies = [
  "smplc_ast",
  "smplc_hir",
+ "smplc_lir",
 ]
 
 [[package]]
@@ -474,12 +472,6 @@ dependencies = [
  "smplc_hir",
  "smplc_thir",
 ]
-
-[[package]]
-name = "stack-array"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "332be12b550e41ddc136fd0bd2ef1272e2a49e1ee2a843770f0ccbd86f6fd3b7"
 
 [[package]]
 name = "strsim"

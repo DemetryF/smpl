@@ -1,8 +1,8 @@
-use num::complex::Complex32;
+use nalgebra::Vector2;
 
 use smplc_lir::{Atom, ControlFlow, Id, Sequental, Type, UnOp, Value};
-use smplc_thir as thir;
 use smplc_thir::Symbols;
+use smplc_thir::{self as thir, VecOp};
 
 use crate::{
     call::translate_call, idents::BaseIdents, logic::translate_logic, translator::Translator,
@@ -16,56 +16,52 @@ pub fn translate_expr<'source>(
 ) -> Id {
     match expr {
         thir::Expr::Binary {
-            lhs,
-            op: thir::BinOp::Arithm(op, ty),
-            rhs,
+            op: thir::BinOp::And | thir::BinOp::Or | thir::BinOp::Eq(..) | thir::BinOp::Ord(..),
+            ..
+        }
+        | thir::Expr::Unary {
+            op: thir::UnOp::Not,
+            ..
         } => {
-            let ty = ty.into();
+            let true_label = translator.next_label();
+            let false_label = translator.next_label();
+            let end_label = translator.next_label();
 
-            let lhs = translate_expr(*lhs, translator, idents, symbols);
-            let rhs = translate_expr(*rhs, translator, idents, symbols);
+            translate_logic(expr, translator, idents, symbols, true_label, false_label);
 
-            let result = idents.next(ty);
+            let result = idents.next(Type::Int);
 
-            translator.code.push(Sequental::Binary {
+            translator.code.label(true_label);
+            translator.code.push(Sequental::Assign {
                 dst: result,
-                op,
-                ty,
-                lhs: Atom::Id(lhs),
-                rhs: Atom::Id(rhs),
+                value: Atom::Value(Value::Int(1)),
             });
+            translator.code.push(ControlFlow::Goto { label: end_label });
+
+            translator.code.label(false_label);
+            translator.code.push(Sequental::Assign {
+                dst: result,
+                value: Atom::Value(Value::Int(0)),
+            });
+
+            translator.code.label(end_label);
 
             result
         }
 
-        thir::Expr::Binary {
-            lhs,
-            op: thir::BinOp::Vec(op, ty),
-            rhs,
-        } => {
-            let ty = ty.into();
-
+        thir::Expr::Binary { lhs, op, rhs } => {
             let mut lhs = translate_expr(*lhs, translator, idents, symbols);
             let mut rhs = translate_expr(*rhs, translator, idents, symbols);
 
-            let result = idents.next(ty);
+            let result = idents.next(op.ty());
 
-            let op = match op {
-                thir::VecOp::Add => thir::ArithmOp::Add,
-                thir::VecOp::Sub => thir::ArithmOp::Sub,
-                thir::VecOp::RightMul => thir::ArithmOp::Mul,
-                thir::VecOp::Div => thir::ArithmOp::Div,
-                thir::VecOp::LeftMul => {
-                    std::mem::swap(&mut lhs, &mut rhs);
-
-                    thir::ArithmOp::Mul
-                }
-            };
+            if let thir::BinOp::Vec(VecOp::LeftMul, _) = op {
+                std::mem::swap(&mut lhs, &mut rhs);
+            }
 
             translator.code.push(Sequental::Binary {
                 dst: result,
-                op,
-                ty,
+                op: op.into(),
                 lhs: Atom::Id(lhs),
                 rhs: Atom::Id(rhs),
             });
@@ -85,8 +81,7 @@ pub fn translate_expr<'source>(
 
             translator.code.push(Sequental::Unary {
                 dst: result,
-                op: UnOp::Neg,
-                ty,
+                op: UnOp::Neg(ty),
                 operand: Atom::Id(rhs),
             });
 
@@ -96,7 +91,7 @@ pub fn translate_expr<'source>(
         thir::Expr::Swizzle { lhs, swizzle } => {
             let lhs = translate_expr(*lhs, translator, idents, symbols);
 
-            let ty = match swizzle.combination.len() {
+            let ty = match swizzle.as_slice().len() {
                 1 => Type::Real,
                 2 => Type::F32x2,
                 3 => Type::F32x3,
@@ -109,7 +104,6 @@ pub fn translate_expr<'source>(
             translator.code.push(Sequental::Unary {
                 dst: result,
                 op: UnOp::Swizzle(swizzle),
-                ty,
                 operand: Atom::Id(lhs),
             });
 
@@ -137,33 +131,6 @@ pub fn translate_expr<'source>(
 
             result
         }
-
-        thir::Expr::Binary { .. } | thir::Expr::Unary { .. } => {
-            let true_label = translator.next_label();
-            let false_label = translator.next_label();
-            let end_label = translator.next_label();
-
-            translate_logic(expr, translator, idents, symbols, true_label, false_label);
-
-            let result = idents.next(Type::Int);
-
-            translator.code.label(true_label);
-            translator.code.push(Sequental::Assign {
-                dst: result,
-                value: Atom::Value(Value::Int(1)),
-            });
-            translator.code.push(ControlFlow::Goto { label: end_label });
-
-            translator.code.label(false_label);
-            translator.code.push(Sequental::Assign {
-                dst: result,
-                value: Atom::Value(Value::Int(0)),
-            });
-
-            translator.code.label(end_label);
-
-            result
-        }
     }
 }
 
@@ -171,7 +138,7 @@ pub fn translate_atom(atom: thir::Atom, idents: &mut BaseIdents) -> Atom {
     match atom {
         thir::Atom::Var(var) => Atom::Id(idents.get(var)),
         thir::Atom::Literal(literal) => Atom::Value(match literal.ty {
-            thir::LiteralType::Complex => Value::Complex(Complex32::new(
+            thir::LiteralType::Complex => Value::F32x2(Vector2::new(
                 0.0,
                 parse_int::parse(&literal.value[0..literal.value.len() - 1]).unwrap(),
             )),

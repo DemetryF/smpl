@@ -8,5 +8,3 @@ edition = "2021"
 [dependencies]
 smplc_lexer = { path = "../smplc_lexer" }
 smplc_ast = { path = "../smplc_ast" }
-
-stack-array = { workspace = true }
