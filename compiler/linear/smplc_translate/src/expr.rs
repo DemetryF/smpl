@@ -98,9 +98,9 @@ pub fn translate_expr<'source>(
 
             let ty = match swizzle.combination.len() {
                 1 => Type::Real,
-                2 => Type::Vec2,
-                3 => Type::Vec3,
-                4 => Type::Vec4,
+                2 => Type::F32x2,
+                3 => Type::F32x3,
+                4 => Type::F32x4,
                 _ => unreachable!(),
             };
 

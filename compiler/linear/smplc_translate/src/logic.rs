@@ -1,4 +1,4 @@
-use smplc_lir::{Atom, ControlFlow, Label, RelOp, Type, Value};
+use smplc_lir::{Atom, ControlFlow, Label, Type, Value};
 use smplc_thir::{self as thir, EqOp};
 use smplc_thir::{LinearType, NumberType, Symbols};
 
@@ -28,7 +28,7 @@ pub fn translate_logic<'source>(
 
             translator.code.push(ControlFlow::If {
                 lhs: Atom::Id(lhs),
-                op: RelOp::Ord(op, ty),
+                op: todo!(), //RelOp::Ord(op, ty),
                 rhs: Atom::Id(rhs),
                 label: true_label,
             });
@@ -48,7 +48,8 @@ pub fn translate_logic<'source>(
 
             translator.code.push(ControlFlow::If {
                 lhs: Atom::Id(lhs),
-                op: RelOp::Eq(op, ty),
+                // op: RelOp::Eq(op, ty),
+                op: todo!(),
                 rhs: Atom::Id(rhs),
                 label: true_label,
             });
@@ -100,7 +101,8 @@ pub fn translate_logic<'source>(
 
             translator.code.push(ControlFlow::If {
                 lhs: Atom::Id(result),
-                op: RelOp::Eq(EqOp::Eq, LinearType::Number(NumberType::Int)),
+                // op: RelOp::Eq(EqOp::Eq, LinearType::Number(NumberType::Int)),
+                op: todo!(),
                 rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });
@@ -115,7 +117,8 @@ pub fn translate_logic<'source>(
 
             translator.code.push(ControlFlow::If {
                 lhs: value,
-                op: RelOp::Eq(EqOp::Eq, LinearType::Number(NumberType::Int)),
+                // op: RelOp::Eq(EqOp::Eq, LinearType::Number(NumberType::Int)),
+                op: todo!(),
                 rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });

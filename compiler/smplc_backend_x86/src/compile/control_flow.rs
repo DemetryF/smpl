@@ -1,6 +1,6 @@
 use std::fmt::Write;
 
-use smplc_lir as lir;
+use smplc_lir::{ArithmOp, BinOp, Dims, F32sOp};
 use smplc_lir::{ControlFlow, Type};
 
 use crate::{builder::Builder, env::Env};
@@ -12,107 +12,81 @@ impl Compile for ControlFlow {
         match self {
             ControlFlow::If {
                 lhs,
-                op: lir::RelOp::Ord(op, ty),
+                op,
                 rhs,
                 label,
             } => {
-                let jmp_instr = match (ty, op) {
-                    (lir::NumberType::Real, lir::OrdOp::Le) => "jbe",
-                    (lir::NumberType::Real, lir::OrdOp::Lt) => "jb",
-                    (lir::NumberType::Real, lir::OrdOp::Gt) => "ja",
-                    (lir::NumberType::Real, lir::OrdOp::Ge) => "jae",
-
-                    (lir::NumberType::Int, lir::OrdOp::Le) => "jle",
-                    (lir::NumberType::Int, lir::OrdOp::Lt) => "jl",
-                    (lir::NumberType::Int, lir::OrdOp::Gt) => "jg",
-                    (lir::NumberType::Int, lir::OrdOp::Ge) => "jge",
-
-                    (lir::NumberType::Complex, _) => unreachable!(),
-                };
-
                 let lhs = atom(env, builder, lhs);
                 let rhs = atom(env, builder, rhs);
 
-                match ty {
-                    lir::NumberType::Real => {
-                        writeln!(builder, "movss xmm0, {lhs}")?;
-                        writeln!(builder, "movss xmm1, {rhs}")?;
-                        writeln!(builder, "ucomiss xmm0, xmm1")?;
-                    }
-                    lir::NumberType::Int => {
+                match op {
+                    BinOp::Int(
+                        op @ (ArithmOp::Eq
+                        | ArithmOp::Ne
+                        | ArithmOp::Lt
+                        | ArithmOp::Le
+                        | ArithmOp::Gt
+                        | ArithmOp::Ge),
+                    ) => {
+                        let cc = match op {
+                            ArithmOp::Eq => "e",
+                            ArithmOp::Ne => "ne",
+                            ArithmOp::Lt => "l",
+                            ArithmOp::Le => "le",
+                            ArithmOp::Gt => "g",
+                            ArithmOp::Ge => "ge",
+                            _ => unreachable!(),
+                        };
+
                         writeln!(builder, "mov eax, {lhs}")?;
-                        writeln!(builder, "mov ebx, {rhs}")?;
-                        writeln!(builder, "cmp eax, ebx")?;
+                        writeln!(builder, "cmp eax, {rhs}")?;
+                        writeln!(builder, "j{cc} {}", env.labels[&label])?;
                     }
+
+                    BinOp::Real(op) => {
+                        let cc = match op {
+                            ArithmOp::Eq => "e",
+                            ArithmOp::Ne => "ne",
+                            ArithmOp::Lt => "b",
+                            ArithmOp::Le => "be",
+                            ArithmOp::Gt => "a",
+                            ArithmOp::Ge => "ae",
+                            _ => unreachable!(),
+                        };
+
+                        writeln!(builder, "movss xmm0, {lhs}")?;
+                        writeln!(builder, "ucomiss xmm0, {rhs}")?;
+                        writeln!(builder, "j{cc} {}", env.labels[&label])?;
+                    }
+
+                    BinOp::F32s(dims, op @ (F32sOp::Eq | F32sOp::Ne)) => {
+                        let cc = match op {
+                            F32sOp::Eq => "e",
+                            F32sOp::Ne => "ne",
+                            _ => unreachable!(),
+                        };
+
+                        let mask = match dims {
+                            Dims::X2 => "0b11",
+                            Dims::X3 => "0b111",
+                            Dims::X4 => "0b1111",
+                        };
+
+                        writeln!(builder, "movaps  xmm0, {lhs}")?;
+                        writeln!(builder, "movaps  xmm1, {rhs}")?;
+                        writeln!(builder, "cmpeqps xmm0, xmm1")?;
+                        writeln!(builder, "movmskps eax, xmm0")?;
+                        writeln!(builder, "and eax, {mask}")?;
+                        writeln!(builder, "cmp eax, {mask}")?;
+                        writeln!(builder, "j{cc} {}", env.labels[&label])?;
+                    }
+
                     _ => unreachable!(),
                 }
-
-                writeln!(builder, "{jmp_instr} {}", env.labels[&label])
-            }
-
-            ControlFlow::If {
-                lhs,
-                op: lir::RelOp::Eq(op, ty),
-                rhs,
-                label,
-            } => {
-                let lhs = atom(env, builder, lhs);
-                let rhs = atom(env, builder, rhs);
-
-                let op = match op {
-                    lir::EqOp::Eq => "je",
-                    lir::EqOp::Ne => "jne",
-                };
-
-                let label = &env.labels[&label];
-
-                match ty {
-                    lir::LinearType::Number(lir::NumberType::Int) => {}
-
-                    lir::LinearType::Number(lir::NumberType::Real) => {
-                        writeln!(builder, "movss   xmm0, {lhs}")?;
-                        writeln!(builder, "movss   xmm1, {rhs}")?;
-                        writeln!(builder, "ucomiss xmm0, xmm1")?;
-                        writeln!(builder, "{op} {label}")?;
-                    }
-
-                    lir::LinearType::Number(lir::NumberType::Complex)
-                    | lir::LinearType::Vec(lir::VecType::Vec2) => {
-                        writeln!(builder, "movlps  xmm0, {lhs}")?;
-                        writeln!(builder, "movlps  xmm1, {rhs}")?;
-                        writeln!(builder, "cmpeqps xmm0, xmm1")?;
-                        writeln!(builder, "movmskps eax, xmm0")?;
-                        writeln!(builder, "and eax, 0b11")?;
-                        writeln!(builder, "cmp eax, 0b11")?;
-                        writeln!(builder, "{op} {label}")?;
-                    }
-
-                    lir::LinearType::Vec(lir::VecType::Vec3) => {
-                        writeln!(builder, "movups  xmm0, {lhs}")?;
-                        writeln!(builder, "movups  xmm1, {rhs}")?;
-                        writeln!(builder, "cmpeqps xmm0, xmm1")?;
-                        writeln!(builder, "movmskps eax, xmm0")?;
-                        writeln!(builder, "and eax, 0b111")?;
-                        writeln!(builder, "cmp eax, 0b111")?;
-                        writeln!(builder, "{op} {label}")?;
-                    }
-
-                    lir::LinearType::Vec(lir::VecType::Vec4) => {
-                        writeln!(builder, "movups  xmm0, {lhs}")?;
-                        writeln!(builder, "movups  xmm1, {rhs}")?;
-                        writeln!(builder, "cmpeqps xmm0, xmm1")?;
-                        writeln!(builder, "movmskps eax, xmm0")?;
-                        writeln!(builder, "and eax, 0b1111")?;
-                        writeln!(builder, "cmp eax, 0b1111")?;
-                        writeln!(builder, "{op} {label}")?;
-                    }
-                }
-
-                Ok(())
             }
 
             ControlFlow::Goto { label } => {
-                writeln!(builder, "jmp {}", env.labels[&label])
+                writeln!(builder, "jmp {}", env.labels[&label])?;
             }
 
             ControlFlow::Return { value } => {
@@ -134,14 +108,16 @@ impl Compile for ControlFlow {
                 }
 
                 writeln!(builder, "pop rbp")?;
-                writeln!(builder, "ret")
+                writeln!(builder, "ret")?;
             }
 
             ControlFlow::Halt => {
                 writeln!(builder, "mov rbx, 0")?;
                 writeln!(builder, "mov rax, 1")?;
-                writeln!(builder, "syscall")
+                writeln!(builder, "syscall")?;
             }
         }
+
+        Ok(())
     }
 }

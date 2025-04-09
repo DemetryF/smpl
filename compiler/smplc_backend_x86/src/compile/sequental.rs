@@ -1,7 +1,6 @@
-use std::fmt;
-use std::fmt::Write;
+use std::fmt::{self, Write};
 
-use smplc_lir::{BinOp, Id, Sequental, Type, UnOp};
+use smplc_lir::{ArithmOp, BinOp, Dims, F32sOp, Id, Sequental, Type, UnOp};
 
 use crate::{
     builder::Builder,
@@ -28,187 +27,217 @@ impl Compile for Sequental<'_> {
                 let value = atom(env, builder, value);
 
                 match dst.ty() {
-                    Type::Real => {
-                        writeln!(builder, "movups xmm0, {value}")?;
-                        writeln!(builder, "movups {result_ptr}, xmm0")?;
-                    }
                     Type::Int => {
                         writeln!(builder, "mov eax, {value}")?;
                         writeln!(builder, "mov {result_ptr}, eax")?;
                     }
-                    Type::Complex | Type::Vec2 => {
+                    Type::Real | Type::F32x2 | Type::F32x3 | Type::F32x4 => {
                         writeln!(builder, "movups xmm0, {value}")?;
-                        writeln!(builder, "movups {result_ptr}, xmm0")?;
-                    }
-                    Type::Vec3 | Type::Vec4 => {
-                        writeln!(builder, "movaps xmm0, {value}")?;
                         writeln!(builder, "movaps {result_ptr}, xmm0")?;
                     }
                 }
             }
 
-            Sequental::Binary {
-                dst,
-                op,
-                ty: Type::Complex,
-                lhs,
-                rhs,
-            } => {
-                let result_ptr = env.get_or_add(dst);
+            Sequental::Binary { dst, op, lhs, rhs } => {
+                let res = env.get_or_add(dst);
 
                 let lhs = atom(env, builder, lhs);
                 let rhs = atom(env, builder, rhs);
 
-                writeln!(builder, "movaps xmm0, {lhs}")?;
-                writeln!(builder, "movaps xmm1, {rhs}")?;
-
                 match op {
-                    BinOp::Add => {
-                        writeln!(builder, "addps xmm0, xmm1")?;
+                    BinOp::Int(op @ (ArithmOp::Add | ArithmOp::Sub | ArithmOp::Mul)) => {
+                        let instr = match op {
+                            ArithmOp::Add => "add",
+                            ArithmOp::Sub => "sub",
+                            ArithmOp::Mul => "imul",
+                            _ => unreachable!(),
+                        };
+
+                        writeln!(builder, "mov eax, {lhs}")?;
+                        writeln!(builder, "{instr} eax, {rhs}")?;
+                        writeln!(builder, "mov {res}, eax")?;
                     }
-                    BinOp::Sub => {
-                        writeln!(builder, "subps xmm0, xmm1")?;
+
+                    BinOp::Int(ArithmOp::Div) => {
+                        writeln!(builder, "mov eax, {lhs}")?;
+                        writeln!(builder, "mov ebx, {rhs}")?;
+                        writeln!(builder, "idiv ebx")?;
+                        writeln!(builder, "mov {res}, eax")?;
                     }
-                    BinOp::Mul => {
+
+                    BinOp::Int(
+                        op @ (ArithmOp::Eq
+                        | ArithmOp::Ne
+                        | ArithmOp::Lt
+                        | ArithmOp::Le
+                        | ArithmOp::Gt
+                        | ArithmOp::Ge),
+                    ) => {
+                        let cc = match op {
+                            ArithmOp::Eq => "e",
+                            ArithmOp::Ne => "ne",
+                            ArithmOp::Lt => "l",
+                            ArithmOp::Le => "le",
+                            ArithmOp::Gt => "g",
+                            ArithmOp::Ge => "ge",
+                            _ => unreachable!(),
+                        };
+
+                        writeln!(builder, "mov eax, {lhs}")?;
+                        writeln!(builder, "cmp eax, {rhs}")?;
+                        writeln!(builder, "set{cc} {res}")?;
+                    }
+
+                    BinOp::Real(
+                        op @ (ArithmOp::Add | ArithmOp::Sub | ArithmOp::Mul | ArithmOp::Div),
+                    ) => {
+                        let instr = match op {
+                            ArithmOp::Add => "addss",
+                            ArithmOp::Sub => "subss",
+                            ArithmOp::Mul => "mulss",
+                            ArithmOp::Div => "divss",
+                            _ => unreachable!(),
+                        };
+
+                        writeln!(builder, "movss xmm0, {lhs}")?;
+                        writeln!(builder, "{instr} xmm0, {rhs}")?;
+                        writeln!(builder, "movss {res}, xmm0")?;
+                    }
+
+                    BinOp::Real(
+                        op @ (ArithmOp::Eq
+                        | ArithmOp::Ne
+                        | ArithmOp::Lt
+                        | ArithmOp::Le
+                        | ArithmOp::Gt
+                        | ArithmOp::Ge),
+                    ) => {
+                        let cc = match op {
+                            ArithmOp::Eq => "e",
+                            ArithmOp::Ne => "ne",
+                            ArithmOp::Lt => "b",
+                            ArithmOp::Le => "be",
+                            ArithmOp::Gt => "a",
+                            ArithmOp::Ge => "ae",
+                            _ => unreachable!(),
+                        };
+
+                        writeln!(builder, "movss xmm0, {lhs}")?;
+                        writeln!(builder, "ucomiss xmm0, {rhs}")?;
+                        writeln!(builder, "set{cc} {res}")?;
+                    }
+
+                    BinOp::F32s(_, op @ (F32sOp::Add | F32sOp::Sub)) => {
+                        let instr = match op {
+                            F32sOp::Add => "addps",
+                            F32sOp::Sub => "subps",
+                            _ => unreachable!(),
+                        };
+
+                        writeln!(builder, "movups xmm0, {lhs}")?;
+                        writeln!(builder, "{instr} xmm0, {rhs}")?;
+                        writeln!(builder, "movaps {res}, xmm0")?;
+                    }
+
+                    BinOp::F32s(_, op @ (F32sOp::ScalarMul | F32sOp::ScalarDiv)) => {
+                        let instr = match op {
+                            F32sOp::ScalarMul => "mulps",
+                            F32sOp::ScalarDiv => "divps",
+                            _ => unreachable!(),
+                        };
+
+                        writeln!(builder, "movups xmm0, {lhs}")?;
+                        writeln!(builder, "movss xmm1, {rhs}")?;
+                        writeln!(builder, "shufps xmm1, xmm1, 0b00_00_00_00")?;
+                        writeln!(builder, "{instr} xmm0, xmm1")?;
+                        writeln!(builder, "movaps {res}, xmm0")?;
+                    }
+
+                    BinOp::F32s(dims, op @ (F32sOp::Eq | F32sOp::Ne)) => {
+                        let cc = match op {
+                            F32sOp::Eq => "e",
+                            F32sOp::Ne => "ne",
+                            _ => unreachable!(),
+                        };
+
+                        let mask = match dims {
+                            Dims::X2 => "0b11",
+                            Dims::X3 => "0b111",
+                            Dims::X4 => "0b1111",
+                        };
+
+                        writeln!(builder, "movaps  xmm0, {lhs}")?;
+                        writeln!(builder, "movaps  xmm1, {rhs}")?;
+                        writeln!(builder, "cmpeqps xmm0, xmm1")?;
+                        writeln!(builder, "movmskps eax, xmm0")?;
+                        writeln!(builder, "and eax, {mask}")?;
+                        writeln!(builder, "cmp eax, {mask}")?;
+                        writeln!(builder, "set{cc} {res}")?;
+                    }
+
+                    BinOp::ComplexMul => {
+                        writeln!(builder, "movups xmm0, {lhs}")?;
+                        writeln!(builder, "movups xmm1, {rhs}")?;
                         writeln!(builder, "shufps xmm0, xmm0, 0b00_01_01_00")?; // xmm0 = [ a, b, b, a ]
                         writeln!(builder, "shufps xmm1, xmm1, 0b01_00_01_00")?; // xmm1 = [ c, d, c, d ]
                         writeln!(builder, "mulps  xmm1, xmm0")?; // xmm1 = [ac, bd, bc, ad]
                         writeln!(builder, "movaps xmm0, xmm1")?; // xmm0 = [ac, bd, bc, ad]
                         writeln!(builder, "hsubps xmm1, xmm1")?; // xmm1 = [ac - bd, bc - ad]
                         writeln!(builder, "haddps xmm0, xmm0")?; // xmm0 = [ac + bd, bc + ad]
-                        writeln!(builder, "movss xmm0, xmm1")?; // xmm0 = [ac - bd, bc + ad]
+                        writeln!(builder, "movss xmm0, xmm1")?; //  xmm0 = [ac - bd, bc + ad]
+                        writeln!(builder, "movaps {res}, xmm0")?;
                     }
-                    BinOp::Div => {
+
+                    BinOp::ComplexDiv => {
+                        writeln!(builder, "movups xmm0, {lhs}")?;
+                        writeln!(builder, "movups xmm1, {rhs}")?;
                         writeln!(builder, "movaps xmm2, xmm1")?; // xmm2 = [ c,  d  ]
                         writeln!(builder, "mulps  xmm2, xmm2")?; // xmm2 = [ cc, dd ]
                         writeln!(builder, "haddps xmm2, xmm2")?; // xmm2 = [ cc + dd ]
                         writeln!(builder, "shufps xmm0, xmm0, 0b00_01_01_00")?; // xmm0 = [ a, b, b, a ]
-                        writeln!(builder, "shufps xmm1, xmm1, 0b00_01_00_01")?; // xmm1 = [ c, d, c, d ]
+                        writeln!(builder, "shufps xmm1, xmm1, 0b01_00_01_00")?; // xmm1 = [ c, d, c, d ]
                         writeln!(builder, "mulps  xmm1, xmm1")?; // xmm1 = [ac, bd, bc, ad ]
                         writeln!(builder, "movaps xmm0, xmm1")?; // xmm0 = [ac, bd, bc, ad ]
                         writeln!(builder, "haddps xmm1, xmm1")?; // xmm1 = [ac + bd, bc + ad]
                         writeln!(builder, "hsubps xmm0, xmm0")?; // xmm0 = [ac - bd, bc - ad]
                         writeln!(builder, "movss  xmm0, xmm1")?; // xmm0 = [ac + bd, bc - ad]
                         writeln!(builder, "divps  xmm0, xmm2")?; // xmm0 = [(ac + bd)/(cc + dd), (bc - ad)/(cc + dd)]
+                        writeln!(builder, "movaps {res}, xmm0")?;
                     }
-                }
-
-                writeln!(builder, "movups {result_ptr}, xmm0")?;
-            }
-
-            Sequental::Binary {
-                dst,
-                op,
-                ty: Type::Vec2 | Type::Vec3 | Type::Vec4,
-                lhs,
-                rhs,
-            } => {
-                let result_ptr = env.get_or_add(dst);
-
-                let lhs = atom(env, builder, lhs);
-                let rhs = atom(env, builder, rhs);
-
-                writeln!(builder, "movaps xmm0, {lhs}")?;
-                writeln!(builder, "movaps xmm1, {rhs}")?;
-
-                match op {
-                    BinOp::Add => {
-                        writeln!(builder, "addps xmm0, xmm1")?;
-                    }
-                    BinOp::Sub => {
-                        writeln!(builder, "subps xmm0, xmm1")?;
-                    }
-                    BinOp::Mul => {
-                        writeln!(builder, "shufps xmm1, xmm1, 0b00_00_00_00")?;
-                        writeln!(builder, "mulps xmm0, xmm1")?;
-                    }
-                    BinOp::Div => {
-                        writeln!(builder, "shufps xmm1, xmm1, 0b00_00_00_00")?;
-                        writeln!(builder, "divps xmm0, xmm1")?;
-                    }
-                }
-
-                writeln!(builder, "movaps {result_ptr}, xmm0")?;
-            }
-
-            Sequental::Binary {
-                dst,
-                op,
-                ty,
-                lhs,
-                rhs,
-            } => {
-                let result_ptr = env.get_or_add(dst);
-
-                let instruction = match op {
-                    BinOp::Add => "add",
-                    BinOp::Sub => "sub",
-                    BinOp::Mul if ty == Type::Int => "imul",
-                    BinOp::Mul => "mul",
-                    BinOp::Div => "div",
-                };
-
-                let lhs = atom(env, builder, lhs);
-                let rhs = atom(env, builder, rhs);
-
-                match ty {
-                    Type::Real => {
-                        writeln!(builder, "movups xmm0, {lhs}")?;
-                        writeln!(builder, "{instruction}ss xmm0, {rhs}")?;
-                        writeln!(builder, "movups {result_ptr}, xmm0")?;
-                    }
-                    Type::Int if op == BinOp::Div => {
-                        writeln!(builder, "mov eax, {lhs}")?;
-                        writeln!(builder, "mov ebx, {rhs}")?;
-                        writeln!(builder, "idiv ebx")?;
-                        writeln!(builder, "mov {result_ptr}, eax")?;
-                    }
-                    Type::Int => {
-                        // writeln!(builder, "mov eax, {lhs}")?;
-                        // writeln!(builder, "mov ebx, {rhs}")?;
-                        // writeln!(builder, "{instruction} eax, ebx")?;
-                        // writeln!(builder, "mov {result_ptr}, eax")?;
-                        writeln!(builder, "mov eax, {lhs}")?;
-                        writeln!(builder, "{instruction} eax, {rhs}")?;
-                        writeln!(builder, "mov {result_ptr}, eax")?;
-                    }
-                    _ => unreachable!(),
                 }
             }
 
-            Sequental::Unary {
-                dst,
-                op,
-                ty,
-                operand,
-            } => {
+            Sequental::Unary { dst, op, operand } => {
                 let result_ptr = env.get_or_add(dst);
                 let operand = atom(env, builder, operand);
 
-                match (ty, op) {
-                    (Type::Real, UnOp::Neg) => {
+                match op {
+                    UnOp::Neg(Type::Real) => {
                         writeln!(builder, "pxor xmm0, xmm0")?;
                         writeln!(builder, "subss xmm0, {operand}")?;
                         writeln!(builder, "movups {result_ptr}, xmm0")?;
                     }
-                    (Type::Int, UnOp::Neg) => {
+
+                    UnOp::Neg(Type::Int) => {
                         writeln!(builder, "xor eax, eax")?;
                         writeln!(builder, "sub eax, {operand}")?;
                         writeln!(builder, "mov {result_ptr}, eax")?;
                     }
-                    (_, UnOp::Neg) => {
+
+                    UnOp::Neg(Type::F32x2 | Type::F32x3 | Type::F32x4) => {
                         writeln!(builder, "xorps xmm0, xmm0")?;
                         writeln!(builder, "subps xmm0, {operand}")?;
                     }
-                    (_, UnOp::Swizzle(swizzle)) => {
-                        let combination: usize = (&swizzle.combination[..])
-                            .into_iter()
+
+                    UnOp::Swizzle(swizzle) => {
+                        let comb = swizzle.as_slice().into_iter();
+                        let comb_code: usize = comb
                             .enumerate()
                             .map(|(n, &comp)| 4usize.pow(n as u32) * comp as usize)
                             .sum();
 
                         writeln!(builder, "movups xmm0, {operand}")?;
-                        writeln!(builder, "shufps xmm0, xmm0, {combination}")?;
+                        writeln!(builder, "shufps xmm0, xmm0, {comb_code}")?;
                         writeln!(builder, "movups {result_ptr}, xmm0")?;
                     }
                 }
@@ -231,7 +260,7 @@ impl Compile for Sequental<'_> {
                             writeln!(builder, "mov [rsp - {address}], eax")?;
                         }
                         _ => {
-                            writeln!(builder, "movaps xmm0, {value}")?;
+                            writeln!(builder, "movups xmm0, {value}")?;
                             writeln!(builder, "movaps [rsp - {address}], xmm0")?;
                         }
                     }

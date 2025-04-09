@@ -1,9 +1,6 @@
-use smplc_ast::Swizzle;
 use smplc_thir as thir;
 
-pub use smplc_thir::{ArithmOp as BinOp, EqOp, LinearType, NumberType, OrdOp, RelOp, VecType};
-
-use crate::{FunId, Value};
+use crate::{BinOp, FunId, UnOp, Value};
 
 pub enum Instruction<'f> {
     Sequental(Sequental<'f>),
@@ -37,14 +34,12 @@ pub enum Sequental<'f> {
     Binary {
         dst: Id,
         op: BinOp,
-        ty: Type,
         lhs: Atom,
         rhs: Atom,
     },
     Unary {
         dst: Id,
         op: UnOp,
-        ty: Type,
         operand: Atom,
     },
     Call {
@@ -64,7 +59,7 @@ pub struct Phi {
 pub enum ControlFlow {
     If {
         lhs: Atom,
-        op: RelOp,
+        op: BinOp,
         rhs: Atom,
         label: Label,
     },
@@ -77,19 +72,13 @@ pub enum ControlFlow {
     Halt,
 }
 
-pub enum UnOp {
-    Neg,
-    Swizzle(Swizzle),
-}
-
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub enum Type {
-    Complex,
     Real,
     Int,
-    Vec2,
-    Vec3,
-    Vec4,
+    F32x2,
+    F32x3,
+    F32x4,
 }
 
 impl From<thir::Type> for Type {
@@ -98,39 +87,10 @@ impl From<thir::Type> for Type {
             thir::Type::Real => Self::Real,
             thir::Type::Int => Self::Int,
             thir::Type::Bool => Self::Int,
-            thir::Type::Vec2 => Self::Vec2,
-            thir::Type::Vec3 => Self::Vec3,
-            thir::Type::Vec4 => Self::Vec4,
-            thir::Type::Complex => Self::Complex,
-        }
-    }
-}
-
-impl From<thir::NumberType> for Type {
-    fn from(value: thir::NumberType) -> Self {
-        match value {
-            thir::NumberType::Real => Type::Real,
-            thir::NumberType::Int => Type::Int,
-            thir::NumberType::Complex => Type::Complex,
-        }
-    }
-}
-
-impl From<thir::VecType> for Type {
-    fn from(value: thir::VecType) -> Self {
-        match value {
-            thir::VecType::Vec2 => Self::Vec2,
-            thir::VecType::Vec3 => Self::Vec3,
-            thir::VecType::Vec4 => Self::Vec4,
-        }
-    }
-}
-
-impl From<thir::LinearType> for Type {
-    fn from(value: thir::LinearType) -> Self {
-        match value {
-            thir::LinearType::Vec(ty) => ty.into(),
-            thir::LinearType::Number(ty) => ty.into(),
+            thir::Type::Complex => Self::F32x2,
+            thir::Type::Vec2 => Self::F32x2,
+            thir::Type::Vec3 => Self::F32x3,
+            thir::Type::Vec4 => Self::F32x4,
         }
     }
 }
