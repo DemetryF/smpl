@@ -3,7 +3,7 @@ use std::{
     fmt::{self, Write},
 };
 
-use smplc_lir as ir;
+use comet_ir as ir;
 
 use builder::Builder;
 use compile::{value, Compile};
@@ -198,15 +198,10 @@ printc_L1:
     "
     )?;
 
-    for (id, function) in lir.functions {
-        let mut env = Env::new(
-            &constants,
-            &lir.labels,
-            &function.code.phis,
-            &lir.function_names,
-        );
+    for (id, function) in lir.bodies {
+        let mut env = Env::new(&constants, &lir.labels, &function.code.phis);
 
-        writeln!(builder, "{}:", lir.function_names[&id])?;
+        writeln!(builder, "{id}:")?;
         writeln!(builder, "push rbp")?;
         writeln!(builder, "mov rbp, rsp")?;
 

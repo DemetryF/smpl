@@ -6,7 +6,7 @@ use std::{
 use nalgebra::{Vector2, Vector3, Vector4};
 use num::Complex;
 
-use smplc_lir::Value;
+use comet_ir::Value;
 use smplc_thir::{self as thir, VecOp};
 use smplc_thir::{ArithmOp, NumberType, OrdOp};
 
@@ -34,7 +34,17 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
 
                     match ty {
                         NumberType::Complex => {
-                            Value::Complex(arithm(op, lhs.complex(), rhs.complex()))
+                            let lhs = lhs.f32x2();
+                            let rhs = rhs.f32x2();
+
+                            let lhs = Complex::new(lhs.x, lhs.y);
+                            let rhs = Complex::new(rhs.x, rhs.y);
+
+                            let res = arithm(op, lhs, rhs);
+
+                            let res = Vector2::new(res.re, res.im);
+
+                            Value::F32x2(res)
                         }
                         NumberType::Real => Value::Real(arithm(op, lhs.real(), rhs.real())),
                         NumberType::Int => Value::Int(arithm(op, lhs.int(), rhs.int())),
@@ -61,13 +71,10 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
                 }
                 thir::BinOp::Eq(op, ty) => {
                     let value = match ty {
-                        thir::LinearType::Vec(thir::VecType::Vec2) => lhs.vec2() == rhs.vec2(),
-                        thir::LinearType::Vec(thir::VecType::Vec3) => lhs.vec3() == rhs.vec3(),
-                        thir::LinearType::Vec(thir::VecType::Vec4) => lhs.vec4() == rhs.vec4(),
-
-                        thir::LinearType::Number(NumberType::Complex) => {
-                            lhs.complex() == rhs.complex()
-                        }
+                        thir::LinearType::Number(NumberType::Complex)
+                        | thir::LinearType::Vec(thir::VecType::Vec2) => lhs.f32x2() == rhs.f32x2(),
+                        thir::LinearType::Vec(thir::VecType::Vec3) => lhs.f32x3() == rhs.f32x3(),
+                        thir::LinearType::Vec(thir::VecType::Vec4) => lhs.f32x4() == rhs.f32x4(),
 
                         thir::LinearType::Number(NumberType::Real) => lhs.real() == rhs.real(),
                         thir::LinearType::Number(NumberType::Int) => lhs.int() == rhs.int(),
@@ -89,9 +96,9 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
                         }
 
                         return match ty {
-                            thir::VecType::Vec2 => Value::Vec2(oper(lhs.vec2(), op, rhs.vec2())),
-                            thir::VecType::Vec3 => Value::Vec3(oper(lhs.vec3(), op, rhs.vec3())),
-                            thir::VecType::Vec4 => Value::Vec4(oper(lhs.vec4(), op, rhs.vec4())),
+                            thir::VecType::Vec2 => Value::F32x2(oper(lhs.f32x2(), op, rhs.f32x2())),
+                            thir::VecType::Vec3 => Value::F32x3(oper(lhs.f32x3(), op, rhs.f32x3())),
+                            thir::VecType::Vec4 => Value::F32x4(oper(lhs.f32x4(), op, rhs.f32x4())),
                         };
                     }
 
@@ -116,9 +123,9 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
                     }
 
                     match ty {
-                        thir::VecType::Vec2 => Value::Vec2(oper(scalar, op, vec.vec2())),
-                        thir::VecType::Vec3 => Value::Vec3(oper(scalar, op, vec.vec3())),
-                        thir::VecType::Vec4 => Value::Vec4(oper(scalar, op, vec.vec4())),
+                        thir::VecType::Vec2 => Value::F32x2(oper(scalar, op, vec.f32x2())),
+                        thir::VecType::Vec3 => Value::F32x3(oper(scalar, op, vec.f32x3())),
+                        thir::VecType::Vec4 => Value::F32x4(oper(scalar, op, vec.f32x4())),
                     }
                 }
                 thir::BinOp::Or => Value::Int((lhs.int() != 0 || rhs.int() != 0) as _),
@@ -129,18 +136,17 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
             let rhs = const_eval(*rhs, idents);
 
             match op {
-                thir::UnOp::Neg(thir::LinearType::Vec(thir::VecType::Vec2)) => {
-                    Value::Vec2(-rhs.vec2())
+                thir::UnOp::Neg(thir::LinearType::Number(NumberType::Complex))
+                | thir::UnOp::Neg(thir::LinearType::Vec(thir::VecType::Vec2)) => {
+                    Value::F32x2(-rhs.f32x2())
                 }
                 thir::UnOp::Neg(thir::LinearType::Vec(thir::VecType::Vec3)) => {
-                    Value::Vec3(-rhs.vec3())
+                    Value::F32x3(-rhs.f32x3())
                 }
                 thir::UnOp::Neg(thir::LinearType::Vec(thir::VecType::Vec4)) => {
-                    Value::Vec4(-rhs.vec4())
+                    Value::F32x4(-rhs.f32x4())
                 }
-                thir::UnOp::Neg(thir::LinearType::Number(NumberType::Complex)) => {
-                    Value::Complex(-rhs.complex())
-                }
+
                 thir::UnOp::Neg(thir::LinearType::Number(NumberType::Real)) => {
                     Value::Real(-rhs.real())
                 }
@@ -154,24 +160,24 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
             let lhs = const_eval(*lhs, idents);
 
             let source_vec = match &lhs {
-                Value::Vec2(matrix) => matrix.as_slice(),
-                Value::Vec3(matrix) => matrix.as_slice(),
-                Value::Vec4(matrix) => matrix.as_slice(),
+                Value::F32x2(matrix) => matrix.as_slice(),
+                Value::F32x3(matrix) => matrix.as_slice(),
+                Value::F32x4(matrix) => matrix.as_slice(),
 
                 _ => unreachable!(),
             };
 
             let mut new_vec = [0.; 4];
 
-            for (n, &comp) in (&swizzle.combination[..]).into_iter().enumerate() {
+            for (n, &comp) in swizzle.as_slice().into_iter().enumerate() {
                 new_vec[n] = source_vec[comp as usize];
             }
 
-            match swizzle.combination.len() {
+            match swizzle.as_slice().len() {
                 1 => Value::Real(new_vec[0]),
-                2 => Value::Vec2(Vector2::new(new_vec[0], new_vec[1])),
-                3 => Value::Vec3(Vector3::new(new_vec[0], new_vec[1], new_vec[2])),
-                4 => Value::Vec4(Vector4::new(new_vec[0], new_vec[1], new_vec[2], new_vec[3])),
+                2 => Value::F32x2(Vector2::new(new_vec[0], new_vec[1])),
+                3 => Value::F32x3(Vector3::new(new_vec[0], new_vec[1], new_vec[2])),
+                4 => Value::F32x4(Vector4::new(new_vec[0], new_vec[1], new_vec[2], new_vec[3])),
 
                 _ => unreachable!(),
             }
@@ -181,7 +187,7 @@ pub fn const_eval(expr: thir::Expr, idents: &BaseIdents) -> Value {
             thir::Atom::Var(var) => idents.constants[&idents.get(var)],
             thir::Atom::Literal(literal) => match literal.ty {
                 thir::LiteralType::Complex => {
-                    Value::Complex(Complex::new(0.0, parse_int::parse(literal.value).unwrap()))
+                    Value::F32x2(Vector2::new(0.0, parse_int::parse(literal.value).unwrap()))
                 }
                 thir::LiteralType::Real => Value::Real(parse_int::parse(literal.value).unwrap()),
                 thir::LiteralType::Int => Value::Int(parse_int::parse(literal.value).unwrap()),

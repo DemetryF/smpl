@@ -1,6 +1,95 @@
-use smplc_hir as hir;
+use comet_ir as lir;
+use smplc_hir::{self as hir, Type};
 
-use super::{ArithmOp, EqOp, LinearType, NumberType, OrdOp, VecType};
+use super::{ArithmOp, BinOp, EqOp, LinearType, NumberType, OrdOp, VecOp, VecType};
+
+impl From<BinOp> for lir::BinOp {
+    fn from(value: BinOp) -> Self {
+        match value {
+            BinOp::Arithm(op, NumberType::Int) => lir::BinOp::Int(op.into()),
+            BinOp::Arithm(op, NumberType::Real) => lir::BinOp::Real(op.into()),
+
+            BinOp::Arithm(ArithmOp::Mul, NumberType::Complex) => lir::BinOp::ComplexMul,
+            BinOp::Arithm(ArithmOp::Div, NumberType::Complex) => lir::BinOp::ComplexDiv,
+
+            BinOp::Arithm(ArithmOp::Add, NumberType::Complex) => {
+                lir::BinOp::F32s(lir::Dims::X2, lir::F32sOp::Add)
+            }
+
+            BinOp::Arithm(ArithmOp::Sub, NumberType::Complex) => {
+                lir::BinOp::F32s(lir::Dims::X2, lir::F32sOp::Sub)
+            }
+
+            BinOp::Vec(op, ty) => {
+                let op = match op {
+                    VecOp::Add => lir::F32sOp::Add,
+                    VecOp::Sub => lir::F32sOp::Sub,
+                    VecOp::LeftMul | VecOp::RightMul => lir::F32sOp::ScalarMul,
+                    VecOp::Div => lir::F32sOp::ScalarDiv,
+                };
+
+                lir::BinOp::F32s(ty.dims(), op)
+            }
+
+            BinOp::Eq(op, LinearType::Number(NumberType::Complex)) => match op {
+                EqOp::Eq => lir::BinOp::F32s(lir::Dims::X2, lir::F32sOp::Eq),
+                EqOp::Ne => lir::BinOp::F32s(lir::Dims::X2, lir::F32sOp::Ne),
+            },
+
+            BinOp::Eq(op, LinearType::Number(ty)) => {
+                let op = match op {
+                    EqOp::Eq => lir::ArithmOp::Eq,
+                    EqOp::Ne => lir::ArithmOp::Ne,
+                };
+
+                match ty {
+                    NumberType::Real => lir::BinOp::Real(op),
+                    NumberType::Int => lir::BinOp::Int(op),
+                    NumberType::Complex => unreachable!(),
+                }
+            }
+
+            BinOp::Eq(op, LinearType::Vec(ty)) => match op {
+                EqOp::Eq => lir::BinOp::F32s(ty.dims(), lir::F32sOp::Eq),
+                EqOp::Ne => lir::BinOp::F32s(ty.dims(), lir::F32sOp::Ne),
+            },
+
+            BinOp::Ord(op, ty) => {
+                let op = match op {
+                    OrdOp::Gt => lir::ArithmOp::Gt,
+                    OrdOp::Ge => lir::ArithmOp::Ge,
+                    OrdOp::Lt => lir::ArithmOp::Lt,
+                    OrdOp::Le => lir::ArithmOp::Le,
+                };
+
+                match ty {
+                    NumberType::Real => lir::BinOp::Real(op),
+                    NumberType::Int => lir::BinOp::Int(op),
+                    NumberType::Complex => unreachable!(),
+                }
+            }
+
+            BinOp::Or | BinOp::And => unreachable!(),
+        }
+    }
+}
+
+impl Into<lir::Type> for LinearType {
+    fn into(self) -> lir::Type {
+        Type::from(self).into()
+    }
+}
+
+impl Into<lir::ArithmOp> for ArithmOp {
+    fn into(self) -> lir::ArithmOp {
+        match self {
+            ArithmOp::Add => lir::ArithmOp::Add,
+            ArithmOp::Sub => lir::ArithmOp::Sub,
+            ArithmOp::Mul => lir::ArithmOp::Mul,
+            ArithmOp::Div => lir::ArithmOp::Div,
+        }
+    }
+}
 
 impl TryFrom<hir::BinOp> for ArithmOp {
     type Error = ();

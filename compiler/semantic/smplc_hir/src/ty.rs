@@ -1,5 +1,6 @@
 use std::fmt;
 
+use comet_ir as lir;
 use smplc_ast::LiteralType;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
@@ -11,6 +12,18 @@ pub enum Type {
     Vec3,
     Vec4,
     Complex,
+}
+
+impl Into<lir::Type> for Type {
+    fn into(self) -> lir::Type {
+        match self {
+            Type::Real => lir::Type::Real,
+            Type::Int | Type::Bool => lir::Type::Int,
+            Type::Complex | Type::Vec2 => lir::Type::F32x2,
+            Type::Vec3 => lir::Type::F32x3,
+            Type::Vec4 => lir::Type::F32x4,
+        }
+    }
 }
 
 impl TryFrom<&str> for Type {

@@ -1,4 +1,6 @@
-use crate::{BinOp, Spanned, Swizzle, UnOp};
+use crate::{BinOp, Spanned, UnOp};
+
+pub use comet_ir::{Component, Swizzle};
 
 #[derive(Debug, PartialEq)]
 pub enum Expr<'source> {

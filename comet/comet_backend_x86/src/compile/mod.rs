@@ -3,7 +3,7 @@ mod sequental;
 
 use std::fmt;
 
-use smplc_lir as lir;
+use comet_ir as lir;
 
 use crate::{
     builder::Builder,
@@ -25,13 +25,13 @@ pub fn value(builder: &mut Builder, value: lir::Value) -> Operand {
     match value {
         lir::Value::Real(value) => Operand::Address(builder.constant([value])),
         lir::Value::Int(value) => Operand::Number(value),
-        lir::Value::Complex(value) => Operand::Address(builder.constant([value.re, value.im])),
-        lir::Value::Vec2(value) => Operand::Address(builder.constant([value[0], value[1]])),
+        lir::Value::F32x2(value) => Operand::Address(builder.constant([value[0], value[1]])),
 
-        lir::Value::Vec3(value) => {
+        lir::Value::F32x3(value) => {
             Operand::Address(builder.constant([value[0], value[1], value[2]]))
         }
-        lir::Value::Vec4(value) => {
+
+        lir::Value::F32x4(value) => {
             Operand::Address(builder.constant([value[0], value[1], value[2], value[3]]))
         }
     }

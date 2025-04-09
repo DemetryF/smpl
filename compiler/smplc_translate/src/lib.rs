@@ -8,14 +8,14 @@ mod translator;
 
 use std::mem;
 
-use smplc_lir::{CodeFunction, LIR};
+use comet_ir::{FunId, FunctionBody, LIR};
 use smplc_thir::{Symbols, THIR};
 
 use const_eval::const_eval;
 use idents::BaseIdents;
 use translator::Translator;
 
-pub fn translate(thir: THIR) -> LIR {
+pub fn translate<'source>(thir: THIR<'source>) -> LIR<'source> {
     let THIR {
         symbols,
         functions,
@@ -33,7 +33,7 @@ pub fn translate(thir: THIR) -> LIR {
         idents.constants.insert(id, value);
     }
 
-    let functions = functions
+    let bodies = functions
         .into_iter()
         .map(|fun| {
             let args = fun
@@ -44,29 +44,29 @@ pub fn translate(thir: THIR) -> LIR {
 
             fun.body.translate(&mut translator, &mut idents, &symbols);
 
-            let function = CodeFunction {
+            let function = FunctionBody {
                 args,
                 code: mem::take(&mut translator.code),
             };
 
-            (fun.id, function)
+            let id = FunId(symbols.functions[fun.id].id.0);
+
+            (id, function)
         })
         .collect();
 
-    let function_names = symbols
-        .functions
-        .into_iter()
-        .map(|(id, data)| (id, data.id.0.to_owned()))
-        .collect();
-
     LIR {
-        functions,
-        function_names,
+        bodies,
         constants: idents.constants,
         labels: translator.labels,
     }
 }
 
-trait Translate {
-    fn translate(self, translator: &mut Translator, idents: &mut BaseIdents, symbols: &Symbols);
+trait Translate<'source> {
+    fn translate(
+        self,
+        translator: &mut Translator<'source>,
+        idents: &mut BaseIdents,
+        symbols: &Symbols<'source>,
+    );
 }

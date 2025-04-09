@@ -63,6 +63,10 @@ impl<K: Hash + Eq + From<usize> + Copy, V> SymbolsTable<K, V> {
         self.data.into_iter()
     }
 
+    pub fn iter(&self) -> impl Iterator<Item = (K, &V)> {
+        self.data.iter().map(|(&k, v)| (k, v))
+    }
+
     fn next_id(&mut self) -> K {
         self.counter += 1;
 

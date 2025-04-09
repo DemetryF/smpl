@@ -12,9 +12,9 @@ smplc_ast = { path = "../compiler/frontend/smplc_ast" }
 
 smplc_semcheck = { path = "../compiler/semantic/smplc_semcheck" }
 smplc_typecheck = { path = "../compiler/typing/smplc_typecheck" }
-smplc_translate = { path = "../compiler/linear/smplc_translate" }
+smplc_translate = { path = "../compiler/smplc_translate" }
 
-smplc_backend_x86 = { path = "../compiler/smplc_backend_x86" }
+comet_backend_x86 = { workspace = true }
 
 clap = { version = "4.2.5", features = ["derive"] }
 colored = "2.0.0"

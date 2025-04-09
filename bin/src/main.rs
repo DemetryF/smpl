@@ -4,7 +4,7 @@ use std::{fs, process::Command};
 
 use clap::Parser;
 
-use smplc_backend_x86::compile;
+use comet_backend_x86::compile;
 use smplc_lexer::Lexer;
 use smplc_parse::{parse, ParseError, TokenStream};
 use smplc_semcheck::sem_check;

@@ -1,10 +1,10 @@
 use std::collections::{HashMap, VecDeque};
 
-use smplc_lir::{Code, Label};
+use comet_ir::{Code, Label};
 
 #[derive(Default)]
-pub struct Translator {
-    pub code: Code,
+pub struct Translator<'source> {
+    pub code: Code<'source>,
 
     pub labels: HashMap<Label, String>,
     labels_count: usize,
@@ -13,7 +13,7 @@ pub struct Translator {
     loops_count: usize,
 }
 
-impl Translator {
+impl Translator<'_> {
     pub fn next_label(&mut self) -> Label {
         let label = Label::new(self.labels_count);
 

@@ -1,5 +1,5 @@
 [package]
-name = "smplc_lir"
+name = "comet_ir"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,7 +10,3 @@ parse_int = "0.6.0"
 nalgebra = "0.33.2"
 petgraph = "0.7.1"
 num = "0.4.3"
-
-smplc_ast = { path = "../../frontend/smplc_ast" }
-smplc_thir = { path = "../../typing/smplc_thir" }
-smplc_macros = { path = "../../../utils/smplc_macros" }

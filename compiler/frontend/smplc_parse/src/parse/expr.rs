@@ -1,5 +1,3 @@
-use stack_array::{Array, ArrayBuf};
-
 use smplc_ast::*;
 use smplc_lexer::{Token, TokenTag};
 
@@ -165,28 +163,20 @@ impl<'source> Parse<'source> for Swizzle {
 
         let token = token_stream.consume(TokenTag::Id)?;
 
-        let Ok(Ok(combination)) =
-            try_collect_array_buf(token.value.chars().map(|char| Component::try_from(char)))
-        else {
-            return Err(ParseError::invalid_swizzle(token.span));
-        };
+        let combination = token
+            .value
+            .chars()
+            .map(Component::try_from)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|_| ParseError::invalid_swizzle(token.span))?;
 
-        Ok(Swizzle { combination })
-    }
-}
+        match combination.len() {
+            1 => Ok(Swizzle::X1(combination.as_slice().try_into().unwrap())),
+            2 => Ok(Swizzle::X2(combination.as_slice().try_into().unwrap())),
+            3 => Ok(Swizzle::X3(combination.as_slice().try_into().unwrap())),
+            4 => Ok(Swizzle::X4(combination.as_slice().try_into().unwrap())),
 
-fn try_collect_array_buf<T, E, const N: usize>(
-    iter: impl IntoIterator<Item = Result<T, E>>,
-) -> Result<Result<ArrayBuf<T, N>, ()>, E> {
-    let mut arr = ArrayBuf::new();
-
-    for el in iter {
-        if arr.is_full() {
-            return Ok(Err(()));
+            _ => Err(ParseError::invalid_swizzle(token.span)),
         }
-
-        arr.push(el?);
     }
-
-    Ok(Ok(arr))
 }

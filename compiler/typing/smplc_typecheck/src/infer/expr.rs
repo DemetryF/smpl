@@ -160,7 +160,7 @@ pub fn infer_expr<'source>(
         hir::Expr::Swizzle { lhs, swizzle } => {
             let inference = infer_expr(&lhs, inferrer, symbols)?;
 
-            let ret_ty = match swizzle.combination.len() {
+            let ret_ty = match swizzle.as_slice().len() {
                 1 => Type::Real,
                 2 => Type::Vec2,
                 3 => Type::Vec3,
@@ -169,7 +169,7 @@ pub fn infer_expr<'source>(
                 _ => unreachable!(),
             };
 
-            let max_component = swizzle.combination.into_iter().max().unwrap();
+            let max_component = swizzle.as_slice().into_iter().max().unwrap();
 
             let ty = match max_component {
                 Component::X | Component::Y => TypeVar::Vec,

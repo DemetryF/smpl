@@ -12,10 +12,10 @@ members = [
     "compiler/typing/smplc_thir",
     "compiler/typing/smplc_typecheck",
 
-    "compiler/linear/smplc_lir",
-    "compiler/linear/smplc_translate",
+    "compiler/smplc_translate",
 
-    "compiler/smplc_backend_x86",
+    "comet/comet_ir",
+    "comet/comet_backend_x86",
 
     "utils/smplc_macros",
 ]
@@ -23,4 +23,5 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
-stack-array = "0.4.1"
+comet_ir = { path = "comet/comet_ir" }
+comet_backend_x86 = { path = "comet/comet_backend_x86" }

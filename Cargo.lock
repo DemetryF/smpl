@@ -130,6 +130,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "comet_backend_x86"
+version = "0.1.0"
+dependencies = [
+ "comet_ir",
+]
+
+[[package]]
+name = "comet_ir"
+version = "0.1.0"
+dependencies = [
+ "nalgebra",
+ "num",
+ "parse_int",
+ "petgraph",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -368,8 +385,8 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "colored",
+ "comet_backend_x86",
  "smplc_ast",
- "smplc_backend_x86",
  "smplc_lexer",
  "smplc_parse",
  "smplc_semcheck",
@@ -381,20 +398,14 @@ dependencies = [
 name = "smplc_ast"
 version = "0.1.0"
 dependencies = [
- "stack-array",
-]
-
-[[package]]
-name = "smplc_backend_x86"
-version = "0.1.0"
-dependencies = [
- "smplc_lir",
+ "comet_ir",
 ]
 
 [[package]]
 name = "smplc_hir"
 version = "0.1.0"
 dependencies = [
+ "comet_ir",
  "smplc_ast",
 ]
 
@@ -404,19 +415,6 @@ version = "0.1.0"
 dependencies = [
  "parse_int",
  "smplc_ast",
-]
-
-[[package]]
-name = "smplc_lir"
-version = "0.1.0"
-dependencies = [
- "nalgebra",
- "num",
- "parse_int",
- "petgraph",
- "smplc_ast",
- "smplc_macros",
- "smplc_thir",
 ]
 
 [[package]]
@@ -434,7 +432,6 @@ version = "0.1.0"
 dependencies = [
  "smplc_ast",
  "smplc_lexer",
- "stack-array",
 ]
 
 [[package]]
@@ -451,6 +448,7 @@ dependencies = [
 name = "smplc_thir"
 version = "0.1.0"
 dependencies = [
+ "comet_ir",
  "smplc_ast",
  "smplc_hir",
 ]
@@ -459,10 +457,10 @@ dependencies = [
 name = "smplc_translate"
 version = "0.1.0"
 dependencies = [
+ "comet_ir",
  "nalgebra",
  "num",
  "parse_int",
- "smplc_lir",
  "smplc_thir",
 ]
 
@@ -474,12 +472,6 @@ dependencies = [
  "smplc_hir",
  "smplc_thir",
 ]
-
-[[package]]
-name = "stack-array"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "332be12b550e41ddc136fd0bd2ef1272e2a49e1ee2a843770f0ccbd86f6fd3b7"
 
 [[package]]
 name = "strsim"

@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 smplc_hir = { path = "../../semantic/smplc_hir" }
 smplc_ast = { path = "../../frontend/smplc_ast" }
+comet_ir = { workspace = true }
