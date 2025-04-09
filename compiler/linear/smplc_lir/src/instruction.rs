@@ -1,5 +1,3 @@
-use smplc_thir as thir;
-
 use crate::{BinOp, FunId, UnOp, Value};
 
 pub enum Instruction<'f> {
@@ -79,20 +77,6 @@ pub enum Type {
     F32x2,
     F32x3,
     F32x4,
-}
-
-impl From<thir::Type> for Type {
-    fn from(value: thir::Type) -> Self {
-        match value {
-            thir::Type::Real => Self::Real,
-            thir::Type::Int => Self::Int,
-            thir::Type::Bool => Self::Int,
-            thir::Type::Complex => Self::F32x2,
-            thir::Type::Vec2 => Self::F32x2,
-            thir::Type::Vec3 => Self::F32x3,
-            thir::Type::Vec4 => Self::F32x4,
-        }
-    }
 }
 
 #[derive(Clone, Copy)]

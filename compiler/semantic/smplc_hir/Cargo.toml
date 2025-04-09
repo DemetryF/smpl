@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 smplc_ast = { path = "../../frontend/smplc_ast" }
+smplc_lir = { path = "../../linear/smplc_lir" }
