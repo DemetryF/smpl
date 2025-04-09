@@ -137,9 +137,9 @@ impl fmt::Display for Value {
         match self {
             Value::Real(v) => write!(f, "{v}"),
             Value::Int(v) => write!(f, "{v}"),
-            Value::F32x2(v) => write!(f, "{v}"),
-            Value::F32x3(v) => write!(f, "{v}"),
-            Value::F32x4(v) => write!(f, "{v}"),
+            Value::F32x2(v) => write!(f, "({}, {})", v.x, v.y),
+            Value::F32x3(v) => write!(f, "({}, {}, {})", v.x, v.y, v.z),
+            Value::F32x4(v) => write!(f, "({}, {}, {}, {})", v.x, v.y, v.z, v.w),
         }
     }
 }
