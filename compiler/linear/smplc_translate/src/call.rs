@@ -4,17 +4,19 @@ use smplc_thir::Symbols;
 
 use crate::{expr::translate_expr, idents::BaseIdents, translator::Translator};
 
-pub fn translate_call(
-    translator: &mut Translator,
+pub fn translate_call<'source>(
+    translator: &mut Translator<'source>,
     idents: &mut BaseIdents,
-    symbols: &Symbols,
+    symbols: &Symbols<'source>,
     dst: Option<Id>,
-    fun: FunId,
+    fun: thir::FunId,
     args: Vec<thir::Expr>,
 ) {
+    let fun_data = &symbols.functions[fun];
+
     let args = args
         .into_iter()
-        .zip(&symbols.functions[fun].args_types)
+        .zip(&fun_data.args_types)
         .map(|(arg, &ty)| {
             let arg = translate_expr(arg, translator, idents, symbols);
 
@@ -22,6 +24,8 @@ pub fn translate_call(
             (Atom::Id(arg), ty.into())
         })
         .collect();
+
+    let fun = FunId(fun_data.id.0);
 
     translator.code.push(Sequental::Call { dst, fun, args })
 }

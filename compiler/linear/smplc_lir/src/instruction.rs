@@ -1,20 +1,35 @@
 use smplc_ast::Swizzle;
-use smplc_macros::EnumWrap;
 use smplc_thir as thir;
-use smplc_thir::FunId;
 
 pub use smplc_thir::{ArithmOp as BinOp, EqOp, LinearType, NumberType, OrdOp, RelOp, VecType};
 
-use crate::Value;
+use crate::{FunId, Value};
 
-#[derive(EnumWrap)]
-pub enum Instruction {
-    Sequental(Sequental),
+pub enum Instruction<'f> {
+    Sequental(Sequental<'f>),
     ControlFlow(ControlFlow),
     Phi(Phi),
 }
 
-pub enum Sequental {
+impl<'f> From<Sequental<'f>> for Instruction<'f> {
+    fn from(value: Sequental<'f>) -> Self {
+        Self::Sequental(value)
+    }
+}
+
+impl From<ControlFlow> for Instruction<'_> {
+    fn from(value: ControlFlow) -> Self {
+        Self::ControlFlow(value)
+    }
+}
+
+impl From<Phi> for Instruction<'_> {
+    fn from(value: Phi) -> Self {
+        Self::Phi(value)
+    }
+}
+
+pub enum Sequental<'f> {
     Assign {
         dst: Id,
         value: Atom,
@@ -34,7 +49,7 @@ pub enum Sequental {
     },
     Call {
         dst: Option<Id>,
-        fun: FunId,
+        fun: FunId<'f>,
         args: Vec<(Atom, Type)>,
     },
 }

@@ -12,7 +12,7 @@ use crate::{
 
 use super::Compile;
 
-impl Compile for Sequental {
+impl Compile for Sequental<'_> {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
         let dst = match self {
             Sequental::Assign { dst, .. }
@@ -238,7 +238,7 @@ impl Compile for Sequental {
                 }
 
                 writeln!(builder, "sub rsp, {shift}")?;
-                writeln!(builder, "call {}", env.functions[&fun])?;
+                writeln!(builder, "call {fun}")?;
                 writeln!(builder, "add rsp, {shift}")?;
 
                 if let Some(dst) = dst {

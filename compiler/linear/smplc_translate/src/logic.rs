@@ -9,11 +9,11 @@ use crate::{
     translator::Translator,
 };
 
-pub fn translate_logic(
+pub fn translate_logic<'source>(
     expr: thir::Expr,
-    translator: &mut Translator,
+    translator: &mut Translator<'source>,
     idents: &mut BaseIdents,
-    symbols: &Symbols,
+    symbols: &Symbols<'source>,
     true_label: Label,
     false_label: Label,
 ) {

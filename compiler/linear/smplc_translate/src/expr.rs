@@ -8,11 +8,11 @@ use crate::{
     call::translate_call, idents::BaseIdents, logic::translate_logic, translator::Translator,
 };
 
-pub fn translate_expr(
+pub fn translate_expr<'source>(
     expr: thir::Expr,
-    translator: &mut Translator,
+    translator: &mut Translator<'source>,
     idents: &mut BaseIdents,
-    symbols: &Symbols,
+    symbols: &Symbols<'source>,
 ) -> Id {
     match expr {
         thir::Expr::Binary {

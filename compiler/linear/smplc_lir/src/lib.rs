@@ -3,33 +3,33 @@ pub mod instruction;
 mod display;
 mod value;
 
-use std::collections::HashMap;
-
-pub use smplc_thir::FunId;
+use std::collections::{BTreeMap, HashMap};
 
 pub use instruction::*;
 pub use value::*;
 
-pub struct LIR {
-    pub functions: HashMap<FunId, CodeFunction>,
-    pub function_names: HashMap<FunId, String>,
+pub struct LIR<'f> {
+    pub bodies: BTreeMap<FunId<'f>, FunctionBody<'f>>,
     pub constants: HashMap<Id, Value>,
     pub labels: HashMap<Label, String>,
 }
 
-pub struct CodeFunction {
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct FunId<'f>(pub &'f str);
+
+pub struct FunctionBody<'f> {
     pub args: Vec<Id>,
-    pub code: Code,
+    pub code: Code<'f>,
 }
 
 #[derive(Default)]
-pub struct Code {
-    pub blocks: Vec<BasicBlock>,
+pub struct Code<'f> {
+    pub blocks: Vec<BasicBlock<'f>>,
     pub phis: Vec<Phi>,
 }
 
-impl Code {
-    pub fn push(&mut self, instr: impl Into<Instruction>) {
+impl<'f> Code<'f> {
+    pub fn push(&mut self, instr: impl Into<Instruction<'f>>) {
         match instr.into() {
             Instruction::ControlFlow(instr) => {
                 if self.blocks.is_empty() {
@@ -71,13 +71,13 @@ impl Code {
 }
 
 #[derive(Default)]
-pub struct BasicBlock {
+pub struct BasicBlock<'f> {
     pub label: Option<Label>,
-    pub instructions: Vec<Sequental>,
+    pub instructions: Vec<Sequental<'f>>,
     pub end: Option<ControlFlow>,
 }
 
-impl BasicBlock {
+impl BasicBlock<'_> {
     pub fn with_label(label: Label) -> Self {
         Self {
             label: Some(label),

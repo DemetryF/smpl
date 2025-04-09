@@ -1,8 +1,8 @@
 use std::fmt;
 
-use crate::{Atom, ControlFlow, Id, Phi, Sequental, Type, UnOp, Value};
+use crate::{Atom, ControlFlow, FunId, Id, Phi, Sequental, Type, UnOp, Value};
 
-impl fmt::Display for Sequental {
+impl fmt::Display for Sequental<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Sequental::Assign { dst, value } => {
@@ -28,12 +28,12 @@ impl fmt::Display for Sequental {
                 writeln!(f, "{dst} = {ty}.{op} {operand}")
             }
 
-            Sequental::Call { dst, args, .. } => {
+            Sequental::Call { dst, fun, args } => {
                 if let Some(dst) = dst {
                     write!(f, "{dst} = ")?;
                 }
 
-                write!(f, "call @... ")?;
+                write!(f, "call {fun}")?;
 
                 let mut args = args.iter();
 
@@ -157,5 +157,11 @@ impl fmt::Display for Value {
 impl fmt::Display for Id {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "${}", self.0)
+    }
+}
+
+impl fmt::Display for FunId<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

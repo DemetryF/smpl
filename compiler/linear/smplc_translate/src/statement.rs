@@ -12,8 +12,13 @@ use crate::{
     translator::Translator, Translate,
 };
 
-impl Translate for thir::Statement<'_> {
-    fn translate(self, translator: &mut Translator, idents: &mut BaseIdents, symbols: &Symbols) {
+impl<'source> Translate<'source> for thir::Statement<'source> {
+    fn translate(
+        self,
+        translator: &mut Translator<'source>,
+        idents: &mut BaseIdents,
+        symbols: &Symbols<'source>,
+    ) {
         match self {
             thir::Statement::Expr(expr_statement) => {
                 expr_statement.translate(translator, idents, symbols)
@@ -43,8 +48,13 @@ impl Translate for thir::Statement<'_> {
     }
 }
 
-impl Translate for thir::ExprStatement<'_> {
-    fn translate(self, translator: &mut Translator, idents: &mut BaseIdents, symbols: &Symbols) {
+impl<'source> Translate<'source> for thir::ExprStatement<'source> {
+    fn translate(
+        self,
+        translator: &mut Translator<'source>,
+        idents: &mut BaseIdents,
+        symbols: &Symbols<'source>,
+    ) {
         match self {
             thir::ExprStatement::Assign { var, rhs } => {
                 let result_id = translate_expr(rhs, translator, idents, symbols);
@@ -61,8 +71,13 @@ impl Translate for thir::ExprStatement<'_> {
     }
 }
 
-impl Translate for thir::IfStatement<'_> {
-    fn translate(self, translator: &mut Translator, idents: &mut BaseIdents, symbols: &Symbols) {
+impl<'source> Translate<'source> for thir::IfStatement<'source> {
+    fn translate(
+        self,
+        translator: &mut Translator<'source>,
+        idents: &mut BaseIdents,
+        symbols: &Symbols<'source>,
+    ) {
         let end_label = translator.next_label();
 
         if let Some(else_body) = self.else_body {
@@ -163,8 +178,13 @@ impl Translate for thir::IfStatement<'_> {
     }
 }
 
-impl Translate for thir::ReturnStatement<'_> {
-    fn translate(self, translator: &mut Translator, idents: &mut BaseIdents, symbols: &Symbols) {
+impl<'source> Translate<'source> for thir::ReturnStatement<'source> {
+    fn translate(
+        self,
+        translator: &mut Translator<'source>,
+        idents: &mut BaseIdents,
+        symbols: &Symbols<'source>,
+    ) {
         let value = self
             .value
             .map(|expr| translate_expr(expr, translator, idents, symbols))
@@ -174,8 +194,13 @@ impl Translate for thir::ReturnStatement<'_> {
     }
 }
 
-impl Translate for thir::WhileStatement<'_> {
-    fn translate(self, translator: &mut Translator, idents: &mut BaseIdents, symbols: &Symbols) {
+impl<'source> Translate<'source> for thir::WhileStatement<'source> {
+    fn translate(
+        self,
+        translator: &mut Translator<'source>,
+        idents: &mut BaseIdents,
+        symbols: &Symbols<'source>,
+    ) {
         let prev_code = mem::take(&mut translator.code);
 
         let mut phis = HashMap::default();
@@ -265,8 +290,13 @@ fn consider_phis(block: &Block, idents: &mut BaseIdents, phis: &mut HashMap<VarI
     }
 }
 
-impl Translate for thir::Block<'_> {
-    fn translate(self, translator: &mut Translator, idents: &mut BaseIdents, symbols: &Symbols) {
+impl<'source> Translate<'source> for thir::Block<'source> {
+    fn translate(
+        self,
+        translator: &mut Translator<'source>,
+        idents: &mut BaseIdents,
+        symbols: &Symbols<'source>,
+    ) {
         for statement in self.statements {
             statement.translate(translator, idents, symbols);
         }

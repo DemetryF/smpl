@@ -6,7 +6,6 @@ use smplc_lir::{Label, Phi};
 use crate::STACK_ALIGN;
 
 pub struct Env<'a> {
-    pub functions: &'a HashMap<ir::FunId, String>,
     pub labels: &'a HashMap<Label, String>,
     pub phis: &'a Vec<Phi>,
     constants: &'a HashMap<ir::Id, Operand>,
@@ -20,10 +19,8 @@ impl<'a> Env<'a> {
         constants: &'a HashMap<ir::Id, Operand>,
         labels: &'a HashMap<Label, String>,
         phis: &'a Vec<Phi>,
-        functions: &'a HashMap<ir::FunId, String>,
     ) -> Self {
         Self {
-            functions,
             labels,
             phis,
             constants,
