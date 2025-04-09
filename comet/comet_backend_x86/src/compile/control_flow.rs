@@ -1,7 +1,7 @@
 use std::fmt::Write;
 
-use smplc_lir::{ArithmOp, BinOp, Dims, F32sOp};
-use smplc_lir::{ControlFlow, Type};
+use comet_ir::{ArithmOp, BinOp, Dims, F32sOp};
+use comet_ir::{ControlFlow, Type};
 
 use crate::{builder::Builder, env::Env};
 

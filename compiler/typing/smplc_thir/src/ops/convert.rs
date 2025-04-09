@@ -1,5 +1,5 @@
+use comet_ir as lir;
 use smplc_hir::{self as hir, Type};
-use smplc_lir as lir;
 
 use super::{ArithmOp, BinOp, EqOp, LinearType, NumberType, OrdOp, VecOp, VecType};
 

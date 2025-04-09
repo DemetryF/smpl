@@ -6,7 +6,7 @@ use std::{
 use nalgebra::{Vector2, Vector3, Vector4};
 use num::Complex;
 
-use smplc_lir::Value;
+use comet_ir::Value;
 use smplc_thir::{self as thir, VecOp};
 use smplc_thir::{ArithmOp, NumberType, OrdOp};
 

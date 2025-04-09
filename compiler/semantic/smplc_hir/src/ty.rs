@@ -1,7 +1,7 @@
 use std::fmt;
 
+use comet_ir as lir;
 use smplc_ast::LiteralType;
-use smplc_lir as lir;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub enum Type {

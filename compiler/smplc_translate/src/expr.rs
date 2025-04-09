@@ -1,6 +1,6 @@
 use nalgebra::Vector2;
 
-use smplc_lir::{Atom, ControlFlow, Id, Sequental, Type, UnOp, Value};
+use comet_ir::{Atom, ControlFlow, Id, Sequental, Type, UnOp, Value};
 use smplc_thir::Symbols;
 use smplc_thir::{self as thir, VecOp};
 

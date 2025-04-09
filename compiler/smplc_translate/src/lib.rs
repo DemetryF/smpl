@@ -8,7 +8,7 @@ mod translator;
 
 use std::mem;
 
-use smplc_lir::{FunId, FunctionBody, LIR};
+use comet_ir::{FunId, FunctionBody, LIR};
 use smplc_thir::{Symbols, THIR};
 
 use const_eval::const_eval;

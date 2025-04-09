@@ -3,7 +3,7 @@ use std::{
     mem,
 };
 
-use smplc_lir::{Atom, ControlFlow, Id, Phi};
+use comet_ir::{Atom, ControlFlow, Id, Phi};
 use smplc_thir::{self as thir, Block};
 use smplc_thir::{Symbols, VarId};
 

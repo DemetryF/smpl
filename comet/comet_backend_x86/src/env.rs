@@ -1,7 +1,7 @@
 use std::{cmp::Ordering, collections::HashMap, fmt};
 
-use smplc_lir as ir;
-use smplc_lir::{Label, Phi};
+use comet_ir as ir;
+use comet_ir::{Label, Phi};
 
 use crate::STACK_ALIGN;
 

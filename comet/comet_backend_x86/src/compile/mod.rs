@@ -3,7 +3,7 @@ mod sequental;
 
 use std::fmt;
 
-use smplc_lir as lir;
+use comet_ir as lir;
 
 use crate::{
     builder::Builder,

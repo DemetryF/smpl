@@ -1,5 +1,5 @@
-use smplc_lir as lir;
-use smplc_lir::Dims;
+use comet_ir as lir;
+use comet_ir::Dims;
 
 mod convert;
 mod display;

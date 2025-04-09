@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use smplc_lir::{ArithmOp, BinOp, Dims, F32sOp, Id, Sequental, Type, UnOp};
+use comet_ir::{ArithmOp, BinOp, Dims, F32sOp, Id, Sequental, Type, UnOp};
 
 use crate::{
     builder::Builder,

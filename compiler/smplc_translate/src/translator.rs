@@ -1,6 +1,6 @@
 use std::collections::{HashMap, VecDeque};
 
-use smplc_lir::{Code, Label};
+use comet_ir::{Code, Label};
 
 #[derive(Default)]
 pub struct Translator<'source> {

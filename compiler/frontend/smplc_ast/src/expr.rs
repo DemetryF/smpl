@@ -1,6 +1,6 @@
 use crate::{BinOp, Spanned, UnOp};
 
-pub use smplc_lir::{Component, Swizzle};
+pub use comet_ir::{Component, Swizzle};
 
 #[derive(Debug, PartialEq)]
 pub enum Expr<'source> {

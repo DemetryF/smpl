@@ -3,7 +3,7 @@ use std::{
     fmt::{self, Write},
 };
 
-use smplc_lir as ir;
+use comet_ir as ir;
 
 use builder::Builder;
 use compile::{value, Compile};

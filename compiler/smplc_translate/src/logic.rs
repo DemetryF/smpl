@@ -1,4 +1,4 @@
-use smplc_lir::{ArithmOp, Atom, BinOp, ControlFlow, Label, Type, Value};
+use comet_ir::{ArithmOp, Atom, BinOp, ControlFlow, Label, Type, Value};
 use smplc_thir as thir;
 use smplc_thir::Symbols;
 

@@ -1,4 +1,4 @@
-use smplc_lir::{Atom, FunId, Id, Sequental};
+use comet_ir::{Atom, FunId, Id, Sequental};
 use smplc_thir as thir;
 use smplc_thir::Symbols;
 

@@ -1,6 +1,6 @@
 use std::{cell::Cell, collections::HashMap};
 
-use smplc_lir::{Id, Value, Type};
+use comet_ir::{Id, Value, Type};
 use smplc_thir::VarId;
 
 #[derive(Default)]
