@@ -16,8 +16,6 @@ members = [
 
     "comet/comet_ir",
     "comet/comet_backend_x86",
-
-    "utils/smplc_macros",
 ]
 
 resolver = "2"
