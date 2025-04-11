@@ -211,17 +211,17 @@ printc_L1:
 
         for block in function.code.blocks {
             if let Some(label) = block.label {
-                write!(builder, "{}:", lir.labels[&label])?;
+                writeln!(builder, "{}:", lir.labels[&label])?;
             }
 
             for instr in block.instructions {
-                write!(builder, "; {}", &instr)?;
+                writeln!(builder, "; {}", &instr)?;
 
                 instr.compile(&mut env, &mut builder)?;
             }
 
             if let Some(end) = block.end {
-                write!(builder, "; {}", &end)?;
+                writeln!(builder, "; {}", &end)?;
 
                 end.compile(&mut env, &mut builder)?;
             }

@@ -9,15 +9,15 @@ impl fmt::Display for Sequental<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Sequental::Assign { dst, value } => {
-                writeln!(f, "{dst} = {value}")
+                write!(f, "{dst} = {value}")
             }
 
             Sequental::Binary { dst, op, lhs, rhs } => {
-                writeln!(f, "{dst} = {op} {lhs}, {rhs}")
+                write!(f, "{dst} = {op} {lhs}, {rhs}")
             }
 
             Sequental::Unary { dst, op, operand } => {
-                writeln!(f, "{dst} = {op} {operand}")
+                write!(f, "{dst} = {op} {operand}")
             }
 
             Sequental::Call { dst, fun, args } => {
@@ -37,7 +37,7 @@ impl fmt::Display for Sequental<'_> {
                     write!(f, ", {ty} {arg}")?;
                 }
 
-                writeln!(f)
+                Ok(())
             }
         }
     }
@@ -52,11 +52,11 @@ impl fmt::Display for ControlFlow {
                 rhs,
                 label,
             } => {
-                writeln!(f, "if {op} {lhs}, {rhs} goto @{}", label.0)
+                write!(f, "if {op} {lhs}, {rhs} goto @{}", label.0)
             }
 
             ControlFlow::Goto { label } => {
-                writeln!(f, "goto {}", label.0)
+                write!(f, "goto {}", label.0)
             }
 
             ControlFlow::Return { value } => {
@@ -66,11 +66,11 @@ impl fmt::Display for ControlFlow {
                     write!(f, " {value}")?;
                 }
 
-                writeln!(f)
+                Ok(())
             }
 
             ControlFlow::Halt => {
-                writeln!(f, "halt")
+                write!(f, "halt")
             }
         }
     }
@@ -90,7 +90,7 @@ impl fmt::Display for Phi {
             write!(f, ", {}", branch)?;
         }
 
-        writeln!(f)
+        Ok(())
     }
 }
 
