@@ -87,7 +87,7 @@ pub fn generate_asm(code: &str, filename: &str, show_ir: bool) -> Result<String,
     let ir_code = translate(thir);
 
     if show_ir {
-        todo!()
+        print!("{ir_code}");
     }
 
     compile(ir_code).map_err(|_| ())

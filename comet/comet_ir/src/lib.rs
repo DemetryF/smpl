@@ -6,6 +6,7 @@ mod value;
 
 use std::collections::{BTreeMap, HashMap};
 
+pub use display::*;
 pub use instruction::*;
 pub use op::*;
 pub use value::*;

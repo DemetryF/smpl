@@ -1,9 +1,51 @@
-use std::fmt;
+use std::{collections::HashMap, fmt};
 
 use crate::{
-    ArithmOp, Atom, BinOp, Component, ControlFlow, F32sOp, FunId, Id, Phi, Sequental, Type, UnOp,
-    Value,
+    ArithmOp, Atom, BinOp, Component, ControlFlow, F32sOp, FunId, Id, Label, Phi, Sequental, Type,
+    UnOp, Value, LIR,
 };
+
+impl fmt::Display for LIR<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for (id, function) in &self.bodies {
+            write!(f, "fn {id}(")?;
+
+            let mut args = function.args.iter().copied();
+
+            if let Some(arg) = args.next() {
+                write!(f, "{arg}")?;
+            }
+
+            for arg in args {
+                write!(f, ", {arg}")?;
+            }
+
+            writeln!(f, ") {{")?;
+
+            for phi in &function.code.phis {
+                writeln!(f, "\t{phi}")?;
+            }
+
+            for block in &function.code.blocks {
+                if let Some(label) = &block.label {
+                    writeln!(f, "{}:", self.labels[label])?;
+                }
+
+                for instr in &block.instructions {
+                    writeln!(f, "\t{instr}")?;
+                }
+
+                if let &Some(instr) = &block.end {
+                    writeln!(f, "\t{}", ControlFlowDisplay(&self.labels, instr))?;
+                }
+            }
+
+            writeln!(f, "}}\n")?;
+        }
+
+        Ok(())
+    }
+}
 
 impl fmt::Display for Sequental<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -25,7 +67,7 @@ impl fmt::Display for Sequental<'_> {
                     write!(f, "{dst} = ")?;
                 }
 
-                write!(f, "call {fun}")?;
+                write!(f, "call {fun} ")?;
 
                 let mut args = args.iter();
 
@@ -43,20 +85,22 @@ impl fmt::Display for Sequental<'_> {
     }
 }
 
-impl fmt::Display for ControlFlow {
+pub struct ControlFlowDisplay<'a>(pub &'a HashMap<Label, String>, pub ControlFlow);
+
+impl fmt::Display for ControlFlowDisplay<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
+        match self.1 {
             ControlFlow::If {
                 lhs,
                 op,
                 rhs,
                 label,
             } => {
-                write!(f, "if {op} {lhs}, {rhs} goto @{}", label.0)
+                write!(f, "if {op} {lhs}, {rhs} goto {}", self.0[&label])
             }
 
             ControlFlow::Goto { label } => {
-                write!(f, "goto {}", label.0)
+                write!(f, "goto {}", self.0[&label])
             }
 
             ControlFlow::Return { value } => {
@@ -78,7 +122,7 @@ impl fmt::Display for ControlFlow {
 
 impl fmt::Display for Phi {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} = ", self.dst)?;
+        write!(f, "{} = phi ", self.dst)?;
 
         let mut branches = self.branches.iter();
 

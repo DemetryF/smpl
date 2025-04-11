@@ -3,7 +3,7 @@ use std::{
     fmt::{self, Write},
 };
 
-use comet_ir as ir;
+use comet_ir::{self as ir, ControlFlowDisplay};
 
 use builder::Builder;
 use compile::{value, Compile};
@@ -221,7 +221,7 @@ printc_L1:
             }
 
             if let Some(end) = block.end {
-                writeln!(builder, "; {}", &end)?;
+                writeln!(builder, "; {}", ControlFlowDisplay(&env.labels, end))?;
 
                 end.compile(&mut env, &mut builder)?;
             }
