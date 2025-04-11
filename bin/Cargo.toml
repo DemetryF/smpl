@@ -6,14 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-smplc_parse = { path = "../compiler/frontend/smplc_parse" }
-smplc_lexer = { path = "../compiler/frontend/smplc_lexer" }
-smplc_ast = { path = "../compiler/frontend/smplc_ast" }
-
-smplc_semcheck = { path = "../compiler/semantic/smplc_semcheck" }
-smplc_typecheck = { path = "../compiler/typing/smplc_typecheck" }
-smplc_translate = { path = "../compiler/smplc_translate" }
-
+smplc_lexer = { workspace = true }
+smplc_ast = { workspace = true }
+smplc_parse = { workspace = true }
+smplc_semcheck = { workspace = true }
+smplc_typecheck = { workspace = true }
+smplc_translate = { workspace = true }
 comet_backend_x86 = { workspace = true }
 
 clap = { version = "4.2.5", features = ["derive"] }

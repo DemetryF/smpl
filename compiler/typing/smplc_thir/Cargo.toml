@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-smplc_hir = { path = "../../semantic/smplc_hir" }
-smplc_ast = { path = "../../frontend/smplc_ast" }
+smplc_hir = { workspace = true }
+smplc_ast = { workspace = true }
 comet_ir = { workspace = true }

@@ -23,5 +23,17 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
+smplc_lexer = { path = "compiler/frontend/smplc_lexer" }
+smplc_ast = { path = "compiler/frontend/smplc_ast" }
+smplc_parse = { path = "compiler/frontend/smplc_parse" }
+
+smplc_hir = { path = "compiler/semantic/smplc_hir" }
+smplc_semcheck = { path = "compiler/semantic/smplc_semcheck" }
+
+smplc_thir = { path = "compiler/typing/smplc_thir" }
+smplc_typecheck = { path = "compiler/typing/smplc_typecheck" }
+
+smplc_translate = { path = "compiler/smplc_translate" }
+
 comet_ir = { path = "comet/comet_ir" }
 comet_backend_x86 = { path = "comet/comet_backend_x86" }

@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-smplc_ast = { path = "../../frontend/smplc_ast" }
-smplc_hir = { path = "../../semantic/smplc_hir" }
-smplc_thir = { path = "../smplc_thir" }
+smplc_ast = { workspace = true }
+smplc_hir = { workspace = true }
+smplc_thir = { workspace = true }
