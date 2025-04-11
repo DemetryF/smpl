@@ -12,6 +12,7 @@ pub use op::*;
 pub use value::*;
 
 pub struct LIR<'f> {
+    pub signatures: BTreeMap<FunId<'f>, FunctionSignature>,
     pub bodies: BTreeMap<FunId<'f>, FunctionBody<'f>>,
     pub constants: HashMap<Id, Value>,
     pub labels: HashMap<Label, String>,
@@ -19,6 +20,10 @@ pub struct LIR<'f> {
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FunId<'f>(pub &'f str);
+
+pub struct FunctionSignature {
+    pub ret_ty: Option<Type>,
+}
 
 pub struct FunctionBody<'f> {
     pub args: Vec<Id>,

@@ -33,6 +33,12 @@ pub fn translate<'source>(thir: THIR<'source>) -> LIR<'source> {
         idents.constants.insert(id, value);
     }
 
+    let signatures = symbols
+        .functions
+        .iter()
+        .map(|(_, data)| (FunId(data.id.0), data.ret_ty))
+        .collect();
+
     let bodies = functions
         .into_iter()
         .map(|fun| {
