@@ -35,7 +35,7 @@ pub enum Atom<'source> {
 
 pub type Id<'source> = Spanned<&'source str>;
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub struct Literal<'source> {
     pub value: &'source str,
     pub ty: LiteralType,

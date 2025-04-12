@@ -25,6 +25,7 @@ pub enum Expr<'source> {
     Atom(Atom<'source>),
 }
 
+#[derive(Clone, Copy)]
 pub enum Atom<'source> {
     Var(VarId),
     Literal(Literal<'source>),
