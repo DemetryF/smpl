@@ -20,12 +20,12 @@ pub fn translate_call<'source>(
         .map(|(arg, &ty)| {
             let arg = translate_expr(arg, translator, idents, symbols);
 
-            // FIXME call arg can also be a number
+            // FIXME call arg can also be a value
             (Atom::Id(arg), ty.into())
         })
         .collect();
 
-    let fun = FunId(fun_data.id.0);
+    let fun = FunId::new(fun_data.id.0, fun_data.ret_ty.map(Into::into));
 
     translator.code.push(Sequental::Call { dst, fun, args })
 }

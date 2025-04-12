@@ -50,8 +50,8 @@ impl fmt::Display for LIR<'_> {
 impl fmt::Display for Sequental<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Sequental::Assign { dst, value } => {
-                write!(f, "{dst} = {value}")
+            Sequental::Assign { dst, ty, value } => {
+                write!(f, "{dst} = {ty} {value}")
             }
 
             Sequental::Binary { dst, op, lhs, rhs } => {
@@ -106,8 +106,8 @@ impl fmt::Display for ControlFlowDisplay<'_> {
             ControlFlow::Return { value } => {
                 write!(f, "return")?;
 
-                if let Some(value) = value {
-                    write!(f, " {value}")?;
+                if let Some((ty, value)) = value {
+                    write!(f, "{ty} {value}")?;
                 }
 
                 Ok(())
@@ -196,7 +196,7 @@ impl fmt::Display for Id {
 
 impl fmt::Display for FunId<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{}", self.name)
     }
 }
 

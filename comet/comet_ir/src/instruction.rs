@@ -27,6 +27,7 @@ impl From<Phi> for Instruction<'_> {
 pub enum Sequental<'f> {
     Assign {
         dst: Id,
+        ty: Type,
         value: Atom,
     },
     Binary {
@@ -47,6 +48,17 @@ pub enum Sequental<'f> {
     },
 }
 
+impl Sequental<'_> {
+    pub fn dst_and_ty(&self) -> Option<(Id, Type)> {
+        match self {
+            &Self::Assign { dst, ty, .. } => Some((dst, ty)),
+            &Self::Binary { dst, op, .. } => Some((dst, op.ty())),
+            &Self::Unary { dst, op, .. } => Some((dst, op.ty())),
+            &Self::Call { dst, fun, .. } => dst.zip(fun.ret_ty()),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Phi {
     pub dst: Id,
@@ -65,7 +77,7 @@ pub enum ControlFlow {
         label: Label,
     },
     Return {
-        value: Option<Atom>,
+        value: Option<(Type, Atom)>,
     },
     Halt,
 }
@@ -85,15 +97,6 @@ pub enum Atom {
     Id(Id),
 }
 
-impl Atom {
-    pub fn ty(self) -> Type {
-        match self {
-            Atom::Value(value) => value.ty(),
-            Atom::Id(id) => id.ty(),
-        }
-    }
-}
-
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Label(pub(crate) usize);
 
@@ -104,14 +107,10 @@ impl Label {
 }
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
-pub struct Id(pub(crate) usize, Type);
+pub struct Id(pub(crate) usize);
 
 impl Id {
-    pub fn new(id: usize, ty: Type) -> Self {
-        Self(id, ty)
-    }
-
-    pub fn ty(self) -> Type {
-        self.1
+    pub fn new(id: usize) -> Self {
+        Self(id)
     }
 }

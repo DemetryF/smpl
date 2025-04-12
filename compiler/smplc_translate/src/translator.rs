@@ -5,7 +5,6 @@ use comet_ir::{Code, Label};
 #[derive(Default)]
 pub struct Translator<'source> {
     pub code: Code<'source>,
-
     pub labels: HashMap<Label, String>,
     labels_count: usize,
 

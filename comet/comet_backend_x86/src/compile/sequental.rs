@@ -13,20 +13,15 @@ use super::Compile;
 
 impl Compile for Sequental<'_> {
     fn compile(self, env: &mut Env, builder: &mut Builder) -> fmt::Result {
-        let dst = match self {
-            Sequental::Assign { dst, .. }
-            | Sequental::Binary { dst, .. }
-            | Sequental::Unary { dst, .. } => Some(dst),
-            Sequental::Call { dst, .. } => dst,
-        };
+        let dst_and_ty = self.dst_and_ty();
 
         match self {
-            Sequental::Assign { dst, value } => {
+            Sequental::Assign { dst, ty, value } => {
                 let result_ptr = env.get_or_add(dst);
 
                 let value = atom(env, builder, value);
 
-                match dst.ty() {
+                match ty {
                     Type::Int => {
                         writeln!(builder, "mov eax, {value}")?;
                         writeln!(builder, "mov {result_ptr}, eax")?;
@@ -272,40 +267,34 @@ impl Compile for Sequental<'_> {
 
                 if let Some(dst) = dst {
                     let result_ptr = env.get_or_add(dst);
+                    let ret_ty = fun.ret_ty().unwrap();
 
-                    match dst.ty() {
-                        Type::Real => {
-                            writeln!(builder, "movups {result_ptr}, xmm0")?;
+                    match ret_ty {
+                        Type::Real | Type::F32x2 | Type::F32x3 | Type::F32x4 => {
+                            writeln!(builder, "movaps {result_ptr}, xmm0")?;
                         }
                         Type::Int => {
                             writeln!(builder, "mov {result_ptr}, eax")?;
-                        }
-                        _ => {
-                            writeln!(builder, "movaps {result_ptr}, xmm0")?;
                         }
                     }
                 }
             }
         }
 
-        if let Some(dst) = dst {
+        if let Some((dst, ty)) = dst_and_ty {
             let dst_address = env.get(dst);
 
             if let Some(phi_dst_ptr) = add_phi(dst, env, None) {
                 let phi_dst_ptr = Address::Stack(phi_dst_ptr);
 
-                match dst.ty() {
-                    Type::Real => {
+                match ty {
+                    Type::Real | Type::F32x2 | Type::F32x3 | Type::F32x4 => {
                         writeln!(builder, "movups xmm0, {dst_address}")?;
-                        writeln!(builder, "movups {phi_dst_ptr}, xmm0")?;
+                        writeln!(builder, "movaps {phi_dst_ptr}, xmm0")?;
                     }
                     Type::Int => {
                         writeln!(builder, "mov eax, {dst_address}")?;
                         writeln!(builder, "mov {phi_dst_ptr}, eax")?;
-                    }
-                    _ => {
-                        writeln!(builder, "movaps xmm0, {dst_address}")?;
-                        writeln!(builder, "movaps {phi_dst_ptr}, xmm0")?;
                     }
                 }
             }

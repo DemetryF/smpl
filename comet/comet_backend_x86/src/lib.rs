@@ -35,7 +35,7 @@ extern printf"
     writeln!(builder, include_str!("std.nasm"))?;
 
     for (id, function) in lir.bodies {
-        let mut env = Env::new(&constants, &lir.labels, &function.code.phis);
+        let mut env = Env::new(&lir.labels, &function.code.phis, &constants);
 
         writeln!(builder, "{id}:")?;
         writeln!(builder, "push rbp")?;

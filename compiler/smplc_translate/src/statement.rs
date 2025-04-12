@@ -130,7 +130,7 @@ impl<'source> Translate<'source> for thir::IfStatement<'source> {
                     (Some(a), Some(&b), None)
                     | (Some(a), None, Some(&b))
                     | (_, Some(&a), Some(&b)) => {
-                        let new_id = idents.next(a.ty());
+                        let new_id = idents.next();
 
                         translator.code.push(Phi {
                             dst: new_id,
@@ -160,7 +160,7 @@ impl<'source> Translate<'source> for thir::IfStatement<'source> {
 
             for (var, alt) in then_idents {
                 if let Some(prev) = idents.try_get(var) {
-                    let new = idents.next(alt.ty());
+                    let new = idents.next();
 
                     translator.code.push(Phi {
                         dst: new,
@@ -187,8 +187,8 @@ impl<'source> Translate<'source> for thir::ReturnStatement<'source> {
     ) {
         let value = self
             .value
-            .map(|expr| translate_expr(expr, translator, idents, symbols))
-            .map(Atom::Id);
+            .map(|expr| Atom::Id(translate_expr(expr, translator, idents, symbols)))
+            .map(|value| (symbols.functions[self.fun].ret_ty.unwrap().into(), value));
 
         translator.code.push(ControlFlow::Return { value });
     }
@@ -266,8 +266,8 @@ fn consider_phis(block: &Block, idents: &mut BaseIdents, phis: &mut HashMap<VarI
                     continue;
                 }
 
-                if let Some(id) = idents.try_get(var) {
-                    let id = idents.next(id.ty());
+                if idents.try_get(var).is_some() {
+                    let id = idents.next();
                     phis.insert(var, id);
                 }
             }

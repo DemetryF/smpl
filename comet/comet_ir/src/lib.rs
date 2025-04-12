@@ -4,7 +4,10 @@ mod display;
 mod op;
 mod value;
 
-use std::collections::{BTreeMap, HashMap};
+use std::{
+    cmp,
+    collections::{BTreeMap, HashMap},
+};
 
 pub use display::*;
 pub use instruction::*;
@@ -12,17 +15,37 @@ pub use op::*;
 pub use value::*;
 
 pub struct LIR<'f> {
-    pub signatures: BTreeMap<FunId<'f>, FunctionSignature>,
     pub bodies: BTreeMap<FunId<'f>, FunctionBody<'f>>,
     pub constants: HashMap<Id, Value>,
     pub labels: HashMap<Label, String>,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub struct FunId<'f>(pub &'f str);
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct FunId<'f> {
+    pub name: &'f str,
+    ret_ty: Option<Type>,
+}
 
-pub struct FunctionSignature {
-    pub ret_ty: Option<Type>,
+impl<'f> FunId<'f> {
+    pub fn new(name: &'f str, ret_ty: Option<Type>) -> Self {
+        Self { name, ret_ty }
+    }
+
+    pub fn ret_ty(self) -> Option<Type> {
+        self.ret_ty
+    }
+}
+
+impl PartialOrd for FunId<'_> {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        self.name.partial_cmp(&other.name)
+    }
+}
+
+impl Ord for FunId<'_> {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        self.name.cmp(other.name)
+    }
 }
 
 pub struct FunctionBody<'f> {

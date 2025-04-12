@@ -1,7 +1,6 @@
 use std::{cmp::Ordering, collections::HashMap, fmt};
 
-use comet_ir as ir;
-use comet_ir::{Label, Phi};
+use comet_ir::{self as ir, Label, Phi};
 
 use crate::STACK_ALIGN;
 
@@ -16,9 +15,9 @@ pub struct Env<'a> {
 
 impl<'a> Env<'a> {
     pub fn new(
-        constants: &'a HashMap<ir::Id, Operand>,
         labels: &'a HashMap<Label, String>,
         phis: &'a Vec<Phi>,
+        constants: &'a HashMap<ir::Id, Operand>,
     ) -> Self {
         Self {
             labels,

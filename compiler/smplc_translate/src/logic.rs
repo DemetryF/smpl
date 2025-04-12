@@ -1,4 +1,4 @@
-use comet_ir::{ArithmOp, Atom, BinOp, ControlFlow, Label, Type, Value};
+use comet_ir::{ArithmOp, Atom, BinOp, ControlFlow, Label, Value};
 use smplc_thir as thir;
 use smplc_thir::Symbols;
 
@@ -74,13 +74,13 @@ pub fn translate_logic<'source>(
         }
 
         thir::Expr::Call { fun, args } => {
-            let result = idents.next(Type::Int);
+            let result = idents.next();
 
             translate_call(translator, idents, symbols, Some(result), fun, args);
 
             translator.code.push(ControlFlow::If {
-                lhs: Atom::Id(result),
                 op: BinOp::Int(ArithmOp::Eq),
+                lhs: Atom::Id(result),
                 rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });
@@ -94,8 +94,8 @@ pub fn translate_logic<'source>(
             let value = translate_atom(atom, idents);
 
             translator.code.push(ControlFlow::If {
-                lhs: value,
                 op: BinOp::Int(ArithmOp::Eq),
+                lhs: value,
                 rhs: Atom::Value(Value::Int(1)),
                 label: true_label,
             });

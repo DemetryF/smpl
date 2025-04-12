@@ -28,7 +28,7 @@ impl Compile for ControlFlow {
                         | ArithmOp::Gt
                         | ArithmOp::Ge),
                     ) => {
-                        let cc = match op {
+                        let cond = match op {
                             ArithmOp::Eq => "e",
                             ArithmOp::Ne => "ne",
                             ArithmOp::Lt => "l",
@@ -40,7 +40,7 @@ impl Compile for ControlFlow {
 
                         writeln!(builder, "mov eax, {lhs}")?;
                         writeln!(builder, "cmp eax, {rhs}")?;
-                        writeln!(builder, "j{cc} {}", env.labels[&label])?;
+                        writeln!(builder, "j{cond} {}", env.labels[&label])?;
                     }
 
                     BinOp::Real(op) => {
@@ -60,7 +60,7 @@ impl Compile for ControlFlow {
                     }
 
                     BinOp::F32s(dims, op @ (F32sOp::Eq | F32sOp::Ne)) => {
-                        let cc = match op {
+                        let cond = match op {
                             F32sOp::Eq => "e",
                             F32sOp::Ne => "ne",
                             _ => unreachable!(),
@@ -78,7 +78,7 @@ impl Compile for ControlFlow {
                         writeln!(builder, "movmskps eax, xmm0")?;
                         writeln!(builder, "and eax, {mask}")?;
                         writeln!(builder, "cmp eax, {mask}")?;
-                        writeln!(builder, "j{cc} {}", env.labels[&label])?;
+                        writeln!(builder, "j{cond} {}", env.labels[&label])?;
                     }
 
                     _ => unreachable!(),
@@ -90,19 +90,15 @@ impl Compile for ControlFlow {
             }
 
             ControlFlow::Return { value } => {
-                if let Some(operand) = value {
-                    let ty = operand.ty();
+                if let Some((ty, operand)) = value {
                     let operand = atom(env, builder, operand);
 
                     match ty {
-                        Type::Real => {
-                            writeln!(builder, "movss xmm0, {operand}")?;
+                        Type::Real | Type::F32x2 | Type::F32x3 | Type::F32x4 => {
+                            writeln!(builder, "movups xmm0, {operand}")?;
                         }
                         Type::Int => {
                             writeln!(builder, "mov eax, {operand}")?;
-                        }
-                        _ => {
-                            writeln!(builder, "movaps xmm0, {operand}")?;
                         }
                     }
                 }

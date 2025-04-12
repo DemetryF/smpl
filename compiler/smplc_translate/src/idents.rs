@@ -1,6 +1,6 @@
 use std::{cell::Cell, collections::HashMap};
 
-use comet_ir::{Id, Value, Type};
+use comet_ir::{Id, Value};
 use smplc_thir::VarId;
 
 #[derive(Default)]
@@ -33,19 +33,19 @@ impl<'p> BaseIdents<'p> {
             .or_else(|| self.parent.and_then(|parent| parent.try_get(var)))
     }
 
-    pub fn add(&mut self, var: VarId, ty: Type) -> Id {
-        let id = self.next(ty);
+    pub fn add(&mut self, var: VarId) -> Id {
+        let id = self.next();
 
         self.set(var, id);
 
         id
     }
 
-    pub fn next(&self, ty: Type) -> Id {
+    pub fn next(&self) -> Id {
         if let Some(parent) = self.parent.as_deref() {
-            parent.next(ty)
+            parent.next()
         } else {
-            let id = Id::new(self.counter.get(), ty);
+            let id = Id::new(self.counter.get());
 
             self.counter.set(self.counter.get() + 1);
 

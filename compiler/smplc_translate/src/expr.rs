@@ -29,11 +29,12 @@ pub fn translate_expr<'source>(
 
             translate_logic(expr, translator, idents, symbols, true_label, false_label);
 
-            let result = idents.next(Type::Int);
+            let result = idents.next();
 
             translator.code.label(true_label);
             translator.code.push(Sequental::Assign {
                 dst: result,
+                ty: Type::Int,
                 value: Atom::Value(Value::Int(1)),
             });
             translator.code.push(ControlFlow::Goto { label: end_label });
@@ -41,6 +42,7 @@ pub fn translate_expr<'source>(
             translator.code.label(false_label);
             translator.code.push(Sequental::Assign {
                 dst: result,
+                ty: Type::Int,
                 value: Atom::Value(Value::Int(0)),
             });
 
@@ -53,7 +55,7 @@ pub fn translate_expr<'source>(
             let mut lhs = translate_expr(*lhs, translator, idents, symbols);
             let mut rhs = translate_expr(*rhs, translator, idents, symbols);
 
-            let result = idents.next(op.ty());
+            let result = idents.next();
 
             if let thir::BinOp::Vec(VecOp::LeftMul, _) = op {
                 std::mem::swap(&mut lhs, &mut rhs);
@@ -77,7 +79,7 @@ pub fn translate_expr<'source>(
 
             let rhs = translate_expr(*rhs, translator, idents, symbols);
 
-            let result = idents.next(ty);
+            let result = idents.next();
 
             translator.code.push(Sequental::Unary {
                 dst: result,
@@ -91,15 +93,7 @@ pub fn translate_expr<'source>(
         thir::Expr::Swizzle { lhs, swizzle } => {
             let lhs = translate_expr(*lhs, translator, idents, symbols);
 
-            let ty = match swizzle.as_slice().len() {
-                1 => Type::Real,
-                2 => Type::F32x2,
-                3 => Type::F32x3,
-                4 => Type::F32x4,
-                _ => unreachable!(),
-            };
-
-            let result = idents.next(ty);
+            let result = idents.next();
 
             translator.code.push(Sequental::Unary {
                 dst: result,
@@ -111,9 +105,7 @@ pub fn translate_expr<'source>(
         }
 
         thir::Expr::Call { fun, args } => {
-            let ret_ty = symbols.functions[fun].ret_ty.unwrap();
-
-            let result = idents.next(ret_ty.into());
+            let result = idents.next();
 
             translate_call(translator, idents, symbols, Some(result), fun, args);
 
@@ -123,11 +115,18 @@ pub fn translate_expr<'source>(
         thir::Expr::Atom(atom) => {
             let value = translate_atom(atom, idents);
 
-            let result = idents.next(value.ty());
+            let result = idents.next();
 
-            translator
-                .code
-                .push(Sequental::Assign { dst: result, value });
+            let ty = match atom {
+                thir::Atom::Var(id) => symbols.variables[id].ty.into(),
+                thir::Atom::Literal(literal) => thir::Type::from(literal.ty).into(),
+            };
+
+            translator.code.push(Sequental::Assign {
+                dst: result,
+                ty,
+                value,
+            });
 
             result
         }

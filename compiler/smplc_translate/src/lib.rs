@@ -9,7 +9,7 @@ mod translator;
 use std::mem;
 
 use comet_ir::{FunId, FunctionBody, LIR};
-use smplc_thir::{Symbols, THIR};
+use smplc_thir::{FunData, Symbols, THIR};
 
 use const_eval::const_eval;
 use idents::BaseIdents;
@@ -28,25 +28,15 @@ pub fn translate<'source>(thir: THIR<'source>) -> LIR<'source> {
     for constant in constants {
         let value = const_eval(constant.value, &idents);
 
-        let id = idents.next(constant.ty.into());
+        let id = idents.next();
 
         idents.constants.insert(id, value);
     }
 
-    let signatures = symbols
-        .functions
-        .iter()
-        .map(|(_, data)| (FunId(data.id.0), data.ret_ty))
-        .collect();
-
     let bodies = functions
         .into_iter()
         .map(|fun| {
-            let args = fun
-                .args
-                .into_iter()
-                .map(|var| idents.add(var, symbols.variables[var].ty.into()))
-                .collect();
+            let args = fun.args.into_iter().map(|var| idents.add(var)).collect();
 
             fun.body.translate(&mut translator, &mut idents, &symbols);
 
@@ -55,7 +45,7 @@ pub fn translate<'source>(thir: THIR<'source>) -> LIR<'source> {
                 code: mem::take(&mut translator.code),
             };
 
-            let id = FunId(symbols.functions[fun.id].id.0);
+            let id = fun_id(&symbols.functions[fun.id]);
 
             (id, function)
         })
@@ -75,4 +65,8 @@ trait Translate<'source> {
         idents: &mut BaseIdents,
         symbols: &Symbols<'source>,
     );
+}
+
+pub fn fun_id<'source>(data: &FunData<'source>) -> FunId<'source> {
+    FunId::new(data.id.0, data.ret_ty.map(Into::into))
 }
