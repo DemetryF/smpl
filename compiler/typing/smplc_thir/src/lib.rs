@@ -62,6 +62,7 @@ pub struct IfStatement<'source> {
 }
 
 pub struct ReturnStatement<'source> {
+    pub fun: FunId,
     pub value: Option<Expr<'source>>,
 }
 

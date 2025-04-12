@@ -136,7 +136,10 @@ impl<'source> SemCheck<'source> for ast::ReturnStatement<'source> {
     ) -> SemResult<'source, Self::Checked> {
         let value = self.value.map(|expr| expr.check(env, inited)).transpose()?;
 
-        Ok(ReturnStatement { value })
+        Ok(ReturnStatement {
+            fun: env.current_fn.unwrap(),
+            value,
+        })
     }
 }
 

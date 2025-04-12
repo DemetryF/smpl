@@ -25,6 +25,7 @@ impl<'source> Typed<'source> for hir::Statement<'source> {
 
             hir::Statement::Return(return_statement) => {
                 return Statement::Return(ReturnStatement {
+                    fun: return_statement.fun,
                     value: return_statement.value.map(|expr| expr.0.typed(symbols)),
                 });
             }

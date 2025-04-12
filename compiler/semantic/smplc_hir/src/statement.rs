@@ -1,6 +1,6 @@
 use smplc_ast::Spanned;
 
-use crate::{Block, Expr, VarId};
+use crate::{Block, Expr, FunId, VarId};
 
 pub enum Statement<'source> {
     Expr(ExprStatement<'source>),
@@ -26,6 +26,7 @@ pub struct IfStatement<'source> {
 }
 
 pub struct ReturnStatement<'source> {
+    pub fun: FunId,
     pub value: Option<Spanned<Expr<'source>>>,
 }
 
