@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use comet_ir::{ArithmOp, BinOp, Dims, F32sOp, Id, Sequental, Type, UnOp};
+use comet_ir::{ArithmOp, BinOp, Dims, EqOp, F32sOp, Id, RelOp, Sequental, Type, UnOp};
 
 use crate::{
     builder::Builder,
@@ -60,22 +60,14 @@ impl Compile for Sequental<'_> {
                         writeln!(builder, "mov {res}, eax")?;
                     }
 
-                    BinOp::Int(
-                        op @ (ArithmOp::Eq
-                        | ArithmOp::Ne
-                        | ArithmOp::Lt
-                        | ArithmOp::Le
-                        | ArithmOp::Gt
-                        | ArithmOp::Ge),
-                    ) => {
+                    BinOp::IntRel(op) => {
                         let cc = match op {
-                            ArithmOp::Eq => "e",
-                            ArithmOp::Ne => "ne",
-                            ArithmOp::Lt => "l",
-                            ArithmOp::Le => "le",
-                            ArithmOp::Gt => "g",
-                            ArithmOp::Ge => "ge",
-                            _ => unreachable!(),
+                            RelOp::Eq => "e",
+                            RelOp::Ne => "ne",
+                            RelOp::Lt => "l",
+                            RelOp::Le => "le",
+                            RelOp::Gt => "g",
+                            RelOp::Ge => "ge",
                         };
 
                         writeln!(builder, "mov eax, {lhs}")?;
@@ -83,15 +75,12 @@ impl Compile for Sequental<'_> {
                         writeln!(builder, "set{cc} {res}")?;
                     }
 
-                    BinOp::Real(
-                        op @ (ArithmOp::Add | ArithmOp::Sub | ArithmOp::Mul | ArithmOp::Div),
-                    ) => {
+                    BinOp::Real(op) => {
                         let instr = match op {
                             ArithmOp::Add => "addss",
                             ArithmOp::Sub => "subss",
                             ArithmOp::Mul => "mulss",
                             ArithmOp::Div => "divss",
-                            _ => unreachable!(),
                         };
 
                         writeln!(builder, "movss xmm0, {lhs}")?;
@@ -99,22 +88,14 @@ impl Compile for Sequental<'_> {
                         writeln!(builder, "movss {res}, xmm0")?;
                     }
 
-                    BinOp::Real(
-                        op @ (ArithmOp::Eq
-                        | ArithmOp::Ne
-                        | ArithmOp::Lt
-                        | ArithmOp::Le
-                        | ArithmOp::Gt
-                        | ArithmOp::Ge),
-                    ) => {
+                    BinOp::RealRel(op) => {
                         let cc = match op {
-                            ArithmOp::Eq => "e",
-                            ArithmOp::Ne => "ne",
-                            ArithmOp::Lt => "b",
-                            ArithmOp::Le => "be",
-                            ArithmOp::Gt => "a",
-                            ArithmOp::Ge => "ae",
-                            _ => unreachable!(),
+                            RelOp::Eq => "e",
+                            RelOp::Ne => "ne",
+                            RelOp::Lt => "b",
+                            RelOp::Le => "be",
+                            RelOp::Gt => "a",
+                            RelOp::Ge => "ae",
                         };
 
                         writeln!(builder, "movss xmm0, {lhs}")?;
@@ -148,11 +129,10 @@ impl Compile for Sequental<'_> {
                         writeln!(builder, "movaps {res}, xmm0")?;
                     }
 
-                    BinOp::F32s(dims, op @ (F32sOp::Eq | F32sOp::Ne)) => {
+                    BinOp::F32sRel(dims, op) => {
                         let cc = match op {
-                            F32sOp::Eq => "e",
-                            F32sOp::Ne => "ne",
-                            _ => unreachable!(),
+                            EqOp::Eq => "e",
+                            EqOp::Ne => "ne",
                         };
 
                         let mask = match dims {

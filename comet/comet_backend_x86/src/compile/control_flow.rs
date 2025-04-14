@@ -1,7 +1,6 @@
 use std::fmt::Write;
 
-use comet_ir::{ArithmOp, BinOp, Dims, F32sOp};
-use comet_ir::{ControlFlow, Type};
+use comet_ir::{BinOp, ControlFlow, Dims, EqOp, RelOp, Type};
 
 use crate::{builder::Builder, env::Env};
 
@@ -20,22 +19,14 @@ impl Compile for ControlFlow {
                 let rhs = atom(env, builder, rhs);
 
                 match op {
-                    BinOp::Int(
-                        op @ (ArithmOp::Eq
-                        | ArithmOp::Ne
-                        | ArithmOp::Lt
-                        | ArithmOp::Le
-                        | ArithmOp::Gt
-                        | ArithmOp::Ge),
-                    ) => {
+                    BinOp::IntRel(op) => {
                         let cond = match op {
-                            ArithmOp::Eq => "e",
-                            ArithmOp::Ne => "ne",
-                            ArithmOp::Lt => "l",
-                            ArithmOp::Le => "le",
-                            ArithmOp::Gt => "g",
-                            ArithmOp::Ge => "ge",
-                            _ => unreachable!(),
+                            RelOp::Eq => "e",
+                            RelOp::Ne => "ne",
+                            RelOp::Lt => "l",
+                            RelOp::Le => "le",
+                            RelOp::Gt => "g",
+                            RelOp::Ge => "ge",
                         };
 
                         writeln!(builder, "mov eax, {lhs}")?;
@@ -43,27 +34,25 @@ impl Compile for ControlFlow {
                         writeln!(builder, "j{cond} {}", env.labels[&label])?;
                     }
 
-                    BinOp::Real(op) => {
-                        let cc = match op {
-                            ArithmOp::Eq => "e",
-                            ArithmOp::Ne => "ne",
-                            ArithmOp::Lt => "b",
-                            ArithmOp::Le => "be",
-                            ArithmOp::Gt => "a",
-                            ArithmOp::Ge => "ae",
-                            _ => unreachable!(),
+                    BinOp::RealRel(op) => {
+                        let cond = match op {
+                            RelOp::Eq => "e",
+                            RelOp::Ne => "ne",
+                            RelOp::Lt => "b",
+                            RelOp::Le => "be",
+                            RelOp::Gt => "a",
+                            RelOp::Ge => "ae",
                         };
 
                         writeln!(builder, "movss xmm0, {lhs}")?;
                         writeln!(builder, "ucomiss xmm0, {rhs}")?;
-                        writeln!(builder, "j{cc} {}", env.labels[&label])?;
+                        writeln!(builder, "j{cond} {}", env.labels[&label])?;
                     }
 
-                    BinOp::F32s(dims, op @ (F32sOp::Eq | F32sOp::Ne)) => {
+                    BinOp::F32sRel(dims, op) => {
                         let cond = match op {
-                            F32sOp::Eq => "e",
-                            F32sOp::Ne => "ne",
-                            _ => unreachable!(),
+                            EqOp::Eq => "e",
+                            EqOp::Ne => "ne",
                         };
 
                         let mask = match dims {

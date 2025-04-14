@@ -1,8 +1,8 @@
 use std::{collections::HashMap, fmt};
 
 use crate::{
-    ArithmOp, Atom, BinOp, Component, ControlFlow, F32sOp, FunId, Id, Label, Phi, Sequental, Type,
-    UnOp, Value, LIR,
+    ArithmOp, Atom, BinOp, Component, ControlFlow, EqOp, F32sOp, FunId, Id, Label, Phi, RelOp,
+    Sequental, Type, UnOp, Value, LIR,
 };
 
 impl fmt::Display for LIR<'_> {
@@ -208,6 +208,9 @@ impl fmt::Display for BinOp {
             &BinOp::F32s(dims, op) => write!(f, "f32x{dims}.{op}", dims = dims as usize),
             BinOp::ComplexMul => write!(f, "f32x2.complex_mul"),
             BinOp::ComplexDiv => write!(f, "f32x2.complex_div"),
+            BinOp::IntRel(op) => write!(f, "int.{op}"),
+            BinOp::RealRel(op) => write!(f, "real.{op}"),
+            &BinOp::F32sRel(dims, op) => write!(f, "f32x{dims}.{op}", dims = dims as usize),
         }
     }
 }
@@ -219,6 +222,13 @@ impl fmt::Display for ArithmOp {
             Self::Sub => write!(f, "-"),
             Self::Mul => write!(f, "*"),
             Self::Div => write!(f, "/"),
+        }
+    }
+}
+
+impl fmt::Display for RelOp {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
             Self::Eq => write!(f, "=="),
             Self::Ne => write!(f, "!="),
             Self::Lt => write!(f, "<"),
@@ -236,6 +246,13 @@ impl fmt::Display for F32sOp {
             Self::Sub => write!(f, "-"),
             Self::ScalarMul => write!(f, "scalar_mul"),
             Self::ScalarDiv => write!(f, "scalar_div"),
+        }
+    }
+}
+
+impl fmt::Display for EqOp {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
             Self::Eq => write!(f, "=="),
             Self::Ne => write!(f, "!="),
         }

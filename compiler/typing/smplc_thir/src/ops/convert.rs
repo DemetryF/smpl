@@ -32,39 +32,39 @@ impl From<BinOp> for lir::BinOp {
             }
 
             BinOp::Eq(op, LinearType::Number(NumberType::Complex)) => match op {
-                EqOp::Eq => lir::BinOp::F32s(lir::Dims::X2, lir::F32sOp::Eq),
-                EqOp::Ne => lir::BinOp::F32s(lir::Dims::X2, lir::F32sOp::Ne),
+                EqOp::Eq => lir::BinOp::F32sRel(lir::Dims::X2, lir::EqOp::Eq),
+                EqOp::Ne => lir::BinOp::F32sRel(lir::Dims::X2, lir::EqOp::Ne),
             },
 
             BinOp::Eq(op, LinearType::Number(ty)) => {
                 let op = match op {
-                    EqOp::Eq => lir::ArithmOp::Eq,
-                    EqOp::Ne => lir::ArithmOp::Ne,
+                    EqOp::Eq => lir::RelOp::Eq,
+                    EqOp::Ne => lir::RelOp::Ne,
                 };
 
                 match ty {
-                    NumberType::Real => lir::BinOp::Real(op),
-                    NumberType::Int => lir::BinOp::Int(op),
+                    NumberType::Real => lir::BinOp::RealRel(op),
+                    NumberType::Int => lir::BinOp::IntRel(op),
                     NumberType::Complex => unreachable!(),
                 }
             }
 
             BinOp::Eq(op, LinearType::Vec(ty)) => match op {
-                EqOp::Eq => lir::BinOp::F32s(ty.dims(), lir::F32sOp::Eq),
-                EqOp::Ne => lir::BinOp::F32s(ty.dims(), lir::F32sOp::Ne),
+                EqOp::Eq => lir::BinOp::F32sRel(ty.dims(), lir::EqOp::Eq),
+                EqOp::Ne => lir::BinOp::F32sRel(ty.dims(), lir::EqOp::Ne),
             },
 
             BinOp::Ord(op, ty) => {
                 let op = match op {
-                    OrdOp::Gt => lir::ArithmOp::Gt,
-                    OrdOp::Ge => lir::ArithmOp::Ge,
-                    OrdOp::Lt => lir::ArithmOp::Lt,
-                    OrdOp::Le => lir::ArithmOp::Le,
+                    OrdOp::Gt => lir::RelOp::Gt,
+                    OrdOp::Ge => lir::RelOp::Ge,
+                    OrdOp::Lt => lir::RelOp::Lt,
+                    OrdOp::Le => lir::RelOp::Le,
                 };
 
                 match ty {
-                    NumberType::Real => lir::BinOp::Real(op),
-                    NumberType::Int => lir::BinOp::Int(op),
+                    NumberType::Real => lir::BinOp::RealRel(op),
+                    NumberType::Int => lir::BinOp::IntRel(op),
                     NumberType::Complex => unreachable!(),
                 }
             }

@@ -5,6 +5,9 @@ pub enum BinOp {
     Int(ArithmOp),
     Real(ArithmOp),
     F32s(Dims, F32sOp),
+    IntRel(RelOp),
+    RealRel(RelOp),
+    F32sRel(Dims, EqOp),
     ComplexMul,
     ComplexDiv,
 }
@@ -12,34 +15,15 @@ pub enum BinOp {
 impl BinOp {
     pub fn ty(self) -> Type {
         match self {
-            Self::Int(ArithmOp::Add | ArithmOp::Sub | ArithmOp::Mul | ArithmOp::Div) => Type::Int,
-            Self::Real(ArithmOp::Add | ArithmOp::Sub | ArithmOp::Mul | ArithmOp::Div) => Type::Real,
-
-            Self::Int(
-                ArithmOp::Eq
-                | ArithmOp::Ne
-                | ArithmOp::Le
-                | ArithmOp::Lt
-                | ArithmOp::Ge
-                | ArithmOp::Gt,
-            ) => Type::Int,
-
-            Self::Real(
-                ArithmOp::Eq
-                | ArithmOp::Ne
-                | ArithmOp::Le
-                | ArithmOp::Lt
-                | ArithmOp::Ge
-                | ArithmOp::Gt,
-            ) => Type::Int,
-
-            Self::F32s(dims, F32sOp::Add | F32sOp::Sub | F32sOp::ScalarDiv | F32sOp::ScalarMul) => {
-                dims.ty()
-            }
-
-            Self::F32s(_, F32sOp::Eq | F32sOp::Ne) => Type::Int,
+            Self::Int(..) => Type::Int,
+            Self::Real(..) => Type::Real,
+            Self::F32s(dims, ..) => dims.ty(),
 
             Self::ComplexMul | Self::ComplexDiv => Type::F32x2,
+
+            Self::IntRel(..) => Type::Int,
+            Self::RealRel(..) => Type::Int,
+            Self::F32sRel(..) => Type::Int,
         }
     }
 }
@@ -50,6 +34,18 @@ pub enum ArithmOp {
     Sub,
     Mul,
     Div,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum F32sOp {
+    Add,
+    Sub,
+    ScalarMul,
+    ScalarDiv,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum RelOp {
     Eq,
     Ne,
     Lt,
@@ -59,11 +55,7 @@ pub enum ArithmOp {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub enum F32sOp {
-    Add,
-    Sub,
-    ScalarMul,
-    ScalarDiv,
+pub enum EqOp {
     Eq,
     Ne,
 }
